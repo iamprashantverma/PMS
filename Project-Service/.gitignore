@@ -30,6 +30,5 @@ build/
 !**/src/test/**/build/
 
 ### Application Properties and sensitive info ###
-/src/main/resources/application.properties
-/src/main/resources/application.yml
+/src/main/resources
 /src/test
