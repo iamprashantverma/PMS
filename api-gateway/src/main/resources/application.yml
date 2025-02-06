@@ -1,0 +1,33 @@
+spring.application.name: api-gateway
+
+server.port: 8080
+
+jwt.secretKey: qwertyuiopasdfghjklzxcvbnm0123456789
+
+#service registration
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: Project-Service
+#          uri: http://localhost:9020
+          uri: lb://Project-Service
+          predicates:
+            - Path=/api/v2/project/**
+          filters:
+            - StripPrefix=2
+
+        - id: Task-Service
+          uri: lb://Task-Service
+          predicates:
+            - Path=/api/v3/task/**
+          filters:
+            - StripPrefix=2
+
+
+#eureka register
+eureka.client.service-url.defaultZone: http://localhost:8761/eureka/
+eureka.instance.hostname: localhost
+eureka.client.register-with-eureka: true
+eureka.client.fetch.registry: true

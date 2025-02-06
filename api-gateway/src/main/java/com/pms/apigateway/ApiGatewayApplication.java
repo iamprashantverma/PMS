@@ -1,14 +1,14 @@
-package com.pms.projectservice;
+package com.pms.apigateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ProjectServiceApplication {
+public class ApiGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ProjectServiceApplication.class, args);
-		System.out.println("Project service is Running");
+		SpringApplication.run(ApiGatewayApplication.class, args);
+		System.out.println("Api Gateway is running");
 	}
 
 }
