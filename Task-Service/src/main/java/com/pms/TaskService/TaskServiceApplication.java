@@ -1,14 +1,13 @@
-package com.pms.projectservice;
+package com.pms.TaskService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ProjectServiceApplication {
+public class TaskServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ProjectServiceApplication.class, args);
-		System.out.println("Project service is Running");
+		SpringApplication.run(TaskServiceApplication.class, args);
 	}
 
 }
