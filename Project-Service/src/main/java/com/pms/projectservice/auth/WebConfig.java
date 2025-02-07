@@ -11,11 +11,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 public class WebConfig implements WebMvcConfigurer {
 
-//    @Autowired
-//    private  UserInterceptor userInterceptor;
-//
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(userInterceptor);
-//    }
+    @Autowired
+    private  UserInterceptor userInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(userInterceptor);
+    }
 }
