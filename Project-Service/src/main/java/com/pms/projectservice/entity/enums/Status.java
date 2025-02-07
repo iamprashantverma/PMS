@@ -1,5 +1,5 @@
 package com.pms.projectservice.entity.enums;
 
-public enum ProjectStatus {
+public enum Status {
     INPLANNED, INPROGRESS, COMPLETED, ONHOLD, CANCELED, DELIVERED;
 }
