@@ -10,6 +10,13 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: User-Service
+          uri: lb://User-Service
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - StripPrefix=2
+            -
         - id: Project-Service
 #          uri: http://localhost:9020
           uri: lb://Project-Service

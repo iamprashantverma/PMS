@@ -21,36 +21,36 @@ import java.util.List;
 @Configuration
 public class WebSecurityConfig {
 
-    private final JWTFilter jwtFilter;
-
-    /* public routes eg login , signup , password reset.. */
-    private static final String [] publicRoutes = {
-            "/auth/**"
-    };
-
-
-    /* Custom Bean of the Security Filter Chain */
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return  http
-                    .cors(cors -> cors.configurationSource(request -> {
-                        var config = new org.springframework.web.cors.CorsConfiguration();
-                            config.setAllowedOrigins(List.of("http://localhost:3000"));
-                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "multipart/form-data"));
-                            config.setAllowCredentials(true);
-                            return config;
-                        }))
-
-                    .authorizeHttpRequests(req->req
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated())
-                        .csrf(AbstractHttpConfigurer::disable)
-                        .sessionManagement(sessionConfig->sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                    .build();
-
-    }
+//    private final JWTFilter jwtFilter;
+//
+//    /* public routes eg login , signup , password reset.. */
+//    private static final String [] publicRoutes = {
+//            "/auth/**"
+//    };
+//
+//
+//    /* Custom Bean of the Security Filter Chain */
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        return  http
+//                    .cors(cors -> cors.configurationSource(request -> {
+//                        var config = new org.springframework.web.cors.CorsConfiguration();
+//                            config.setAllowedOrigins(List.of("http://localhost:3000"));
+//                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//                            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "multipart/form-data"));
+//                            config.setAllowCredentials(true);
+//                            return config;
+//                        }))
+//
+//                    .authorizeHttpRequests(req->req
+//                        .requestMatchers("/auth/**").permitAll()
+//                        .anyRequest().authenticated())
+//                        .csrf(AbstractHttpConfigurer::disable)
+//                        .sessionManagement(sessionConfig->sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+//                    .build();
+//
+//    }
 
 
 }
