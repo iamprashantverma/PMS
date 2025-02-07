@@ -11,5 +11,6 @@ public enum Roles {
     TESTER,
     QA,
     HR,
-    SUPPORT
+    SUPPORT,
+    USER
 }

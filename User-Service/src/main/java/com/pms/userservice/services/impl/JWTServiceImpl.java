@@ -32,7 +32,7 @@ public class JWTServiceImpl implements JWTService {
     public String generateAccessToken(User user ) {
         return Jwts.builder()
                 .subject(user.getUserId())
-                .claim("roles",user.getRoles())
+                .claim("roles",user.getRole())
                 .claim("email",user.getEmail())
                 .claim("name",user.getName())
                 .issuedAt(new Date())
@@ -54,14 +54,14 @@ public class JWTServiceImpl implements JWTService {
 
     }
 
-    /* Validate the token and return the userId */
-    public String getUserIdFromToken(String bearerToken) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSecretKey())
-                .build()
-                .parseSignedClaims(bearerToken)
-                .getPayload();
-        return claims.getSubject();
-    }
+//    /* Validate the token and return the userId */
+//    public String getUserIdFromToken(String bearerToken) {
+//        Claims claims = Jwts.parser()
+//                .verifyWith(getSecretKey())
+//                .build()
+//                .parseSignedClaims(bearerToken)
+//                .getPayload();
+//        return claims.getSubject();
+//    }
 
 }

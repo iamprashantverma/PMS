@@ -1,46 +1,68 @@
 package com.pms.userservice.entities;
 
 import com.pms.userservice.entities.enums.Roles;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.pms.userservice.entities.enums.Status;
+import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Collection;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "user")
-public class User implements UserDetails {
+@Table(name = "users")
+public class User {
 
+    private static  final String PREFIX = "DEV-";
     @Id
     private String userId;
 
-    private Set<Roles> roles;
-    private String email;
+    @PrePersist
+    private void generateUserId() {
+        this.userId = PREFIX + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
+
     private String name;
+    private String password;
+    private String email;
+    private String image;
+    private String phoneNo;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Roles role;
 
-    @Override
-    public String getPassword() {
-        return "";
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Status status;
+    private LocalDate dob;
+    private LocalDateTime lastLoginTime;
+    private String address;
+    private String gender;
 
-    @Override
-    public String getUsername() {
-        return "";
-    }
+    @ElementCollection
+    @CollectionTable(name = "user_projects", joinColumns = @JoinColumn(name = "user_id"))
+    private List<String> projectId;
 
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
+    @ElementCollection
+    @CollectionTable(name = "user_tasks", joinColumns = @JoinColumn(name = "user_id"))
+    private List<String> taskId;
+
+    private String language;
+
+    @CreationTimestamp
+    private LocalDateTime creationDate;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<Session> sessions;
+
+
 }

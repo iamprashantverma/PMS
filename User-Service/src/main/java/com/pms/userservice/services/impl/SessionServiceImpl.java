@@ -5,6 +5,7 @@ import com.pms.userservice.entities.User;
 import com.pms.userservice.exceptions.ResourceNotFound;
 import com.pms.userservice.repositories.SessionRepository;
 import com.pms.userservice.services.SessionService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class SessionServiceImpl implements SessionService {
     private final  static Integer  SESSION_LIMIT = 1;
 
     @Override
+    @Transactional
     public void generateNewSession(User user, String refreshToken) {
         /* get the all active session of the user */
         List<Session> userSessions = sessionRepository.findByUser(user);
@@ -32,11 +34,13 @@ public class SessionServiceImpl implements SessionService {
             sessionRepository.delete(lastRecentSession);
         }
 
+//        log.info("user:{}",user);
         /* creating the new Session */
         Session session = Session.builder()
                 .user(user)
                 .refreshToken(refreshToken)
                 .build();
+//        log.info("session :{}",session);
         /* persist the new session into the database */
         sessionRepository.save(session);
     }

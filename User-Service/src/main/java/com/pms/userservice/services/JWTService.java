@@ -7,5 +7,5 @@ public interface JWTService {
 
     public String generateAccessToken(User user);
     public String generateRefreshToken(User user);
-    public String getUserIdFromToken(String token);
+    //    public String getUserIdFromToken(String token);
 }
