@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FeinClientInterceptor implements RequestInterceptor {
+
     @Override
     public void apply(RequestTemplate requestTemplate) {
         String userId = UserContextHolder.getCurrentUserId();
@@ -14,4 +15,7 @@ public class FeinClientInterceptor implements RequestInterceptor {
             requestTemplate.header("X-User-Id", userId);
         }
     }
+
+
+
 }

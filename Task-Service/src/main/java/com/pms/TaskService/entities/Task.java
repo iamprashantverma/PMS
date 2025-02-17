@@ -1,4 +1,4 @@
-package com.pms.TaskService.entity;
+package com.pms.TaskService.entities;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -11,11 +11,14 @@ import java.util.List;
 @DiscriminatorValue("TASK")
 public class Task extends Issue {
 
-    private boolean isBlocking;  // If this task is preventing others from progressing
+    // If this task is preventing others from progressing
+    private boolean isBlocking;
 
+    // Tasks that this task is blocking
     @OneToMany
     @JoinColumn(name = "blocked_by_task_id")
-    private List<Task> blockedTasks;  // Tasks that this task is blocking
+    private List<Task> blockedTasks;
+
 
 }
 

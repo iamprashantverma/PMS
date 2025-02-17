@@ -1,9 +1,9 @@
-package com.pms.TaskService.entity;
+package com.pms.TaskService.entities;
 
 
-import com.pms.TaskService.entity.enums.IssueTag;
-import com.pms.TaskService.entity.enums.Priority;
-import com.pms.TaskService.entity.enums.Status;
+import com.pms.TaskService.entities.enums.IssueTag;
+import com.pms.TaskService.entities.enums.Priority;
+import com.pms.TaskService.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
