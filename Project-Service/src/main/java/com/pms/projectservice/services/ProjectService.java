@@ -1,36 +1,34 @@
 package com.pms.projectservice.services;
 
 import com.pms.projectservice.dto.ProjectDTO;
-import com.pms.projectservice.entity.enums.Priority;
-import com.pms.projectservice.entity.enums.Status;
+import com.pms.projectservice.entities.enums.Priority;
+import com.pms.projectservice.entities.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface ProjectService {
 
-    public ProjectDTO createProject(ProjectDTO projectDTO);
+    ProjectDTO createProject(ProjectDTO projectDTO);
 
-    public ProjectDTO getProjectById(String projectId);
+    ProjectDTO getProjectById(String projectId);
 
-    public ProjectDTO deleteProject(String projectId);
+    ProjectDTO deleteProject(String projectId);
 
-    public ProjectDTO updateProject(ProjectDTO projectDTO);
+    ProjectDTO updateProject(String projectId, Map<String, Object> info);
 
-    public List<ProjectDTO> getAllProjectByUserId(String userId);
+    ProjectDTO extendProjectDeadline(String projectId, LocalDateTime localDateTime);
 
-    public String extendProjectDeadline(LocalDateTime localDateTime);
+    ProjectDTO setProjectStatus(String projectId, Status status);
 
-    public String setProjectStatus(Status status);
+    ProjectDTO setProjectPriority(String projectId, Priority priority);
 
+    ProjectDTO addMembersToProject(String projectId, List<String> members);
 
-    public String setProjectPriority(Priority priority);
+    ProjectDTO removeUserFromProject(String projectId, String userId);
 
-    public String addMemberOnProject(String member);
-    public String removeUserFromProject(String projectId, String userId);
+    List<ProjectDTO> getProjectsByStatus(Status status);
 
-
-    public List<ProjectDTO> getProjectsByStatus(Status status);
-
-    public List<ProjectDTO> searchProjectsByTitle(String title);
+    List<ProjectDTO> searchProjectsByTitle(String title);
 }
