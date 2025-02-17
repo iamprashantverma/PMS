@@ -1,4 +1,4 @@
-package com.pms.projectservice.auth;
+package com.pms.TaskService.auth;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

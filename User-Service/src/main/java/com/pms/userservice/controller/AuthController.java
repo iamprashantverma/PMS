@@ -1,9 +1,6 @@
 package com.pms.userservice.controller;
 
-import com.pms.userservice.dto.LoginRequestDTO;
-import com.pms.userservice.dto.LoginResponseDTO;
-import com.pms.userservice.dto.ResponseDTO;
-import com.pms.userservice.dto.UserDTO;
+import com.pms.userservice.dto.*;
 import com.pms.userservice.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.example.dto.ForgetPasswordDTO;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -44,6 +41,20 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
 
         return ResponseEntity.ok(loginResponse);
+    }
+
+    /* send the otp to their email address */
+    @PostMapping("/otp")
+    public ResponseEntity<ResponseDTO> sendOtp(@RequestBody ForgetPasswordDTO forgetPasswordDTO) {
+        ResponseDTO res = authService.sendOtp(forgetPasswordDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    /* verify the token and reset their password */
+    @PostMapping("/verify")
+    public ResponseEntity<ResponseDTO> verifyOtp(@RequestBody VerifyResetPasswordDTO verifyResetPasswordDTO) {
+        ResponseDTO res = authService.verifyOtp(verifyResetPasswordDTO);
+        return ResponseEntity.ok(res);
     }
 
 }

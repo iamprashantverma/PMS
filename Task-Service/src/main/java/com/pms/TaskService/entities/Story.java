@@ -1,4 +1,4 @@
-package com.pms.TaskService.entity;
+package com.pms.TaskService.entities;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

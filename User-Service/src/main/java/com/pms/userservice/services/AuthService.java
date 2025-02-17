@@ -1,9 +1,6 @@
 package com.pms.userservice.services;
 
-import com.pms.userservice.dto.LoginRequestDTO;
-import com.pms.userservice.dto.LoginResponseDTO;
-import com.pms.userservice.dto.ResponseDTO;
-import com.pms.userservice.dto.UserDTO;
+import com.pms.userservice.dto.*;
 import jakarta.transaction.Transactional;
 import org.apache.hc.client5.http.auth.InvalidCredentialsException;
 
@@ -21,7 +18,11 @@ public interface AuthService {
     /* handle logout and delete the session*/
     void logout(String refreshToken) ;
 
+    /* verify sent  otp and reset the password */
+    @Transactional
+    ResponseDTO verifyOtp(VerifyResetPasswordDTO verifyResetPasswordDTO);
 
-
-
+    /* send the password reset otp to user email */
+    @Transactional
+    ResponseDTO sendOtp(com.example.dto.ForgetPasswordDTO forgetPasswordDTO);
 }

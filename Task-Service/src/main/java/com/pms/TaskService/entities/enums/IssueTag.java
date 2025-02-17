@@ -1,4 +1,4 @@
-package com.pms.TaskService.entity.enums;
+package com.pms.TaskService.entities.enums;
 
 public enum IssueTag {
     FRONTEND, BACKEND;
