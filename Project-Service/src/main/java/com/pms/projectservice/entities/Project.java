@@ -45,19 +45,14 @@ public class Project {
     private String projectCreator;
     private String clientId;
 
-    @ElementCollection
     private List<String> membersId = new ArrayList<>();
 
-    @ElementCollection
     private List<String> taskId = new ArrayList<>();
 
-    @ElementCollection
     private List<String> milestoneId = new ArrayList<>();
 
-    @ElementCollection
     private List<String> chatRoomId = new ArrayList<>();
 
-    @ElementCollection
     private List<String> documentId = new ArrayList<>();
 
 
