@@ -1,0 +1,49 @@
+type Query{
+    getTaskById(taskId : ID!): Task
+    getAllTaskByProjectId(projectId : ID!) : [Task]
+}
+
+type Mutation{
+    createTask(task: TaskDTO): Task
+    deleteTask(taskId: ID!) : Boolean
+    updateTask(task: TaskDTO) : Task
+    setTaskStatus(status: Status) : String
+    setTaskPriority(priority: Priority) : String
+}
+
+type Task{
+    title: String
+    description: String
+    createrId: String
+    status: Status
+    priority: Priority
+    tag: IssueTag
+    completionPercent: Int
+    memberId : [String]
+}
+
+input TaskDTO{
+    title: String
+    description: String
+    createrId: String
+    status: Status
+    priority: Priority
+    tag: IssueTag
+    completionPercent: Int
+}
+
+
+enum Status {
+    INPLANNED, INPROGRESS, COMPLETED, ONHOLD, CANCELED, INQA, DELIVERED
+}
+
+# Enum for Priority
+enum Priority {
+    LOW, MEDIUM, HIGH, CRITICAL
+}
+
+# Enum for IssueTag
+enum IssueTag {
+    FRONTEND
+    BACKEND
+}

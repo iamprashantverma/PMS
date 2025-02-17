@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 @DiscriminatorValue("SUBTASK")
 public class SubTask extends  Issue{
 
-    @ManyToOne
-    @JoinColumn(name = "parent_task_id")
-    private Task parentTask;
+//    @ManyToOne
+//    @JoinColumn(name = "parent_task_id")
+//    private Task parentTask;
 }
