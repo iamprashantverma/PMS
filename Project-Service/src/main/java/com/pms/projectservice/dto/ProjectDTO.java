@@ -1,7 +1,7 @@
 package com.pms.projectservice.dto;
 
-import com.pms.projectservice.entity.enums.Priority;
-import com.pms.projectservice.entity.enums.Status;
+import com.pms.projectservice.entities.enums.Priority;
+import com.pms.projectservice.entities.enums.Status;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class ProjectDTO {
 
     private LocalDateTime extendedDate;
 
-    @NotNull(message = "Project status is required")
+//  @NotNull(message = "Project status is required")
     private Status status;
 
     @NotNull(message = "Project priority is required")
@@ -52,5 +52,4 @@ public class ProjectDTO {
     private List<String> milestoneId;
     private List<String> chatRoomId;
     private List<String> documentId;
-    private List<String> updations;
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, String> {
-    List<Task> findAllByProjectId(String projectId);
+    List<Task> findAllByProject(String project);
 }

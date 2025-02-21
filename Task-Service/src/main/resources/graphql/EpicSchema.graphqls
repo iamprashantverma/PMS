@@ -1,0 +1,42 @@
+extend type Mutation{
+    createEpic(epic:EpicInputDTO) : EpicDTO
+    deleteEpic(epicId:String): EpicDTO
+}
+
+extend type Query{
+    getEpicById(epicId:String): EpicDTO
+}
+
+
+type EpicDTO {
+    id : ID!
+    title: String
+    description: String
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
+
+    epicGoal : String
+    stories : [StoryDTO]
+    tasks : [TaskDTO]
+}
+
+input EpicInputDTO{
+    title: String
+    description: String
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
+
+    epicGoal : String
+}

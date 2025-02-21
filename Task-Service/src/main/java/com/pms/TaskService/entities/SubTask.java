@@ -1,16 +1,22 @@
 package com.pms.TaskService.entities;
 
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @DiscriminatorValue("SUBTASK")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SubTask extends  Issue{
 
-//    @ManyToOne
-//    @JoinColumn(name = "parent_task_id")
-//    private Task parentTask;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "taskId",referencedColumnName = "id")
+    private Task parentTask;
 }

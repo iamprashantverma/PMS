@@ -1,13 +1,12 @@
 package com.pms.TaskService.entities;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.action.internal.OrphanRemovalAction;
 
 import java.util.List;
 
@@ -22,10 +21,17 @@ public class Task extends Issue {
     // If this task is preventing others from progressing
     private boolean isBlocking;
     private List<String> memberId;
+
+
     // Tasks that this task is blocking
-//    @OneToMany
-//    @JoinColumn(name = "blocked_by_task_id")
-//    private List<Task> blockedTasks;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "epicId",referencedColumnName = "id")
+    @JsonIgnore
+    private Epic epic;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SubTask> subTasks;
 
 
 }

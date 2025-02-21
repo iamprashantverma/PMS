@@ -1,49 +1,50 @@
-type Query{
-    getTaskById(taskId : ID!): Task
-    getAllTaskByProjectId(projectId : ID!) : [Task]
+
+extend type Query{
+    getTaskById(taskId : ID!): TaskDTO
+    getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
 }
 
-type Mutation{
-    createTask(task: TaskDTO): Task
+extend type Mutation{
+    createTask(task: TaskInputDTO): TaskDTO
     deleteTask(taskId: ID!) : Boolean
-    updateTask(task: TaskDTO) : Task
-    setTaskStatus(status: Status) : String
-    setTaskPriority(priority: Priority) : String
+    updateTask(task: TaskInputDTO) : TaskDTO
+    addTaskOnEpic(epicId: ID!, taskId:ID!) : ResponseDTO
 }
 
-type Task{
+
+type TaskDTO {
+    id : ID!
     title: String
     description: String
-    createrId: String
-    status: Status
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
     priority: Priority
     tag: IssueTag
-    completionPercent: Int
+
+    isBlocking : Boolean
+    memberId : [String]
+    epic : EpicDTO
+    subTasks : [SubTaskDTO]
+}
+
+input TaskInputDTO{
+    title: String
+    description: String
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
+
+    isBlocking : Boolean
     memberId : [String]
 }
 
-input TaskDTO{
-    title: String
-    description: String
-    createrId: String
-    status: Status
-    priority: Priority
-    tag: IssueTag
-    completionPercent: Int
-}
 
-
-enum Status {
-    INPLANNED, INPROGRESS, COMPLETED, ONHOLD, CANCELED, INQA, DELIVERED
-}
-
-# Enum for Priority
-enum Priority {
-    LOW, MEDIUM, HIGH, CRITICAL
-}
-
-# Enum for IssueTag
-enum IssueTag {
-    FRONTEND
-    BACKEND
-}

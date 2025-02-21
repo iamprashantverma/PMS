@@ -1,14 +1,18 @@
 package com.pms.TaskService.services;
 
 import com.pms.TaskService.dto.IssueDTO;
+import com.pms.TaskService.dto.ResponseDTO;
+import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.entities.enums.IssueStatus;
 
 public interface IssueService {
 
-     String setIssueStatus(String issueId, Status status);
+    public ResponseDTO updateIssueStatus(String issueId, IssueStatus status);
 
-    String setIssuePriority(String issueId, Priority priority);
+    public ResponseDTO updateIssuePriority(String issueId, Priority priority);
 
-    IssueDTO getIssueById(String id);
+    public IssueDTO getIssueById(String id);
+
+    public ResponseDTO updateIssueTag(String issueId, IssueTag tag);
 }

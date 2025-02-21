@@ -1,65 +1,59 @@
 package com.pms.TaskService.resolver;
 
 
+import com.pms.TaskService.dto.IssueDTO;
+import com.pms.TaskService.dto.ResponseDTO;
+import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.entities.enums.IssueStatus;
 import com.pms.TaskService.services.IssueService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
+@Controller
 public class IssueResolver {
 
 
     private final IssueService issueService;
-    @MutationMapping
-    public ResponseEntity<String> setIssueStatus(@Argument String issueId, @Argument("status") Status status){
-        String response = issueService.setIssueStatus(issueId, status);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    /* get issue by id */
+    @QueryMapping("getIssueById")
+    public IssueDTO getIssueById(@Argument String issueId){
+        return issueService.getIssueById(issueId);
     }
 
-    @MutationMapping
-    public ResponseEntity<String> setIssuePriority(@Argument String issueId, @Argument("status") Priority priority){
-        String response = issueService.setIssuePriority(issueId, priority);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    /* update Issue status */
+    @MutationMapping("updateIssueStatus")
+    public ResponseDTO updateIssueStatus(@Argument String issueId, @Argument("status") IssueStatus status){
+        return issueService.updateIssueStatus(issueId, status);
     }
+
+    /* update Issue priority */
+    @MutationMapping("updateIssuePriority")
+    public ResponseDTO updateIssuePriority(@Argument String issueId, @Argument("status") Priority priority){
+        return issueService.updateIssuePriority(issueId, priority);
+    }
+
+    /* update Issue Tag */
+    @MutationMapping("updateIssueTag")
+    public ResponseDTO updateIssueTag(@Argument String issueId, @Argument("tag") IssueTag tag){
+        return issueService.updateIssueTag(issueId, tag);
+    }
+
+
+
 
 
 }
 
 
-//type Query{
-//getTaskById(taskId : ID!): Task
-//getAllTaskByProjectId(projectId : ID!) : [Task]
-//        }
-//
-//type Mutation{
-//setIssueStatus(issueId : ID!, status: Status) : String
-//setIssuePriority(issueId : ID!, priority: Priority) : String
-//}
-//
-//type Issue{
-//title: String
-//description: String
-//createrId: String
-//status: Status
-//priority: Priority
-//tag: IssueTag
-//completionPercent: Int
-//memberId : [String]
-//        }
-//
-//input IssueDTO{
-//title: String
-//description: String
-//createrId: String
-//status: Status
-//priority: Priority
-//tag: IssueTag
-//completionPercent: Int
-//}

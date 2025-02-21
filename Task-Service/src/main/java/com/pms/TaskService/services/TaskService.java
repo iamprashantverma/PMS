@@ -1,15 +1,12 @@
 package com.pms.TaskService.services;
 
+import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
-import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.Status;
 
 import java.util.List;
 
-public interface TaskServices {
+public interface TaskService {
     public TaskDTO createTask(TaskDTO taskDTO);
-
-
 
     TaskDTO getTaskById(String taskId);
 
@@ -20,4 +17,5 @@ public interface TaskServices {
     List<TaskDTO> getAllTaskByProjectId(String projectId);
 
 
+    ResponseDTO addTaskOnEpic(String epicId, String taskId);
 }

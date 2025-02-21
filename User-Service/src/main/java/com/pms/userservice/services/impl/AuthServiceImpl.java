@@ -1,9 +1,7 @@
 package com.pms.userservice.services.impl;
 
-import com.pms.userservice.dto.LoginRequestDTO;
-import com.pms.userservice.dto.LoginResponseDTO;
-import com.pms.userservice.dto.ResponseDTO;
-import com.pms.userservice.dto.UserDTO;
+import com.example.dto.ForgetPasswordDTO;
+import com.pms.userservice.dto.*;
 import com.pms.userservice.entities.User;
 import com.pms.userservice.entities.enums.Roles;
 import com.pms.userservice.entities.enums.Status;
@@ -95,6 +93,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String refreshToken) {
         sessionService.deleteSession(refreshToken);
+    }
+
+    @Override
+    public ResponseDTO verifyOtp(VerifyResetPasswordDTO verifyResetPasswordDTO) {
+        return null;
+    }
+
+    @Override
+    public ResponseDTO sendOtp(ForgetPasswordDTO forgetPasswordDTO) {
+        return null;
     }
 
 

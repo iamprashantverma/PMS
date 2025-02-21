@@ -1,0 +1,40 @@
+extend type Query{
+    getSubTaskById(subTaskId : ID!): SubTaskDTO
+
+}
+
+extend type Mutation{
+    createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
+    deleteSubTask(subTaskId: ID!) : ResponseDTO
+    updateSubTask(subTask: SubTaskInputDTO) : SubTaskDTO
+    addSubTaskOnTask(taskId: ID!, subTaskId:ID!) : ResponseDTO
+}
+
+type SubTaskDTO {
+    id : ID!
+    title: String
+    description: String
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
+
+    parentTask : TaskDTO
+}
+
+input SubTaskInputDTO{
+    title: String
+    description: String
+    project: String
+    assignees: [String]
+    creator: String
+    createdDate: String
+    updatedDate: String
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
+}
