@@ -1,0 +1,5 @@
+type Query  {
+    getProject(projectId: String!): Project
+}
+
+

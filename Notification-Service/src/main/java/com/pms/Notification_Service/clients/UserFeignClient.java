@@ -11,4 +11,7 @@ public interface UserFeignClient {
 
     @GetMapping("/details")
     APIResponse<UserDTO> getUserById(@RequestParam("userId") String userId);
+
+
+
 }

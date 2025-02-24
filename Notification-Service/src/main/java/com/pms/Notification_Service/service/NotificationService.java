@@ -71,4 +71,6 @@ public class NotificationService {
 //            log.error("Failed to send email for TASK_COMPLETED event, Task ID: {}", event.getTaskId(), e);
 //        }
     }
+
+
 }
