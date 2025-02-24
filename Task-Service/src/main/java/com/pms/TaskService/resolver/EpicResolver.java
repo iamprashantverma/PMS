@@ -22,7 +22,7 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class EpicResolver {
 
-    private final EpicService epicService;
+    private EpicService epicService;
 
     /* Creating epic */
     @MutationMapping("createEpic")

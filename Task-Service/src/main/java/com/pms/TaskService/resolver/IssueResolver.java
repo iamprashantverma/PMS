@@ -1,14 +1,17 @@
 package com.pms.TaskService.resolver;
 
 
+import com.netflix.discovery.converters.Auto;
 import com.pms.TaskService.dto.IssueDTO;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.IssueStatus;
+
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.IssueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -23,8 +26,8 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class IssueResolver {
 
-
-    private final IssueService issueService;
+    @Autowired
+    private  IssueService issueService;
 
     /* get issue by id */
     @QueryMapping("getIssueById")
@@ -34,7 +37,7 @@ public class IssueResolver {
 
     /* update Issue status */
     @MutationMapping("updateIssueStatus")
-    public ResponseDTO updateIssueStatus(@Argument String issueId, @Argument("status") IssueStatus status){
+    public ResponseDTO updateIssueStatus(@Argument String issueId, @Argument("status") Status status){
         return issueService.updateIssueStatus(issueId, status);
     }
 

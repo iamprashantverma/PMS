@@ -9,7 +9,7 @@ import static com.pms.TaskService.configs.KafkaConfig.KAFKA_TASK_SERVICE_TOPIC;
 
 @Service
 @Slf4j
-public class TaskEvenProducer {
+public class TaskEventProducer {
 
         private KafkaTemplate<String, TaskEvent> kafkaTemplate;
 

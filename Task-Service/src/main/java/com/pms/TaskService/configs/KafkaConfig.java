@@ -10,7 +10,7 @@ public class KafkaConfig {
     public static String KAFKA_TASK_SERVICE_TOPIC = "task-topic";
     @Bean
     public NewTopic getNewTopic(){
-        return  new NewTopic(KAFKA_TASK_SERVICE_TOPIC,2, (short)2);
+        return  new NewTopic(KAFKA_TASK_SERVICE_TOPIC,2, (short)1);
     }
 }
 

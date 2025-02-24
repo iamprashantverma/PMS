@@ -8,9 +8,10 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaConfig {
 
     public static String KAFKA_PROJECT_SERVICE_TOPIC = "project-topic";
+
     @Bean
     public NewTopic getNewTopic(){
-        return  new NewTopic(KAFKA_PROJECT_SERVICE_TOPIC,2, (short)2);
+        return  new NewTopic(KAFKA_PROJECT_SERVICE_TOPIC,2, (short)1);
     }
 }
 

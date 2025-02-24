@@ -3,12 +3,11 @@ package com.pms.TaskService.services.impl;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.Epic;
-import com.pms.TaskService.entities.Story;
 import com.pms.TaskService.entities.Task;
 import com.pms.TaskService.event.EventType;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.exceptions.ResourceNotFound;
-import com.pms.TaskService.producer.TaskEvenProducer;
+import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.TaskRepository;
 import com.pms.TaskService.services.TaskService;
@@ -27,7 +26,7 @@ public class TaskServiceImpl implements TaskService {
     private final ModelMapper modelMapper;
     private final TaskRepository taskRepository;
     private final EpicRepository epicRepository;
-    private final TaskEvenProducer taskEvenProducer;
+    private final TaskEventProducer taskEventProducer;
 
     /* create the new  Task Event of type TASK_CREATED_EVENT */
     public static TaskEvent getTaskCreatedEvent(Task task) {
@@ -59,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
         /* creating the taskEvent  */
         TaskEvent event = getTaskCreatedEvent(task);
         /* send the event */
-        taskEvenProducer.sendTaskEvent(event);
+        taskEventProducer.sendTaskEvent(event);
 
         /* return the saved task */
         return modelMapper.map(savedTask, TaskDTO.class);

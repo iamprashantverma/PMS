@@ -1,7 +1,7 @@
 package com.pms.TaskService.dto;
 
 
-import com.pms.TaskService.entities.enums.IssueStatus;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
 import lombok.*;
@@ -22,7 +22,7 @@ public class IssueInputDTO {
     private String creater;  // Creator of the issue
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    private IssueStatus status;  // Status (e.g., TODO, IN_PROGRESS, DONE)
+    private Status status;  // Status (e.g., TODO, IN_PROGRESS, DONE)
     private Priority priority;  // Priority (LOW, HIGH)
     private Long completionPercent;
     private IssueTag tag;  // Frontend or backend

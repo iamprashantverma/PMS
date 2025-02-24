@@ -5,7 +5,8 @@ import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.Issue;
 import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.IssueStatus;
+
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 import com.pms.TaskService.repository.IssueRepository;
 import com.pms.TaskService.services.IssueService;
@@ -28,7 +29,7 @@ public class IssueServiceImpl implements IssueService {
 
 
     @Override
-    public ResponseDTO updateIssueStatus(String issueId, IssueStatus status) {
+    public ResponseDTO updateIssueStatus(String issueId, Status status) {
         Issue issue = issueRepository.findById(issueId)
                         .orElseThrow(()-> new ResourceNotFound("Issue not found with id "+issueId));
         issue.setStatus(status);
