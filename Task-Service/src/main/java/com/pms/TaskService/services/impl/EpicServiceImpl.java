@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import static com.pms.TaskService.services.impl.TaskServiceImpl.getTaskCreatedEvent;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,6 +40,7 @@ public class EpicServiceImpl implements EpicService {
         Epic epic = modelMapper.map(inputEpic, Epic.class);
         Epic savedEpic = epicRepository.save(epic);
         log.info("Epic created with title {}", savedEpic.getTitle());
+
         //TODO add current user as creater and add belong project
         return modelMapper.map(savedEpic, EpicDTO.class);
     }

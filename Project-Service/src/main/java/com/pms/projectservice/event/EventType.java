@@ -1,0 +1,12 @@
+package com.pms.projectservice.event;
+
+public enum EventType {
+    PROJECT_CREATED,
+    MEMBER_ASSIGNED,
+    STATUS_UPDATED,
+    PROJECT_UPDATED,
+    PROJECT_COMPLETED,
+    PRIORITY_UPDATED,
+    MEMBER_REMOVED,
+    PROJECT_DEADLINE_EXTENDED
+}

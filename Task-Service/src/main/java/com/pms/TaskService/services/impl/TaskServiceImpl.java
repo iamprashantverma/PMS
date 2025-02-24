@@ -30,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskEvenProducer taskEvenProducer;
 
     /* create the new  Task Event of type TASK_CREATED_EVENT */
-    private static TaskEvent getTaskCreatedEvent(Task task) {
+    public static TaskEvent getTaskCreatedEvent(Task task) {
         return TaskEvent.builder()
                 .eventType(EventType.TASK_CREATED)
                 .title(task.getTitle())

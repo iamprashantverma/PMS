@@ -5,7 +5,10 @@ import com.pms.projectservice.dto.ProjectDTO;
 import com.pms.projectservice.entities.Project;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
+import com.pms.projectservice.event.EventType;
+import com.pms.projectservice.event.ProjectEvent;
 import com.pms.projectservice.exceptions.ResourceNotFound;
+import com.pms.projectservice.producer.ProjectEventProducer;
 import com.pms.projectservice.repositories.ProjectRepository;
 import com.pms.projectservice.services.ProjectService;
 import jakarta.transaction.Transactional;
@@ -18,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static com.pms.projectservice.event.EventType.PROJECT_DEADLINE_EXTENDED;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ModelMapper modelMapper;
     private final ProjectRepository projectRepository;
+    private final ProjectEventProducer producer;
 
     /* converting projectDTO projectEntity */
     private Project convertToProjectEntity(ProjectDTO projectDTO) {
@@ -37,7 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /* get the id of the current user */
-    public String getCurrentUserId() {
+     public String getCurrentUserId() {
         /* extracting the current UserId */
         return UserContextHolder.getCurrentUserId();
     }
@@ -48,6 +54,81 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(projectId).orElseThrow(()->
                 new ResourceNotFound("Invalid Project Id:"+projectId));
     }
+
+    /* create the project Event of type MEMBER_ASSIGNED */
+    private ProjectEvent getMemberAssignedEvent(Project p,List<String> members) {
+        return ProjectEvent.builder()
+                /* Project Id */
+                .projectId(p.getProjectId())
+                /* event type for routing */
+                .eventType(EventType.MEMBER_ASSIGNED)
+                /* project description */
+                .description(p.getDescription())
+                /* all the members who assigned into this project */
+                .members(members)
+                /*  admin / Tl who assigned them */
+                .triggeredBy(getCurrentUserId())
+                /* project title / name */
+                .name(p.getTitle())
+                .build();
+    }
+
+    /* create the project Event of Type PRIORITY_CHANGED */
+    private ProjectEvent getPriorityChangedEvent(Project project, Project old) {
+        return  ProjectEvent.builder()
+                .name(project.getTitle())
+                .projectId(project.getProjectId())
+                .oldPriority(old.getPriority())
+                .newPriority(project.getPriority())
+                .updatedDate(LocalDateTime.now())
+                /* who's update the priority of the project */
+                .triggeredBy(getCurrentUserId())
+                .eventType(EventType.PRIORITY_UPDATED)
+                .build();
+    }
+
+    /* create the project Event of Type MEMBER_REMOVED */
+    private ProjectEvent getMemberRemovedEvent(Project project, String memberId) {
+        return ProjectEvent.builder()
+                .name(project.getTitle())
+                /* when your removed from this project */
+                .createdDate(LocalDateTime.now())
+                .members(List.of(memberId))
+                .triggeredBy(getCurrentUserId())
+                .eventType(EventType.MEMBER_REMOVED)
+                .build();
+    }
+
+    /* create the project event of type STATUS_UPDATED */
+    private ProjectEvent getStatusChangedEvent(Project project , Project old) {
+        return  ProjectEvent.builder()
+                .name(project.getTitle())
+                .oldStatus(old.getStatus())
+                .newStatus(project.getStatus())
+                .eventType(EventType.STATUS_UPDATED)
+                .updatedDate(LocalDateTime.now())
+                .triggeredBy(getCurrentUserId())
+                .projectId(project.getProjectId())
+                .description(project.getDescription())
+                .build();
+    }
+
+    /* create the project event of type  PROJECT_DEADLINE_EXTENDED */
+    private ProjectEvent getDeadlineExtendedEvent(Project project , Project old) {
+        return ProjectEvent.builder()
+                .name(project.getTitle())
+                .projectId(project.getProjectId())
+                .eventType( PROJECT_DEADLINE_EXTENDED )
+                .triggeredBy(getCurrentUserId())
+                .newDeadLine(project.getDeadline())
+                .oldDeadLine(old.getDeadline())
+                .description(project.getDescription())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+
+    }
+
 
     /* create the new Project*/
     @Override
@@ -144,7 +225,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
-
     /* extend the project deadlines */
     @Override
     @Transactional
@@ -153,22 +233,29 @@ public class ProjectServiceImpl implements ProjectService {
         project.setExtendedDate(localDateTime);
 
         Project savedProject = projectRepository.save(project);
+        /* create the project event and produce  */
+        ProjectEvent projectEvent = getDeadlineExtendedEvent(savedProject,project);
+        producer.sendProjectEvent(projectEvent);
 
-        return  convertToProjectDTO(project);
+        return  convertToProjectDTO(savedProject);
     }
 
     /* update the status of the project */
     @Override
     @Transactional
     public ProjectDTO setProjectStatus(String  projectId, Status status) {
+
         Project project = getProjectEntityById(projectId);
         /* modify the current project  status */
         project.setStatus(status);
-
         /* saved into modified project status into the DataBase */
         Project modifiedProject = projectRepository.save(project);
 
         log.info("Project Status updated successfully:{}",modifiedProject);
+        /*
+        * create the new event of STATUS_UPDATED type */
+        ProjectEvent projectEvent = getStatusChangedEvent(modifiedProject,project);
+        producer.sendProjectEvent(projectEvent);
 
         /* convert into the projectDto and return it*/
         return convertToProjectDTO(modifiedProject);
@@ -188,12 +275,18 @@ public class ProjectServiceImpl implements ProjectService {
         /* saved into the DB*/
         Project modifedProject = projectRepository.save(project);
         log.info("project priority changed:{}",modifedProject);
+
+        /* create the projectEvent */
+        ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,project);
+
+        producer.sendProjectEvent(projectEvent);
+
         /* convert into the DTO and return it*/
         return  convertToProjectDTO(modifedProject);
 
     }
 
-    /* assign the member to project */
+    /* assign the members to project */
     @Override
     @Transactional
     public ProjectDTO addMembersToProject( String projectId, List<String> member) {
@@ -209,10 +302,16 @@ public class ProjectServiceImpl implements ProjectService {
         /* saved the updated project into the DB */
         Project updatedProject = projectRepository.save(project);
 
+
+        /* create the project event and  produce to KAFKA */
+        ProjectEvent projectEvent = getMemberAssignedEvent(updatedProject,member);
+
+        producer.sendProjectEvent(projectEvent);
+
         return convertToProjectDTO(updatedProject);
     }
 
-    /* remove the particular member from the project*/
+    /* remove a particular member from the project*/
     @Override
     @Transactional
     public ProjectDTO removeUserFromProject(String projectId, String memberId) {
@@ -222,6 +321,12 @@ public class ProjectServiceImpl implements ProjectService {
         /* removing the member from the project  */
         project.getMembersId().remove(memberId);
         Project modifedProject = projectRepository.save(project);
+
+        /* create memberRemoveEvent and produce it */
+        ProjectEvent projectEvent = getMemberRemovedEvent(modifedProject,memberId);
+
+        producer.sendProjectEvent(projectEvent);
+
         log.info("member revoked successfully :{}",memberId);
         return convertToProjectDTO(modifedProject);
     }
