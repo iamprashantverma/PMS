@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskDTO extends IssueDTO{
+
     private boolean isBlocking;
     private List<String> memberId;
 

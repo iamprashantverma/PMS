@@ -3,7 +3,7 @@ package com.pms.TaskService.entities;
 
 import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
-import com.pms.TaskService.entities.enums.IssueStatus;
+import com.pms.TaskService.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,8 +31,10 @@ public class Issue {
 
     @PrePersist
     public void generateId() {
-        if (this.id == null) { // Avoid overwriting an already set ID
-            this.id = UUID.randomUUID().toString(); // Generates a unique ID
+        // Avoid overwriting an already set ID
+        if (this.id == null) {
+            // Generates a unique ID
+            this.id = UUID.randomUUID().toString();
         }
     }
 
@@ -40,23 +42,23 @@ public class Issue {
     private String description;
     private String project;
 
-    private List<String> assignees;  //members
-    private String creater;  //creater
+    private List<String> assignees;
+    private String creater;
 
     @CreationTimestamp
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
     @Enumerated(EnumType.STRING)
-    private IssueStatus status;  // (e.g., TODO, IN_PROGRESS, DONE)
+    private Status status;  // (e.g., TODO, IN_PROGRESS, DONE)
 
     @Enumerated(EnumType.STRING)
-    private Priority priority;  //LOW HIGH
+    private Priority priority;
 
     private Long completionPercent;
 
     @Enumerated(EnumType.STRING)
-    private IssueTag tag;  // frontend or backend
+    private IssueTag tag;
 
 //    private List<String> attachment;
 //

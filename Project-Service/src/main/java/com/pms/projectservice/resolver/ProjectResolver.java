@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ProjectResolver {
 
     @QueryMapping
-    public ProjectDTO getProject(@Argument("project") String projectId){
+    public ProjectDTO getProject(@Argument("projectId") String projectId){
         return new ProjectDTO();
     }
 }
