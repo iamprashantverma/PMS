@@ -16,7 +16,7 @@ public interface AuthService {
 
     @Transactional
     /* handle logout and delete the session*/
-    void logout(String refreshToken) ;
+    ResponseDTO logout(String refreshToken) ;
 
     /* verify sent  otp and reset the password */
     @Transactional

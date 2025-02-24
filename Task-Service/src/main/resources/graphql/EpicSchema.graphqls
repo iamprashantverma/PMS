@@ -1,11 +1,3 @@
-extend type Mutation{
-    createEpic(epic:EpicInputDTO) : EpicDTO
-    deleteEpic(epicId:String): EpicDTO
-}
-
-extend type Query{
-    getEpicById(epicId:String): EpicDTO
-}
 
 
 type EpicDTO {

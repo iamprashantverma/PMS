@@ -1,14 +1,6 @@
-extend type Query{
-    getStoryById(storyId:ID!): StoryDTO
-}
 
 
-extend type Mutation{
-    createStory(story:StoryInputDTO) : StoryDTO
-    deleteStory(storyId:ID!): StoryDTO
-    addStoryOnEpic(epicId : ID!, storyId : ID!) : ResponseDTO
 
-}
 
 type StoryDTO {
     id : ID!

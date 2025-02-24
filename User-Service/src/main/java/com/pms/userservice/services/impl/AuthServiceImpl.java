@@ -91,8 +91,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String refreshToken) {
+    public ResponseDTO logout(String refreshToken) {
         sessionService.deleteSession(refreshToken);
+        return ResponseDTO.builder()
+                .message("logout Successfully")
+                .build();
     }
 
     @Override

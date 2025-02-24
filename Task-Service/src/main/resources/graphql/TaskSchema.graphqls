@@ -1,17 +1,4 @@
 
-extend type Query{
-    getTaskById(taskId : ID!): TaskDTO
-    getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
-}
-
-extend type Mutation{
-    createTask(task: TaskInputDTO): TaskDTO
-    deleteTask(taskId: ID!) : Boolean
-    updateTask(task: TaskInputDTO) : TaskDTO
-    addTaskOnEpic(epicId: ID!, taskId:ID!) : ResponseDTO
-}
-
-
 type TaskDTO {
     id : ID!
     title: String

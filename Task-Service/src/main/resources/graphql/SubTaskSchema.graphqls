@@ -1,13 +1,30 @@
-extend type Query{
-    getSubTaskById(subTaskId : ID!): SubTaskDTO
+ type Query{
+     getSubTaskById(subTaskId : ID!): SubTaskDTO
+     getTaskById(taskId : ID!): TaskDTO
+     getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
+     getStoryById(storyId:ID!): StoryDTO
+     getIssueById(issueId: ID!): IssueDTO
+     getEpicById(epicId:String): EpicDTO
 
 }
 
-extend type Mutation{
-    createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
-    deleteSubTask(subTaskId: ID!) : ResponseDTO
-    updateSubTask(subTask: SubTaskInputDTO) : SubTaskDTO
-    addSubTaskOnTask(taskId: ID!, subTaskId:ID!) : ResponseDTO
+ type Mutation{
+     createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
+     deleteSubTask(subTaskId: ID!) : ResponseDTO
+     updateSubTask(subTask: SubTaskInputDTO) : SubTaskDTO
+     addSubTaskOnTask(taskId: ID!, subTaskId:ID!) : ResponseDTO
+     createTask(task: TaskInputDTO): TaskDTO
+     deleteTask(taskId: ID!) : Boolean
+     updateTask(task: TaskInputDTO) : TaskDTO
+     addTaskOnEpic(epicId: ID!, taskId:ID!) : ResponseDTO
+     createStory(story:StoryInputDTO) : StoryDTO
+     deleteStory(storyId:ID!): StoryDTO
+     addStoryOnEpic(epicId : ID!, storyId : ID!) : ResponseDTO
+     updateIssueStatus(issueId : ID!, status: IssueStatus) : ResponseDTO
+     updateIssuePriority(issueId : ID!, priority: Priority) : ResponseDTO
+     updateIssueTag(issueId : ID!, tag: IssueTag) : ResponseDTO
+     createEpic(epic:EpicInputDTO) : EpicDTO
+     deleteEpic(epicId:String): EpicDTO
 }
 
 type SubTaskDTO {

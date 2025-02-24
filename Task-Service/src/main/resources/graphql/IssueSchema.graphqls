@@ -1,15 +1,5 @@
-type Query
-type Mutation
 
-extend type Query{
-    getIssueById(issueId: ID!): IssueDTO
-}
 
-extend type Mutation{
-    updateIssueStatus(issueId : ID!, status: IssueStatus) : ResponseDTO
-    updateIssuePriority(issueId : ID!, priority: Priority) : ResponseDTO
-    updateIssueTag(issueId : ID!, tag: IssueTag) : ResponseDTO
-}
 
 type IssueDTO{
     id : ID!
@@ -28,8 +18,6 @@ type IssueDTO{
 type ResponseDTO{
     message: String
 }
-
-
 
 enum IssueStatus {
     IN_PLANNED
