@@ -1,0 +1,9 @@
+type Mutation {
+    createProject(project: ProjectInput!): ProjectA
+    setProjectStatus(projectId: String!, status: Status!): ProjectA
+    setProjectPriority(projectId: String!, priority: PriorityA!): ProjectA
+    extendProjectDeadline(projectId: String!, date: Date!): ProjectA
+    addMembersToProject(projectId: String!, members: [String!]!): ProjectA
+    removeUserFromProject(projectId: String!, memberId: String!): ProjectA
+    deleteProject(projectId:String!):ProjectA
+}

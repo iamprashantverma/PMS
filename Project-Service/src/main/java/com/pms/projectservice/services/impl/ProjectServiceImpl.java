@@ -14,9 +14,11 @@ import com.pms.projectservice.services.ProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +76,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /* create the project Event of Type PRIORITY_CHANGED */
-    private ProjectEvent getPriorityChangedEvent(Project project, Project old) {
+    private ProjectEvent getPriorityChangedEvent(Project project, Priority old) {
         return  ProjectEvent.builder()
                 .name(project.getTitle())
                 .projectId(project.getProjectId())
-                .oldPriority(old.getPriority())
+                .oldPriority(old)
                 .newPriority(project.getPriority())
-                .updatedDate(LocalDateTime.now())
+                .updatedDate(LocalDate.now())
                 /* who's update the priority of the project */
                 .triggeredBy(getCurrentUserId())
                 .eventType(EventType.PRIORITY_UPDATED)
@@ -92,7 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
         return ProjectEvent.builder()
                 .name(project.getTitle())
                 /* when your removed from this project */
-                .createdDate(LocalDateTime.now())
+                .createdDate(LocalDate.now())
                 .members(List.of(memberId))
                 .triggeredBy(getCurrentUserId())
                 .eventType(EventType.MEMBER_REMOVED)
@@ -100,13 +102,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /* create the project event of type STATUS_UPDATED */
-    private ProjectEvent getStatusChangedEvent(Project project , Project old) {
+    private ProjectEvent getStatusChangedEvent(Project project , Status oldStatus) {
         return  ProjectEvent.builder()
                 .name(project.getTitle())
-                .oldStatus(old.getStatus())
+                .oldStatus(oldStatus)
                 .newStatus(project.getStatus())
                 .eventType(EventType.STATUS_UPDATED)
-                .updatedDate(LocalDateTime.now())
+                .updatedDate(LocalDate.now())
                 .triggeredBy(getCurrentUserId())
                 .projectId(project.getProjectId())
                 .description(project.getDescription())
@@ -114,16 +116,16 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /* create the project event of type  PROJECT_DEADLINE_EXTENDED */
-    private ProjectEvent getDeadlineExtendedEvent(Project project , Project old) {
+    private ProjectEvent getDeadlineExtendedEvent(Project project , LocalDate prevDeadLine) {
         return ProjectEvent.builder()
                 .name(project.getTitle())
                 .projectId(project.getProjectId())
                 .eventType( PROJECT_DEADLINE_EXTENDED )
                 .triggeredBy(getCurrentUserId())
                 .newDeadLine(project.getDeadline())
-                .oldDeadLine(old.getDeadline())
+                .oldDeadLine(prevDeadLine)
                 .description(project.getDescription())
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDate.now())
                 .build();
 
 
@@ -140,7 +142,7 @@ public class ProjectServiceImpl implements ProjectService {
         /* add the necessary information about the project e.g. Status */
         newProject.setStatus(Status.INITIATED);
         newProject.setProjectCreator(getCurrentUserId());
-
+        log.info("project DTO:{}",newProject.getDeadline());
         /* persist the current project in to the DB*/
         Project savedProject = projectRepository.save(newProject);
 
@@ -167,7 +169,7 @@ public class ProjectServiceImpl implements ProjectService {
             Project project = getProjectEntityById(projectId) ;
             /* change the status to completed */
             project.setStatus(Status.COMPLETED);
-            project.setEndDate(LocalDateTime.now());
+            project.setEndDate(LocalDate.now());
 
             /* persist the new changes into the db */
             Project savedProject = projectRepository.save(project) ;
@@ -192,13 +194,10 @@ public class ProjectServiceImpl implements ProjectService {
                     project.setDescription((String) value);
                     break;
                 case "startDate":
-                    project.setStartDate((LocalDateTime) value);
+                    project.setStartDate((LocalDate) value);
                     break;
                 case "deadline":
-                    project.setDeadline((LocalDateTime) value);
-                    break;
-                case "extendedDate":
-                    project.setExtendedDate((LocalDateTime) value);
+                    project.setDeadline((LocalDate) value);
                     break;
                 case "status":
                     project.setStatus((Status) value);
@@ -224,17 +223,22 @@ public class ProjectServiceImpl implements ProjectService {
         return convertToProjectDTO(updatedProject);
     }
 
-
     /* extend the project deadlines */
     @Override
     @Transactional
-    public ProjectDTO extendProjectDeadline( String projectId,LocalDateTime localDateTime) {
-        Project project = getProjectEntityById(projectId);
-        project.setExtendedDate(localDateTime);
+    public ProjectDTO extendProjectDeadline( String projectId,LocalDate localDate) {
 
+        /* fetch the project by their id */
+        Project project = getProjectEntityById(projectId);
+        /* extract the prev Deadline */
+        LocalDate prevDeadLine = project.getDeadline();
+        /* setting up new extended date */
+        project.setDeadline(localDate);
+        /* saved the modified project into the db */
         Project savedProject = projectRepository.save(project);
+
         /* create the project event and produce  */
-        ProjectEvent projectEvent = getDeadlineExtendedEvent(savedProject,project);
+        ProjectEvent projectEvent = getDeadlineExtendedEvent(savedProject,prevDeadLine);
         producer.sendProjectEvent(projectEvent);
 
         return  convertToProjectDTO(savedProject);
@@ -245,8 +249,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public ProjectDTO setProjectStatus(String  projectId, Status status) {
 
+
         Project project = getProjectEntityById(projectId);
-        /* modify the current project  status */
+        /* get the old status to notify the consumer */
+        Status oldStatus = project.getStatus();
+                /* modify the current project  status */
         project.setStatus(status);
         /* saved into modified project status into the DataBase */
         Project modifiedProject = projectRepository.save(project);
@@ -254,7 +261,7 @@ public class ProjectServiceImpl implements ProjectService {
         log.info("Project Status updated successfully:{}",modifiedProject);
         /*
         * create the new event of STATUS_UPDATED type */
-        ProjectEvent projectEvent = getStatusChangedEvent(modifiedProject,project);
+        ProjectEvent projectEvent = getStatusChangedEvent(modifiedProject,oldStatus);
         producer.sendProjectEvent(projectEvent);
 
         /* convert into the projectDto and return it*/
@@ -268,7 +275,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         /* get the project */
         Project project = getProjectEntityById(projectId);
-
+        /* get the old Priority */
+        Priority oldPriority = project.getPriority();
         /* update the project priority */
         project.setPriority(priority);
 
@@ -277,7 +285,7 @@ public class ProjectServiceImpl implements ProjectService {
         log.info("project priority changed:{}",modifedProject);
 
         /* create the projectEvent */
-        ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,project);
+        ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,oldPriority);
 
         producer.sendProjectEvent(projectEvent);
 
@@ -290,6 +298,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectDTO addMembersToProject( String projectId, List<String> member) {
+
         /* get the project */
         Project project = getProjectEntityById(projectId) ;
         /* here we'll write the logic to ensure that only valid member assigned to the project*/
@@ -301,7 +310,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         /* saved the updated project into the DB */
         Project updatedProject = projectRepository.save(project);
-
 
         /* create the project event and  produce to KAFKA */
         ProjectEvent projectEvent = getMemberAssignedEvent(updatedProject,member);
@@ -315,20 +323,24 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectDTO removeUserFromProject(String projectId, String memberId) {
-        /* get the project */
-        Project project = getProjectEntityById(projectId) ;
 
-        /* removing the member from the project  */
+        Project project = getProjectEntityById(projectId);
+
+        /*Check if the member exists in the project*/
+        if (!project.getMembersId().contains(memberId)) {
+            throw new ResourceNotFoundException("Member with ID " + memberId + " is not part of project " + projectId);
+        }
+
+        /* Remove the member from the project*/
         project.getMembersId().remove(memberId);
-        Project modifedProject = projectRepository.save(project);
+        Project modifiedProject = projectRepository.save(project);
 
-        /* create memberRemoveEvent and produce it */
-        ProjectEvent projectEvent = getMemberRemovedEvent(modifedProject,memberId);
-
+        /*Create memberRemovedEvent and produce it*/
+        ProjectEvent projectEvent = getMemberRemovedEvent(modifiedProject, memberId);
         producer.sendProjectEvent(projectEvent);
 
-        log.info("member revoked successfully :{}",memberId);
-        return convertToProjectDTO(modifedProject);
+        log.info("Member revoked successfully: {}", memberId);
+        return convertToProjectDTO(modifiedProject);
     }
 
     /* get the all projects by their status */

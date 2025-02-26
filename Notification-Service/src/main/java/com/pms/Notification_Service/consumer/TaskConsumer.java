@@ -2,6 +2,7 @@ package com.pms.Notification_Service.consumer;
 
 import com.pms.Notification_Service.event.TaskEvent;
 import com.pms.Notification_Service.service.NotificationService;
+import com.pms.Notification_Service.service.impl.NotificationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TaskConsumer {
 
-    private final NotificationService notificationService;
+    private final NotificationServiceImpl notificationService;
 
     @KafkaListener(topics = "task-topic", groupId = "task-group")
     public void consumeTaskEvents(TaskEvent taskEvent) {

@@ -32,12 +32,12 @@ public class TaskServiceImpl implements TaskService {
     public static TaskEvent getTaskCreatedEvent(Task task) {
         return TaskEvent.builder()
                 .eventType(EventType.TASK_CREATED)
-                .title(task.getTitle())
-                .priority(task.getPriority())
-                .taskId(task.getId())
-                .description(task.getDescription())
-                .newStatus(task.getStatus())
                 .projectId(task.getProject())
+                .taskId(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .priority(task.getPriority())
+                .newStatus(task.getStatus())
                 .assignees(task.getAssignees())
                 .createdDate(task.getCreatedDate())
                 .build();

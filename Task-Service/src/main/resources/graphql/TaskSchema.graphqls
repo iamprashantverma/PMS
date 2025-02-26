@@ -1,37 +1,37 @@
-
-type TaskDTO {
-    id : ID!
-    title: String
-    description: String
-    project: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
-    status: IssueStatus
-    priority: Priority
-    tag: IssueTag
-
-    isBlocking : Boolean
-    memberId : [String]
-    epic : EpicDTO
-    subTasks : [SubTaskDTO]
-}
-
-input TaskInputDTO{
-    title: String
-    description: String
-    project: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
-    status: IssueStatus
-    priority: Priority
-    tag: IssueTag
-
-    isBlocking : Boolean
-    memberId : [String]
-}
-
-
+#
+#type TaskDTO {
+#    id : ID!
+#    title: String
+#    description: String
+#    project: String
+#    assignees: [String]
+#    creator: String
+#    createdDate: String
+#    updatedDate: String
+#    status: IssueStatus
+#    priority: Priority
+#    tag: IssueTag
+#
+#    isBlocking : Boolean
+#    memberId : [String]
+#    epic : EpicDTO
+#    subTasks : [SubTaskDTO]
+#}
+#
+#input TaskInputDTO{
+#    title: String
+#    description: String
+#    project: String
+#    assignees: [String]
+#    creator: String
+#    createdDate: String
+#    updatedDate: String
+#    status: IssueStatus
+#    priority: Priority
+#    tag: IssueTag
+#
+#    isBlocking : Boolean
+#    memberId : [String]
+#}
+#
+#

@@ -4,6 +4,7 @@ import com.pms.projectservice.dto.ProjectDTO;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public interface ProjectService {
 
     ProjectDTO updateProject(String projectId, Map<String, Object> info);
 
-    ProjectDTO extendProjectDeadline(String projectId, LocalDateTime localDateTime);
+    ProjectDTO extendProjectDeadline(String projectId, LocalDate localDate);
 
     ProjectDTO setProjectStatus(String projectId, Status status);
 

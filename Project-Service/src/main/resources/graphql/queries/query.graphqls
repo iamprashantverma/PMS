@@ -1,0 +1,6 @@
+type Query {
+    getProject(projectId: String!): ProjectA
+    getGreet(msg:String!):String
+    getProjectsByStatus(status:Status):[ProjectA]
+    searchProjectsByTitle(title:String):[ProjectA]
+}

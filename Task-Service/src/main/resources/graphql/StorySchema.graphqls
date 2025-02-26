@@ -1,36 +1,36 @@
-
-
-
-
-type StoryDTO {
-    id : ID!
-    title: String
-    description: String
-    project: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
-    status: IssueStatus
-    priority: Priority
-    tag: IssueTag
-
-    acceptanceCriteria : String
-    epic : EpicDTO
-}
-
-input StoryInputDTO{
-
-    title: String
-    description: String
-    project: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
-    status: IssueStatus
-    priority: Priority
-    tag: IssueTag
-
-    acceptanceCriteria : String
-}
+#
+#
+#
+#
+#type StoryDTO {
+#    id : ID!
+#    title: String
+#    description: String
+#    project: String
+#    assignees: [String]
+#    creator: String
+#    createdDate: String
+#    updatedDate: String
+#    status: IssueStatus
+#    priority: Priority
+#    tag: IssueTag
+#
+#    acceptanceCriteria : String
+#    epic : EpicDTO
+#}
+#
+#input StoryInputDTO{
+#
+#    title: String
+#    description: String
+#    project: String
+#    assignees: [String]
+#    creator: String
+#    createdDate: String
+#    updatedDate: String
+#    status: IssueStatus
+#    priority: Priority
+#    tag: IssueTag
+#
+#    acceptanceCriteria : String
+#}

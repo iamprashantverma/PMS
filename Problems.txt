@@ -1,2 +1,4 @@
-1 -> how we shall manage the exception in microservice;
+1 -> how shall we  manage the exception in microservice?;
 2 -> facing the schema tried even it's define in different microservice
+3-> if TL assgin the new task to the members then how shall they  recive the msgs in app if they don't refresh the page
+4 ->

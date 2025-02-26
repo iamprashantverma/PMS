@@ -5,6 +5,7 @@ import com.pms.projectservice.entities.enums.Status;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,9 +23,9 @@ public class ProjectEvent {
     private Priority oldPriority;
     private Priority newPriority;
     private EventType eventType;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
-    private LocalDateTime timestamp;
-    private LocalDateTime newDeadLine;
-    private LocalDateTime oldDeadLine;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
+    private LocalDate timestamp;
+    private LocalDate newDeadLine;
+    private LocalDate oldDeadLine;
 }

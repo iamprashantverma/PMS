@@ -1,4 +1,4 @@
-
+scalar  Date
 # Enum for Status
 enum Status {
     INITIATED,
@@ -13,8 +13,16 @@ enum Status {
     ARCHIVED
 }
 
+# Enum for Priority
+enum PriorityA {
+    LOW,
+    MEDIUM,
+    HIGH,
+    CRITICAL
+}
+
 # Project Type
-type Project {
+type ProjectA {
     projectId: String!
     title: String!
     description: String
@@ -24,7 +32,7 @@ type Project {
     createdAt: String
     extendedDate: String
     status: Status
-    priority: Priority
+    priority: PriorityA
     projectCreator: String
     clientId: String
     membersId: [String]
@@ -34,13 +42,12 @@ type Project {
     documentId: [String]
 }
 
-# Enum for Priority
-enum Priority {
-    LOW,
-    MEDIUM,
-    HIGH,
-    CRITICAL
+input ProjectInput {
+    title: String!
+    description: String
+    startDate: Date
+    deadline: Date
+    status: Status
+    priority: PriorityA
 }
-
-
 

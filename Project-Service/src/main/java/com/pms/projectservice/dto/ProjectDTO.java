@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,12 +29,12 @@ public class ProjectDTO {
     private String description;
 
     @NotNull(message = "Start date is required")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @NotNull(message = "End date is required")
-    private LocalDateTime deadline;
+    private LocalDate deadline;
 
-    private LocalDateTime extendedDate;
+    private LocalDate extendedDate;
 
 //  @NotNull(message = "Project status is required")
     private Status status;
@@ -46,6 +47,8 @@ public class ProjectDTO {
 
     @NotBlank(message = "Client ID is required")
     private String clientId;
+
+    private LocalDate createdAt;
 
     private List<String> memberId;
     private List<String> taskId;
