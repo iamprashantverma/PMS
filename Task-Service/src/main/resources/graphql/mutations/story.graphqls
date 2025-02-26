@@ -1,0 +1,4 @@
+type Mutation {
+    createStory(story:StoryInputDTO) : StoryDTO
+    deleteStory(storyId:ID!): StoryDTO
+}
