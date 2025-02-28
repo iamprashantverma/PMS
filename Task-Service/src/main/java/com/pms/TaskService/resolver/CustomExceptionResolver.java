@@ -9,7 +9,6 @@ import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Slf4j
 public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter {
@@ -20,6 +19,16 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.NOT_FOUND)
                     .message(ex.getMessage())
+                    .path(env.getExecutionStepInfo().getPath())
+                    .location(env.getField().getSourceLocation())
+                    .build();
+        } else if (ex instanceof org.springframework.dao.DataAccessException
+                || (ex.getCause() != null && ex.getCause() instanceof java.sql.SQLException)) {
+            log.error("Database Error: {}", ex.getMessage(), ex);
+            // For security, it's a good practice not to expose internal error details
+            return GraphqlErrorBuilder.newError()
+                    .errorType(ErrorType.INTERNAL_ERROR)
+                    .message("A database error occurred. Please try again later.")
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .build();

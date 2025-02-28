@@ -1,5 +1,0 @@
- extend type Mutation{
-    updateIssueStatus(issueId : ID!, status: IssueStatus) : ResponseDTO
-    updateIssuePriority(issueId : ID!, priority: Priority) : ResponseDTO
-    updateIssueTag(issueId : ID!, tag: IssueTag) : ResponseDTO
-}

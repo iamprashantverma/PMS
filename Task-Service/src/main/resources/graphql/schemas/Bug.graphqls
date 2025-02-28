@@ -1,4 +1,5 @@
 input BugInput {
+    id:ID!
     title: String!
     description: String
     epicId: String
