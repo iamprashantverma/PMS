@@ -4,14 +4,14 @@ import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Builder
+@Getter
+@Setter
 public class TaskEvent {
 
     /* Unique identifier for task, bug, epic, story, subtask, etc. */

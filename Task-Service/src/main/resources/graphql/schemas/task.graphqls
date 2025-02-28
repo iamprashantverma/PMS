@@ -23,15 +23,14 @@ input TaskInputDTO{
     description: String
     project: String
     assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
     status: IssueStatus
     priority: Priority
     tag: IssueTag
-
     isBlocking : Boolean
-    memberId : [String]
+    dueDate: String
+    epicId:String
+    storyId:String
+
 }
 
 

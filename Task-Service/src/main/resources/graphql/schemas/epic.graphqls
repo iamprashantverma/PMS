@@ -20,13 +20,12 @@ type EpicDTO {
 input EpicInputDTO{
     title: String
     description: String
-    project: String
     assignees: [String]
-    createdDate: String
-    updatedDate: String
     status: IssueStatus
     projectId:String!
     priority: Priority
     tag: IssueTag
     epicGoal : String
+    dueDate: String
+
 }

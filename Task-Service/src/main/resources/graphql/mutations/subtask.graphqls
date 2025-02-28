@@ -1,4 +1,4 @@
-type Mutation {
+ extend type Mutation {
     createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
     deleteSubTask(subTaskId: ID!) : ResponseDTO
 }

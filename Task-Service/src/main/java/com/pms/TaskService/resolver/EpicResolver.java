@@ -20,7 +20,9 @@ public class EpicResolver {
 
     /* Creating epic */
     @MutationMapping
-    public EpicDTO createEpic(@Argument EpicDTO epicDTO) {
+    public EpicDTO createEpic(@Argument("epic") EpicDTO epicDTO) {
+        log.info("create method called, {}",epicDTO);
+
         return epicService.createEpic(epicDTO);
     }
 

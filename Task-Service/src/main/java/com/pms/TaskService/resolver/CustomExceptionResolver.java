@@ -9,6 +9,7 @@ import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Component;
 
+
 @Component
 @Slf4j
 public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter {
@@ -23,7 +24,7 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
                     .location(env.getField().getSourceLocation())
                     .build();
         } else {
-            log.error("Unexpected Error: {}", ex.getMessage(), ex);
+            log.info("Unexpected Error: {}", ex.getMessage(), ex);
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.INTERNAL_ERROR)
                     .message("Internal Server Error: " + ex.getMessage())

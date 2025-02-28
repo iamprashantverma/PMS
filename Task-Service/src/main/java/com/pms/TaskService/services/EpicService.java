@@ -5,12 +5,14 @@ import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.Epic;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Service interface for managing Epics.
  */
+
 public interface EpicService {
 
     /**

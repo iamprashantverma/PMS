@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,7 +24,7 @@ public class Epic extends Issue {
      * CascadeType.ALL ensures stories get deleted when the epic is removed.
      */
     @OneToMany(mappedBy = "epic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Story> stories;
+    private List<Story> stories = new ArrayList<>();
 
     /**
      * List of tasks directly assigned under this epic.

@@ -162,7 +162,7 @@ public class ProjectServiceImpl implements ProjectService {
         return convertToProjectDTO(project);
     }
 
-    /* marks the project as complete and then delete */
+
     @Override
     @Transactional
     public ProjectDTO deleteProject(String projectId) {
@@ -177,7 +177,6 @@ public class ProjectServiceImpl implements ProjectService {
             return convertToProjectDTO(savedProject);
     }
 
-    /* update the partial project details */
     @Override
     @Transactional
     public ProjectDTO updateProject(String projectId, Map<String, Object> info) {
@@ -223,7 +222,6 @@ public class ProjectServiceImpl implements ProjectService {
         return convertToProjectDTO(updatedProject);
     }
 
-    /* extend the project deadlines */
     @Override
     @Transactional
     public ProjectDTO extendProjectDeadline( String projectId,LocalDate localDate) {

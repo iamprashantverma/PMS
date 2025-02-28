@@ -28,7 +28,7 @@ public class Story extends Issue {
     /**
      * A Story can have multiple tasks.
      */
-    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Task> tasks;
 }

@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -65,22 +66,14 @@ public class StoryServiceImpl implements StoryService {
      * Generates a TaskEvent for Kafka messaging.
      *
      * @param story  The Story entity.
-     * @param action The action performed (CREATE, UPDATE, DELETE).
      * @return The generated TaskEvent.
      */
-    private TaskEvent generateTaskEvent(Story story, Actions action) {
+    private TaskEvent generateTaskEvent(Story story) {
         return TaskEvent.builder()
                 .entityId(story.getId())
                 .title(story.getTitle())
                 .projectId(story.getProjectId())
-                .action(action)
-                .eventType(EventType.TASK)
-                .description(switch (action) {
-                    case CREATED -> "Story Created: " + story.getTitle();
-                    case UPDATED -> "Story Updated: " + story.getTitle();
-                    case DELETED -> "Story Deleted: " + story.getTitle();
-                    default -> "Action performed on Story: " + story.getTitle();
-                })
+                .eventType(EventType.STORY)
                 .build();
     }
 
@@ -89,6 +82,7 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO createStory(StoryDTO storyDTO) {
         // convert into the story entity
         Story story = convertToEntity(storyDTO);
+        story.setCreatedDate(LocalDateTime.now());
         // saved the new story into the DB
         Story savedStory = storyRepository.save(story);
 
@@ -99,7 +93,9 @@ public class StoryServiceImpl implements StoryService {
         else
             addStoryOnEpic(epicId, savedStory);
 
-        TaskEvent taskEvent = generateTaskEvent(story,Actions.CREATED);
+        TaskEvent taskEvent = generateTaskEvent(story);
+        taskEvent.setAction(Actions.CREATED);
+        taskEvent.setDescription("Story Created");
         taskEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(story);
@@ -109,12 +105,16 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO updateStory(StoryDTO storyDTO) {
 
         Story story = getStoryEntity(storyDTO.getId());
+        story.setUpdatedDate(LocalDateTime.now());
 
         Story modifiedStory = modelMapper.map(storyDTO,Story.class);
-
+        // persist into the db
         Story savedStory =  storyRepository.save(story);
 
-        taskEventProducer.sendTaskEvent(generateTaskEvent(savedStory,Actions.UPDATED));
+        TaskEvent taskEvent = generateTaskEvent(savedStory);
+        taskEvent.setAction(Actions.UPDATED);
+
+        taskEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedStory);
     }
@@ -140,8 +140,8 @@ public class StoryServiceImpl implements StoryService {
         storyRepository.save(story);
 
         // Publish Story Deletion Event
-        TaskEvent taskEvent = generateTaskEvent(story, Actions.DELETED);
-
+        TaskEvent taskEvent = generateTaskEvent(story);
+        taskEvent.setAction(Actions.DELETED);
         taskEvent.setNewStatus(Status.ARCHIVED);
         taskEvent.setOldStatus(oldStatus);
 
@@ -177,7 +177,8 @@ public class StoryServiceImpl implements StoryService {
         // persist the new changes into the db
         Story savedStory =  storyRepository.save(story);
 
-        TaskEvent taskEvent = generateTaskEvent(story,Actions.ASSIGNED);
+        TaskEvent taskEvent = generateTaskEvent(story);
+        taskEvent.setAction(Actions.ASSIGNED);
         taskEvent.setAssignees(List.of(userId));
 
         taskEventProducer.sendTaskEvent(taskEvent);
@@ -194,7 +195,7 @@ public class StoryServiceImpl implements StoryService {
         story.getAssignees().remove(userId);
         Story savedStory =  storyRepository.save(story);
 
-        TaskEvent taskEvent = generateTaskEvent(story,Actions.UPDATED);
+        TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setAction(Actions.UNASSIGNED);
         taskEvent.setAssignees(List.of(userId));
 
@@ -210,7 +211,9 @@ public class StoryServiceImpl implements StoryService {
             Status oldStatus = story.getStatus();
             story.setStatus(status);
             storyRepository.save(story);
-            taskEventProducer.sendTaskEvent(generateTaskEvent(story,Actions.UPDATED));
+            TaskEvent taskEvent = generateTaskEvent(story);
+            taskEvent.setAction(Actions.UPDATED);
+            taskEventProducer.sendTaskEvent(taskEvent);
 
             return convertToDTO(story);
     }

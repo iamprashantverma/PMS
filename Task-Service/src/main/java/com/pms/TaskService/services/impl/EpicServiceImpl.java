@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,35 +33,14 @@ public class EpicServiceImpl implements EpicService {
     /**
      * Generates a TaskEvent for an Epic.
      * @param epic The Epic entity.
-     * @param action The action performed (CREATE, UPDATE, DELETE).
-     * @param newStatus The new status if updated.
      * @return TaskEvent
      */
-    private TaskEvent getEpicTaskEvent(Epic epic, Actions action, Status newStatus) {
+    private TaskEvent getEpicTaskEvent(Epic epic) {
         return TaskEvent.builder()
                 .entityId(epic.getId())
                 .title(epic.getTitle())
                 .projectId(epic.getProjectId())
-                .createdDate(epic.getCreatedDate())
-                .updatedDate(epic.getUpdatedDate())
-                .priority(epic.getPriority())
-                .oldStatus(action == Actions.UPDATED ? epic.getStatus() : null)
-                .newStatus(action == Actions.UPDATED ? newStatus : null)
-                .assignees(epic.getAssignees())
-                .action(action)
                 .eventType(EventType.TASK)
-                .tags(List.of("Epic", epic.getEpicGoal()))
-                .linkedEntityIds(epic.getStories().stream().map(Issue::getId).toList())
-                .description(
-                        switch (action) {
-                            case CREATED -> "Epic Created: " + epic.getTitle();
-                            case UPDATED -> (newStatus != null) ?
-                                    "Epic Updated from " + epic.getStatus() + " to " + newStatus :
-                                    "Epic Updated without status change";
-                            case DELETED -> "Epic Deleted: " + epic.getTitle();
-                            default -> "Action performed on Epic: " + epic.getTitle();
-                        }
-                )
                 .build();
     }
 
@@ -98,10 +78,16 @@ public class EpicServiceImpl implements EpicService {
     public EpicDTO createEpic(EpicDTO epicDTO) {
         Epic epic = convertToEpicEntity(epicDTO);
         epic.setStatus(Status.TODO);
+        epic.setCreatedDate(LocalDateTime.now());
 
         Epic savedEpic = epicRepository.save(epic);
 
-        TaskEvent taskEvent = getEpicTaskEvent(savedEpic, Actions.CREATED, Status.TODO);
+        TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
+        taskEvent.setAction(Actions.CREATED);
+        taskEvent.setNewStatus(epic.getStatus());
+        taskEvent.setCreatedDate(savedEpic.getCreatedDate());
+        taskEvent.setDescription("Epic Created ");
+
         producer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
@@ -118,14 +104,14 @@ public class EpicServiceImpl implements EpicService {
         Epic savedEpic = epicRepository.save(existingEpic);
 
         if (!oldStatus.equals(newStatus)) {
-            TaskEvent taskEvent = getEpicTaskEvent(savedEpic, Actions.UPDATED, newStatus);
+            TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
+            taskEvent.setOldStatus(oldStatus);
+            taskEvent.setNewStatus(newStatus);
             producer.sendTaskEvent(taskEvent);
         }
 
         return convertToEpicDTo(savedEpic);
     }
-
-
 
     @Override
     @Transactional
