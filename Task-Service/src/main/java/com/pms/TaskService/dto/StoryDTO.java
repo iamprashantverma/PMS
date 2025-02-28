@@ -1,16 +1,23 @@
 package com.pms.TaskService.dto;
 
-import com.pms.TaskService.entities.Epic;
 import lombok.*;
 
+/**
+ * DTO for Story entity, extending IssueDTO to inherit common issue properties.
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class StoryDTO extends IssueDTO {
-    private String acceptanceCriteria;
-    private EpicDTO epic;
 
+    /**
+     * Defines conditions that must be met for the story to be considered complete.
+     */
+    private String acceptanceCriteria;
+
+    /**
+     * ID of the epic this story belongs to, if any.
+     */
+    private String epicId;
 }

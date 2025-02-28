@@ -1,17 +1,5 @@
- type Query{
-     getSubTaskById(subTaskId : ID!): SubTaskDTO
-     getTaskById(taskId : ID!): TaskDTO
-     getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
-     getStoryById(storyId:ID!): StoryDTO
-     getIssueById(issueId: ID!): IssueDTO
-     getEpicById(epicId:String): EpicDTO
 
-}
 
- type Mutation{
-     addTaskOnEpic(epicId: ID!, taskId:ID!) : ResponseDTO
-     addStoryOnEpic(epicId : ID!, storyId : ID!) : ResponseDTO
-}
 
 type SubTaskDTO {
     id : ID!

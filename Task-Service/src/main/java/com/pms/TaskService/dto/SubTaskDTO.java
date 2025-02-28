@@ -1,16 +1,21 @@
 package com.pms.TaskService.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
+/**
+ * DTO for SubTask entity, extending IssueDTO to inherit common issue properties.
+ */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class SubTaskDTO extends IssueDTO {
 
-
-    private TaskDTO parentTask;
+    /**
+     * ID of the parent task this subtask belongs to.
+     */
+    private String parentTaskId;
 }

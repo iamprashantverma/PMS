@@ -1,6 +1,5 @@
 package com.pms.TaskService.dto;
 
-import com.pms.TaskService.entities.enums.IssueTag;
 import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import lombok.*;
@@ -8,23 +7,26 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+/**
+ * Data Transfer Object for Issue entity.
+ */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class IssueDTO {
+
     private String id;
     private String title;
     private String description;
-    private String project;
+    private String projectId;
     private List<String> assignees;
-    private String creater;
+    private String creator;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    private Status status;  // Status (e.g., TODO, IN_PROGRESS, DONE)
+    private Status status;
     private Priority priority;
     private Long completionPercent;
-    private IssueTag tag;
-
+    
 }

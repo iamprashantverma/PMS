@@ -1,30 +1,33 @@
 package com.pms.TaskService.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+
 @Getter
 @Setter
-@DiscriminatorValue("EPIC")
+@Entity
+@DiscriminatorValue("EPIC") // Discriminator value stored in the "issue_type" column
 public class Epic extends Issue {
 
+    /**
+     * The main goal or objective of this epic.
+     */
     private String epicGoal;
 
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+    /**
+     * List of stories linked to this epic.
+     * CascadeType.ALL ensures stories get deleted when the epic is removed.
+     */
+    @OneToMany(mappedBy = "epic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Story> stories;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+    /**
+     * List of tasks directly assigned under this epic.
+     */
+    @OneToMany(mappedBy = "epic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Task> tasks;
-
-
 }
-

@@ -1,6 +1,5 @@
 
 
-
 type IssueDTO{
     id : ID!
     title: String

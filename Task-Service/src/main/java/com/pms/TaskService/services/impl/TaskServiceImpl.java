@@ -4,18 +4,23 @@ import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.Epic;
 import com.pms.TaskService.entities.Task;
-import com.pms.TaskService.event.EventType;
+import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.event.enums.Actions;
+import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.event.TaskEvent;
+import com.pms.TaskService.exceptions.ResourceAlreadyExist;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.TaskRepository;
 import com.pms.TaskService.services.TaskService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,98 +28,185 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
+
     private final ModelMapper modelMapper;
     private final TaskRepository taskRepository;
     private final EpicRepository epicRepository;
     private final TaskEventProducer taskEventProducer;
 
-    /* create the new  Task Event of type TASK_CREATED_EVENT */
-    public static TaskEvent getTaskCreatedEvent(Task task) {
-        return TaskEvent.builder()
-                .eventType(EventType.TASK_CREATED)
-                .projectId(task.getProject())
-                .taskId(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .priority(task.getPriority())
-                .newStatus(task.getStatus())
-                .assignees(task.getAssignees())
-                .createdDate(task.getCreatedDate())
-                .build();
+    /**
+     * convert the Task entity into the TaskDTO
+     * @param  task take the details
+     * @return  TaskDTO
+     */
+    private TaskDTO convertToDTO(Task task) {
+        return modelMapper.map(task, TaskDTO.class);
     }
 
-    /* creating the TaskEvent of type TASK_COMPLETED_EVENT */
+    /**
+     * convert the task entity into the taskDTO
+     * @param taskDTO take input
+     * @return Task entity
+     */
+   private Task convertToEntity(TaskDTO taskDTO) {
+        return modelMapper.map(taskDTO,Task.class);
+   }
 
-    @Override
+    /**
+     *
+     * @param taskDTO takes input
+     * @return TaskEvent
+     */
+   private TaskEvent generateTaskEvent(Task taskDTO) {
+       return TaskEvent.builder()
+               .entityId(taskDTO.getId())
+               .title(taskDTO.getTitle())
+               .assignees(taskDTO.getAssignees())
+               .projectId(taskDTO.getProjectId())
+               .eventType(EventType.TASK)
+               .createdDate(taskDTO.getCreatedDate())
+               .priority(taskDTO.getPriority())
+               .build();
+   }
+
+    /**
+     *
+     * @param taskId of the Task
+     * @return Task Entity
+     */
+   private Task getTaskEntity(String taskId) {
+       return taskRepository.findById(taskId).orElseThrow(()->
+               new ResourceNotFound("Task not found :"+taskId));
+   }
+
+   @Override
+   @Transactional
     public TaskDTO createTask(TaskDTO taskDTO) {
 
-        /* converted the taskDTO into the task entity */
-        Task task = modelMapper.map(taskDTO, Task.class);
-        /* saved the new task into the DB */
+        Task task = convertToEntity(taskDTO) ;
+        task.setStatus(Status.TODO);
+        task.setCreatedDate(LocalDateTime.now());
+
         Task savedTask = taskRepository.save(task);
 
-        log.info(savedTask.getTitle());
+        // add the task into the epic if epic id present
+        String epicId = taskDTO.getEpicId();
 
-        /* creating the taskEvent  */
-        TaskEvent event = getTaskCreatedEvent(task);
-        /* send the event */
-        taskEventProducer.sendTaskEvent(event);
+        if (epicId != null)
+            addTaskOnEpic(epicId,savedTask);
 
-        /* return the saved task */
-        return modelMapper.map(savedTask, TaskDTO.class);
+        // create the TaskEvent  of event CREATED type,and produce the event
+        TaskEvent taskEvent = generateTaskEvent(savedTask);
+        // set the necessary details
+        taskEvent.setAction(Actions.CREATED);
+        taskEvent.setNewStatus(Status.TODO);
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(savedTask);
     }
 
     @Override
     public TaskDTO getTaskById(String taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFound("Task not exist with id: "+ taskId));
-        return modelMapper.map(task, TaskDTO.class);
+        return  convertToDTO(getTaskEntity(taskId));
     }
 
     @Override
-    public boolean deleteTask(String taskId) {
-        if(!isExist(taskId)){
-            throw new ResourceNotFound("Task not exist with id: "+ taskId);
+    @Transactional
+    public ResponseDTO deleteTask(String taskId) {
+
+        //  Retrieve the Task entity by its taskId
+        Task task = getTaskEntity(taskId); // Assuming a method that retrieves Task by ID
+
+        // Check if all subtasks are completed
+        boolean allSubtasksCompleted = task.getSubTasks().stream()
+                .allMatch(subTask -> subTask.getCompletionPercent() == 100 || subTask.getStatus() == Status.ARCHIVED);
+
+        // If all subtasks are completed, mark the task as ARCHIVED
+        if (allSubtasksCompleted) {
+            task.setStatus(Status.ARCHIVED);
+            taskRepository.save(task);
+        } else {
+            // If not all subtasks are completed, return an error response
+            throw  new ResourceAlreadyExist("Task cannot be Deleted. Not all subtasks are completed.");
         }
-        taskRepository.deleteById(taskId);
-        return true;
+
+        //  Return a response indicating success
+        return new ResponseDTO("Task has been archived or deleted successfully.");
     }
 
     @Override
     public TaskDTO updateTask(TaskDTO taskDTO, String taskId) {
-        if(!isExist(taskId)){
-            throw new ResourceNotFound("Task not exist with id: "+ taskId);
+        // Fetch the existing task from the database
+        Task existingTask = getTaskEntity(taskId);
+        modelMapper.map(taskDTO, existingTask);
+
+        if (taskDTO.getEpicId() != null) {
+            Epic epic = epicRepository.findById(taskDTO.getEpicId())
+                    .orElseThrow(() -> new ResourceNotFound("Epic not found"));  // If the epic is not found, throw an exception
+            existingTask.setEpic(epic);
         }
-        // TODO implement it
-        return null;
+
+        existingTask.setUpdatedDate(LocalDateTime.now());
+
+        taskRepository.save(existingTask);
+
+        return modelMapper.map(existingTask, TaskDTO.class);
     }
 
+
     @Override
-    public List<TaskDTO> getAllTaskByProjectId(String project) {
-        List<Task> tasks = taskRepository.findAllByProject(project);
-        List<TaskDTO> taskDTOS = tasks.stream()
+    public List<TaskDTO> getAllTaskByProjectId(String projectId) {
+        // Retrieve tasks by projectId using the custom repository method
+        List<Task> tasks = taskRepository.findByProjectId(projectId);
+
+        // Convert each Task entity to TaskDTO and collect them into a list
+        return tasks.stream()
                 .map(task -> modelMapper.map(task, TaskDTO.class))
                 .collect(Collectors.toList());
-        return taskDTOS;
-
     }
 
-    /* Add task on epic */
     @Override
-    public ResponseDTO addTaskOnEpic(String epicId, String taskId) {
-        Epic epic = epicRepository.findById(epicId)
-                .orElseThrow(()-> new ResourceNotFound("Epic not found with id "+epicId));
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(()-> new ResourceNotFound("Story not found with id "+taskId));
+    public void addTaskOnEpic(String epicId, Task task) {
+        Epic epic = epicRepository.findById(epicId).orElseThrow(()->
+                new ResourceNotFound("Epic not found :"+ epicId));
 
+        epic.getTasks().add(task);
         task.setEpic(epic);
-        Task savedTask = taskRepository.save(task);
-        epic.getTasks().add(savedTask);
+        // persist the changes into the db
         epicRepository.save(epic);
-        return new ResponseDTO("Story added on Epic successfully");
+        taskRepository.save(task);
+
+        ResponseDTO.builder()
+                .message(" Task added  into the epic")
+                .build();
     }
 
-    public boolean isExist(String taskId){
-        return taskRepository.existsById(taskId);
+    @Override
+    public List<TaskDTO> getAllTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream()
+                .filter(task -> task.getStatus() != Status.ARCHIVED)
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    @Override
+    public List<TaskDTO> getTasksByUserId(String userId) {
+        // Retrieve tasks where the userId is an assignee
+        List<Task> tasks = taskRepository.findByAssigneesContains(userId);
+
+        // Convert the list of Task entities to a list of TaskDTOs using ModelMapper
+        return tasks.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskDTO> getTasksByStatus(String status) {
+        List<Task> tasks = taskRepository.findAllByStatus(status);
+        return tasks.stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 }

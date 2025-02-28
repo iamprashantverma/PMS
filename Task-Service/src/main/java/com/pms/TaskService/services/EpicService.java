@@ -1,31 +1,53 @@
 package com.pms.TaskService.services;
 
 import com.pms.TaskService.dto.EpicDTO;
-import com.pms.TaskService.dto.EpicInputDTO;
-import com.pms.TaskService.dto.IssueDTO;
 import com.pms.TaskService.dto.ResponseDTO;
+import com.pms.TaskService.entities.Epic;
+import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.exceptions.ResourceNotFound;
 
+import java.util.List;
+
+/**
+ * Service interface for managing Epics.
+ */
 public interface EpicService {
 
-    boolean isExist(String epicId);
+    /**
+     * Creates a new Epic.
+     *
+     * @param epicDTO The DTO containing epic details.
+     * @return The created EpicDTO.
+     */
+    EpicDTO createEpic(EpicDTO epicDTO);
 
-    EpicDTO createEpic(EpicInputDTO epic);
+    /**
+     * Updates an existing Epic and publishes an event if status changes.
+     * @param epicId The updated Epic data.
+     * @return The updated EpicDTO.
+     * @throws ResourceNotFound if the Epic does not exist.
+     */
+    EpicDTO updateEpicStatus(String epicId, Status newStatus);
 
-    EpicDTO updateEpic(String epicId, EpicInputDTO epic);
-
+    /**
+     * Deletes an Epic by its ID.
+     *
+     * @param epicId The ID of the Epic to delete.
+     * @return The deleted EpicDTO.
+     */
     EpicDTO deleteEpic(String epicId);
 
+    /**
+     * Retrieves an Epic by its ID.
+     *
+     * @param epicId The ID of the Epic.
+     * @return The EpicDTO if found, otherwise null.
+     */
     EpicDTO getEpicById(String epicId);
-
-//    EpicDTO getAllEpic();
-
-
-
-//    changeEpicStatus – Update the status of an epic (e.g., To Do, In Progress, Done).
-
-//transitionEpic – Move an epic through a workflow.
-//archiveEpic – Archive an epic when it's completed.
-
-//    getEpicProgress – Retrieve progress details of an epic (number of completed vs. remaining tasks).
+    /**
+     * get list of all epicsDTO
+     * @return get all epicsDTO
+     */
+    List<EpicDTO> getAllActiveEpics();
 
 }

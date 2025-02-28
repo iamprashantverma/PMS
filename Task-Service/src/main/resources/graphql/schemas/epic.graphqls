@@ -9,10 +9,9 @@ type EpicDTO {
     creator: String
     createdDate: String
     updatedDate: String
-#    status: IssueStatus
-#    priority: Priority
-#    tag: IssueTag
-
+    status: IssueStatus
+    priority: Priority
+    tag: IssueTag
     epicGoal : String
     stories : [StoryDTO]
     tasks : [TaskDTO]
@@ -23,12 +22,11 @@ input EpicInputDTO{
     description: String
     project: String
     assignees: [String]
-    creator: String
     createdDate: String
     updatedDate: String
     status: IssueStatus
+    projectId:String!
     priority: Priority
     tag: IssueTag
-
     epicGoal : String
 }

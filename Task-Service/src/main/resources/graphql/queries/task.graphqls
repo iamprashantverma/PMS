@@ -1,0 +1,4 @@
+type Query{
+    getTaskById(taskId : ID!): TaskDTO
+    getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
+}

@@ -1,4 +1,4 @@
 type Mutation {
     createStory(story:StoryInputDTO) : StoryDTO
-    deleteStory(storyId:ID!): StoryDTO
+    deleteStory(storyId:String!): StoryDTO
 }

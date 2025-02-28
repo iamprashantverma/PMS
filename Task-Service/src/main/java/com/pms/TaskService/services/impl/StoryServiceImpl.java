@@ -1,12 +1,15 @@
 package com.pms.TaskService.services.impl;
 
-import com.pms.TaskService.dto.EpicDTO;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.StoryDTO;
-import com.pms.TaskService.dto.StoryInputDTO;
 import com.pms.TaskService.entities.Epic;
 import com.pms.TaskService.entities.Story;
+import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.event.TaskEvent;
+import com.pms.TaskService.event.enums.Actions;
+import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.StoryRepository;
 import com.pms.TaskService.services.StoryService;
@@ -14,76 +17,230 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Controller
 public class StoryServiceImpl implements StoryService {
 
     private final ModelMapper modelMapper;
     private final StoryRepository storyRepository;
     private final EpicRepository epicRepository;
+    private final TaskEventProducer taskEventProducer;
 
-    @Override
-    public boolean isExist(String storyId) {
-        boolean flag =  storyRepository.existsById(storyId);
-        if(!flag){
-            throw new ResourceNotFound("Story not exist with id "+storyId);
-        }
-        return true;
+    /**
+     * Converts a StoryDTO to a Story entity.
+     *
+     * @param storyDTO The StoryDTO object.
+     * @return The corresponding Story entity.
+     */
+    private Story convertToEntity(StoryDTO storyDTO) {
+        return modelMapper.map(storyDTO, Story.class);
     }
 
-    /* creating story */
-    @Override
-    public StoryDTO createStory(StoryInputDTO storyInputDTO) {
-        Story story = modelMapper.map(storyInputDTO, Story.class);
-        Story savedStory = storyRepository.save(story);
-
-        log.info("Story created with title {}", savedStory.getTitle());
-        //TODO add current user as creater
-        return modelMapper.map(savedStory, StoryDTO.class);
+    /**
+     * Converts a Story entity to a StoryDTO.
+     *
+     * @param storyId The Story entity.
+     * @return The corresponding StoryDTO object.
+     */
+    private StoryDTO convertToDTO(Story storyId) {
+        return modelMapper.map(storyId, StoryDTO.class);
     }
 
-    @Override
-    public StoryDTO updateStory(String storyId, StoryInputDTO story) {
-        return null;
+    /**
+     * find the Story Entity by storyId
+     * @param storyId story id to find
+     * @return Story
+     */
+    private Story getStoryEntity(String  storyId) {
+        return storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFound("Story not found: " + storyId));
     }
 
-    @Override
-    public StoryDTO deleteStory(String storyId) {
-        Story story = modelMapper.map(getStoryById(storyId), Story.class);
-        storyRepository.deleteById(storyId);
-        log.info("Epic deleted with id {}", storyId);
-        // TODO also have to  delete from issues where it is saved
-        return modelMapper.map(story, StoryDTO.class);
-    }
-
-    @Override
-    public StoryDTO getStoryById(String storyId) {
-        Story story = storyRepository.findById(storyId)
-                .orElseThrow(()-> new ResourceNotFound("Story not found with id "+ storyId));
-        return modelMapper.map(story, StoryDTO.class);
+    /**
+     * Generates a TaskEvent for Kafka messaging.
+     *
+     * @param story  The Story entity.
+     * @param action The action performed (CREATE, UPDATE, DELETE).
+     * @return The generated TaskEvent.
+     */
+    private TaskEvent generateTaskEvent(Story story, Actions action) {
+        return TaskEvent.builder()
+                .entityId(story.getId())
+                .title(story.getTitle())
+                .projectId(story.getProjectId())
+                .action(action)
+                .eventType(EventType.TASK)
+                .description(switch (action) {
+                    case CREATED -> "Story Created: " + story.getTitle();
+                    case UPDATED -> "Story Updated: " + story.getTitle();
+                    case DELETED -> "Story Deleted: " + story.getTitle();
+                    default -> "Action performed on Story: " + story.getTitle();
+                })
+                .build();
     }
 
     @Override
     @Transactional
-    public ResponseDTO addStoryOnEpic(String epicId, String storyId) {
-        Epic epic = epicRepository.findById(epicId)
-                .orElseThrow(()-> new ResourceNotFound("Epic not found with id "+epicId));
-        Story story = storyRepository.findById(storyId)
-                .orElseThrow(()-> new ResourceNotFound("Story not found with id "+storyId));
-
-        story.setEpic(epic);
+    public StoryDTO createStory(StoryDTO storyDTO) {
+        // convert into the story entity
+        Story story = convertToEntity(storyDTO);
+        // saved the new story into the DB
         Story savedStory = storyRepository.save(story);
-        epic.getStories().add(savedStory);
-        epicRepository.save(epic);
-        log.info(String.valueOf(epic));
-        return new ResponseDTO("Story added on Epic successfully");
+
+        // add story into the epic
+        String epicId = storyDTO.getEpicId();
+        if (epicId ==null)
+            throw  new ResourceNotFound("Epic Id has not provided ");
+        else
+            addStoryOnEpic(epicId, savedStory);
+
+        TaskEvent taskEvent = generateTaskEvent(story,Actions.CREATED);
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(story);
     }
+
+    @Override
+    public StoryDTO updateStory(StoryDTO storyDTO) {
+
+        Story story = getStoryEntity(storyDTO.getId());
+
+        Story modifiedStory = modelMapper.map(storyDTO,Story.class);
+
+        Story savedStory =  storyRepository.save(story);
+
+        taskEventProducer.sendTaskEvent(generateTaskEvent(savedStory,Actions.UPDATED));
+
+        return convertToDTO(savedStory);
+    }
+
+    @Override
+    @Transactional
+    public StoryDTO deleteStory(String storyId) {
+
+        // Fetch the story from the database
+        Story story = getStoryEntity(storyId);
+
+        // Check if all tasks related to this story are completed
+        boolean allTasksCompleted = story.getTasks().stream()
+                .allMatch(task -> task.getStatus() == Status.COMPLETED);
+
+        if (!allTasksCompleted) {
+            throw new IllegalStateException("Cannot delete story. All associated tasks must be completed first.");
+        }
+        Status oldStatus = story.getStatus();
+        // Mark as ARCHIVED
+        story.setStatus(Status.ARCHIVED);
+        // Save the updated story
+        storyRepository.save(story);
+
+        // Publish Story Deletion Event
+        TaskEvent taskEvent = generateTaskEvent(story, Actions.DELETED);
+
+        taskEvent.setNewStatus(Status.ARCHIVED);
+        taskEvent.setOldStatus(oldStatus);
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(story);
+    }
+
+    @Override
+    public StoryDTO getStoryById(String storyId) {
+        Story story = getStoryEntity(storyId);
+        return convertToDTO(story);
+    }
+
+    @Override
+    public List<StoryDTO> getAllStoriesByProjectId(String projectId) {
+        List<Story> stories  = storyRepository.findByProjectId(projectId);
+        return stories.stream()
+                .map(this::convertToDTO)
+                .toList();
+
+    }
+
+    @Override
+    public List<StoryDTO> getAllStoriesByUserId(String userId) {
+        return List.of();
+    }
+    @Override
+    @Transactional
+    public StoryDTO assignUserToStory(String storyId, String userId) {
+        Story story = getStoryEntity(storyId);
+        story.getAssignees().add(userId);
+        // persist the new changes into the db
+        Story savedStory =  storyRepository.save(story);
+
+        TaskEvent taskEvent = generateTaskEvent(story,Actions.ASSIGNED);
+        taskEvent.setAssignees(List.of(userId));
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(savedStory);
+
+    }
+
+    @Override
+    @Transactional
+    public StoryDTO unassignUserFromStory(String storyId, String userId) {
+
+        Story story = getStoryEntity(storyId) ;
+        story.getAssignees().remove(userId);
+        Story savedStory =  storyRepository.save(story);
+
+        TaskEvent taskEvent = generateTaskEvent(story,Actions.UPDATED);
+        taskEvent.setAction(Actions.UNASSIGNED);
+        taskEvent.setAssignees(List.of(userId));
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(savedStory);
+    }
+
+    @Override
+    @Transactional
+    public StoryDTO changeStoryStatus(String storyId, Status status) {
+            Story story = getStoryEntity(storyId);
+            Status oldStatus = story.getStatus();
+            story.setStatus(status);
+            storyRepository.save(story);
+            taskEventProducer.sendTaskEvent(generateTaskEvent(story,Actions.UPDATED));
+
+            return convertToDTO(story);
+    }
+
+    @Override
+    public List<StoryDTO> getStoriesByStatus(Status status) {
+        List<Story> stories = storyRepository.findByStatus(status);
+        return stories.stream().
+                map(this::convertToDTO).
+                toList();
+    }
+
+    @Override
+    @Transactional
+    public ResponseDTO addStoryOnEpic(String epicId, Story story) {
+        Epic epic = epicRepository.findById(epicId).orElseThrow(()->
+                new ResourceNotFound("Epic not found : "+epicId));
+        epic.getStories().add(story);
+        story.setEpic(epic);
+
+        // persist the changed into the database
+        epicRepository.save(epic) ;
+        storyRepository.save(story);
+
+        return ResponseDTO.builder()
+                .message("story added to the epics")
+                .build();
+
+    }
+
 }
+
+

@@ -1,0 +1,3 @@
+type Query{
+    getSubTaskById(subTaskId : ID!): SubTaskDTO
+}

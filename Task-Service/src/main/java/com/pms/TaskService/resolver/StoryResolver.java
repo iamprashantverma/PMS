@@ -20,27 +20,24 @@ public class StoryResolver {
     private final StoryService storyService;
 
     /* Creating story */
-    @MutationMapping("createStory")
-    public StoryDTO createStory(@Argument("story") StoryInputDTO storyInputDTO){
+    @MutationMapping
+    public StoryDTO createStory(@Argument("story") StoryDTO storyInputDTO){
         log.info("story is creating");
         return storyService.createStory(storyInputDTO);
     }
 
     /* Deleting story*/
-    @MutationMapping("deleteStory")
+    @MutationMapping
     public StoryDTO deleteStory(@Argument String storyId){
         return storyService.deleteStory(storyId);
     }
 
     /* find story by id */
-    @QueryMapping("getStoryById")
+    @QueryMapping
     public StoryDTO getStoryById(@Argument String storyId){
         return storyService.getStoryById(storyId);
     }
 
-    @MutationMapping("addStoryOnEpic")
-    public ResponseDTO addStoryOnEpic(@Argument("epicId") String epicId, @Argument("storyId") String storyId){
-        return storyService.addStoryOnEpic(epicId, storyId);
-    }
+
 
 }

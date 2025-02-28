@@ -1,6 +1,4 @@
 type Mutation {
     createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
     deleteSubTask(subTaskId: ID!) : ResponseDTO
-    updateSubTask(subTask: SubTaskInputDTO) : SubTaskDTO
-    addSubTaskOnTask(taskId: ID!, subTaskId:ID!) : ResponseDTO
 }

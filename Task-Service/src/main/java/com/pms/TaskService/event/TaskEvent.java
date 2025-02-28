@@ -2,6 +2,8 @@ package com.pms.TaskService.event;
 
 import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
+import com.pms.TaskService.event.enums.Actions;
+import com.pms.TaskService.event.enums.EventType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,19 +13,67 @@ import java.util.List;
 @Data
 @Builder
 public class TaskEvent {
+
+    /* Unique identifier for task, bug, epic, story, subtask, etc. */
+    private String entityId;
+
+    /* Title of the task, bug, epic, story, or subtask */
     private String title;
-    private String taskId;
+
+    /* Description of the task, bug, epic, story, or subtask */
     private String description;
-    private LocalDateTime dueDate;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
-    private Priority priority;
+
+    /* Project ID to which this entity belongs */
     private String projectId;
-    private String assignedBy;
-    private List<String> assignees;
-    private Status oldStatus;
-    private Status newStatus;
-    private String updatedBy;
+
+    /* Timestamp when the entity was created */
+    private LocalDateTime createdDate;
+
+    /* Timestamp when the entity was last updated */
+    private LocalDateTime updatedDate;
+
+    /* Due date for the task, bug, epic, or subtask */
+    private LocalDateTime dueDate;
+
+    /* Timestamp when the entity was completed */
     private LocalDateTime completionTime;
+
+    /* Priority level: High, Medium, Low */
+    private Priority priority;
+
+    /* Previous status before an update */
+    private Status oldStatus;
+
+    /* New status after an update */
+    private Status newStatus;
+
+    /* User who assigned this task, bug, or story */
+    private String assignedBy;
+
+    /* List of users assigned to this entity */
+    private List<String> assignees;
+
+    /* User who performed the last update */
+    private String updatedBy;
+
+    /* Type of event (CREATED, UPDATED, DELETED, etc.) */
     private EventType eventType;
+
+    /* Action performed on this entity (CREATED, UPDATED, DELETED) */
+    private Actions action;
+
+    /* Tags associated with the entity (for tagging feature) */
+    private List<String> tags;
+
+    /* Comment text, used when a comment is added */
+    private String commentText;
+
+    /* User who added the comment */
+    private String commentedBy;
+
+    /* List of attachment URLs (for files/images) */
+    private List<String> attachmentUrls;
+
+    /* List of linked entities (used for linking tasks, bugs, epics, etc.) */
+    private List<String> linkedEntityIds;
 }

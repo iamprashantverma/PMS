@@ -1,23 +1,33 @@
 package com.pms.TaskService.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import graphql.schema.DataFetchingEnvironment;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
+/**
+ * DTO for Task entity, extending IssueDTO to inherit common issue properties.
+ */
 @Data
-@Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class TaskDTO extends IssueDTO{
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class TaskDTO extends IssueDTO {
 
+    /**
+     * If true, this task is preventing others from progressing.
+     */
     private boolean isBlocking;
-    private List<String> memberId;
 
-    private EpicDTO epic;
-    private List<SubTaskDTO> subTasks;
+    /**
+     * ID of the epic this task belongs to, if any.
+     */
+    private String epicId;
+
+    /**
+     * List of IDs of subtasks associated with this task.
+     */
+    private List<String> subTaskIds;
 }

@@ -20,10 +20,9 @@ type StoryDTO {
 }
 
 input StoryInputDTO{
-
     title: String
+    epicId:String!
     description: String
-    project: String
     assignees: [String]
     creator: String
     createdDate: String
@@ -31,6 +30,4 @@ input StoryInputDTO{
     status: IssueStatus
     priority: Priority
     tag: IssueTag
-
-    acceptanceCriteria : String
 }
