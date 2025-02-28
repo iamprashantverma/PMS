@@ -6,6 +6,7 @@ import com.pms.TaskService.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 import java.util.List;
 
@@ -33,9 +34,10 @@ public abstract class Issue {
     @PrePersist
     public void generateId() {
         if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
+            this.id = String.format("%06d", new Random().nextInt(999999));
         }
     }
+
 
     private String title;
     private String description;

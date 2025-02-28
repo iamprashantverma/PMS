@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,4 +45,5 @@ public class EpicDTO  {
     private Status status;
     private Priority priority;
     private Long completionPercent;
+    private LocalDate dueDate;
 }

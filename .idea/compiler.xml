@@ -11,16 +11,8 @@
         <module name="Project-Service" />
         <module name="Notification-Service" />
         <module name="discovery-server" />
-        <module name="User-Service" />
-      </profile>
-      <profile name="Annotation profile for Task-Service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath>
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
         <module name="Task-Service" />
+        <module name="User-Service" />
       </profile>
     </annotationProcessing>
   </component>

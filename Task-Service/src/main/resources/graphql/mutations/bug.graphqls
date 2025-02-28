@@ -1,0 +1,7 @@
+extend type Mutation{
+    createBug(bugInput:BugInput):BugDTO
+    updateBug(bugDTO:BugInput!):BugDTO
+    deleteBug(bugId:String!):BugDTO
+    assignBugToUser(bugId:String!,userId:String!):BugDTO
+    changeBugStatus(bugId:String!,status:IssueStatus!):BugDTO
+}

@@ -2,6 +2,8 @@ package com.pms.TaskService.resolver;
 
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
+import com.pms.TaskService.entities.Task;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,19 +25,26 @@ public class TaskResolver {
 
     private final TaskService taskService;
 
-    /* create task */
+    /**
+     * Create the task
+     * @param taskDTO contains details of the task
+     * @return  TaskDTO
+     */
     @MutationMapping
-    public ResponseEntity<TaskDTO> createTask(@Argument("task") TaskDTO taskDTO){
+    public TaskDTO createTask(@Argument("task") TaskDTO taskDTO){
         TaskDTO task = taskService.createTask(taskDTO);
         log.info(task.getTitle());
-        return new ResponseEntity<>(task,  HttpStatus.CREATED);
+        return task;
     }
 
-    //get All task
+    /**
+     *
+     * @param taskId of this id we want the task
+     * @return TaskDTO
+     */
     @QueryMapping
-    public ResponseEntity<TaskDTO> getTaskById(@Argument("taskId") String taskId){
-        TaskDTO task = taskService.getTaskById(taskId);
-        return new ResponseEntity<>(task, HttpStatus.OK);
+    public TaskDTO getTaskById(@Argument("taskId") String taskId){
+        return taskService.getTaskById(taskId);
     }
 
     @MutationMapping
@@ -54,5 +63,34 @@ public class TaskResolver {
         return taskService.getAllTaskByProjectId(projectId);
     }
 
+    /**
+     *  fetch all the tasks
+     * @return List<TaskDTO>
+     */
+    @QueryMapping
+    public List<TaskDTO> getAllTasks(){
+        return taskService.getAllTasks();
+    }
 
+    /**
+     * get all the task which is allocated to a user
+     *
+     * @param userId id of the user to  fetch he all tasks
+     * @return  list of TaskDTO
+     */
+    @QueryMapping
+    public List<TaskDTO> getTasksByUserId(@Argument("userId") String userId){
+        return taskService.getTasksByUserId(userId);
+    }
+
+    /**
+     *
+     * @param status of this status get all task
+     * @return list of taskDTO
+     */
+
+    @QueryMapping
+    public List<TaskDTO> getTasksByStatus(@Argument("status")Status status) {
+        return taskService.getTasksByStatus(status);
+    }
 }

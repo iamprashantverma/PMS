@@ -35,5 +35,6 @@ public class Task extends Issue {
     @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubTask> subTasks;
 
+
 }
 

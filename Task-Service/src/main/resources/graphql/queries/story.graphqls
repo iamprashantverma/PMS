@@ -1,3 +1,6 @@
  extend type Query {
-    getStoryById(storyId:ID!): StoryDTO
+     getStoryById(storyId:ID!): StoryDTO
+     getAllStoriesByProjectId(projectId:String!):[StoryDTO]
+     getAllStoriesByUserId(userId:String!):[StoryDTO]
+     getStoriesByStatus(status:IssueStatus):[StoryDTO]
 }

@@ -203,7 +203,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDTO> getTasksByStatus(String status) {
+    public List<TaskDTO> getTasksByStatus(Status status) {
         List<Task> tasks = taskRepository.findAllByStatus(status);
         return tasks.stream()
                 .map(this::convertToDTO)

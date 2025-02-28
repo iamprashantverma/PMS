@@ -27,6 +27,11 @@ public class TaskDTO extends IssueDTO {
     private String epicId;
 
     /**
+     * ID of the story this task belongs to, if any.
+     */
+    private String storyId;
+
+    /**
      * List of IDs of subtasks associated with this task.
      */
     private List<String> subTaskIds;

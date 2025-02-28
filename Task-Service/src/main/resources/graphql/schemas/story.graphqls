@@ -1,7 +1,3 @@
-
-
-
-
 type StoryDTO {
     id : ID!
     title: String
@@ -20,14 +16,12 @@ type StoryDTO {
 }
 
 input StoryInputDTO{
+    id:String
     title: String
     epicId:String!
     description: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
     status: IssueStatus
     priority: Priority
     tag: IssueTag
+    dueDate: String
 }

@@ -107,12 +107,19 @@ public class StoryServiceImpl implements StoryService {
         Story story = getStoryEntity(storyDTO.getId());
         story.setUpdatedDate(LocalDateTime.now());
 
-        Story modifiedStory = modelMapper.map(storyDTO,Story.class);
+        Story modifiedStory = modelMapper.map(storyDTO, Story.class);
         // persist into the db
-        Story savedStory =  storyRepository.save(story);
+        modifiedStory.setUpdatedDate(LocalDateTime.now());
+        Story savedStory =  storyRepository.save(modifiedStory);
 
         TaskEvent taskEvent = generateTaskEvent(savedStory);
         taskEvent.setAction(Actions.UPDATED);
+        taskEvent.setPriority(modifiedStory.getPriority());
+        taskEvent.setNewStatus(modifiedStory.getStatus());
+        taskEvent.setNewStatus(modifiedStory.getStatus());
+        taskEvent.setProjectId(modifiedStory.getProjectId());
+        taskEvent.setUpdatedDate(LocalDateTime.now());
+        taskEvent.setDescription("Story Updated Successfully ");
 
         taskEventProducer.sendTaskEvent(taskEvent);
 
@@ -228,7 +235,7 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     @Transactional
-    public ResponseDTO addStoryOnEpic(String epicId, Story story) {
+    public void addStoryOnEpic(String epicId, Story story) {
         Epic epic = epicRepository.findById(epicId).orElseThrow(()->
                 new ResourceNotFound("Epic not found : "+epicId));
         epic.getStories().add(story);
@@ -238,7 +245,7 @@ public class StoryServiceImpl implements StoryService {
         epicRepository.save(epic) ;
         storyRepository.save(story);
 
-        return ResponseDTO.builder()
+        ResponseDTO.builder()
                 .message("story added to the epics")
                 .build();
 

@@ -139,7 +139,7 @@ public class BugServiceImpl implements BugService {
     }
 
     @Override
-    public BugDTO updateBug(BugDTO bugDTO, String bugId) {
+    public BugDTO updateBug(BugDTO bugDTO) {
         return null;
     }
 

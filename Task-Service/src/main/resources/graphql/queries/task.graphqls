@@ -1,4 +1,7 @@
 extend type Query{
     getTaskById(taskId : ID!): TaskDTO
     getAllTaskByProjectId(projectId : ID!) : [TaskDTO]
+    getAllTasks:[TaskDTO]
+    getTasksByUserId(userId:String!):[TaskDTO]
+    getTasksByStatus(status:IssueStatus):[TaskDTO]
 }

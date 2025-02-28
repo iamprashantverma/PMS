@@ -1,11 +1,7 @@
-
-
-
 type SubTaskDTO {
     id : ID!
     title: String
     description: String
-    project: String
     assignees: [String]
     creator: String
     createdDate: String
@@ -18,14 +14,11 @@ type SubTaskDTO {
 }
 
 input SubTaskInputDTO{
-    title: String
-    description: String
-    project: String
-    assignees: [String]
-    creator: String
-    createdDate: String
-    updatedDate: String
-    status: IssueStatus
-    priority: Priority
+    title: String!
+    description: String!
+    taskId:String!
+    status: IssueStatus!
+    priority: Priority!
     tag: IssueTag
+    dueDate: String!
 }

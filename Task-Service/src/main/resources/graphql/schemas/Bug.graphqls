@@ -1,0 +1,26 @@
+input BugInput {
+    title: String!
+    description: String
+    epicId: String
+    storyId: String
+    taskId: String
+    status: IssueStatus!
+    priority: Priority!
+    tag: IssueTag
+    expectedOutcome: String!
+    actualOutcome: String!
+}
+
+type BugDTO {
+    id: ID!
+    title: String!
+    description: String
+    epicId: String
+    storyId: String
+    taskId: String
+    status: IssueStatus!
+    priority: Priority!
+    tag: IssueTag
+    createdAt: String!
+    updatedAt: String!
+}

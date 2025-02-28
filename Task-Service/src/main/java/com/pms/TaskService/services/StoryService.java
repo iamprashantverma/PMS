@@ -93,10 +93,8 @@ public interface StoryService {
      */
     List<StoryDTO> getStoriesByStatus(Status status);
     /**
-     *
      * @param epicId to fetch Epic
-     * @param story entity
-     * @return ResponseDTO
+     * @param story  entity
      */
-    ResponseDTO addStoryOnEpic(String epicId, Story story);
+    void addStoryOnEpic(String epicId, Story story);
 }

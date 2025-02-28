@@ -2,8 +2,8 @@ package com.pms.TaskService.services;
 
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
-import com.pms.TaskService.entities.Story;
 import com.pms.TaskService.entities.Task;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 
 import java.util.List;
@@ -89,7 +89,7 @@ public interface TaskService {
      * @param status The status of the tasks to retrieve.
      * @return A list of TaskDTOs filtered by the given status.
      */
-    List<TaskDTO> getTasksByStatus(String status);
+    List<TaskDTO> getTasksByStatus(Status status);
 
 
 

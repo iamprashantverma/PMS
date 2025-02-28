@@ -1,6 +1,7 @@
 package com.pms.TaskService.resolver;
 
 import com.pms.TaskService.dto.EpicDTO;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.EpicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,5 +43,16 @@ public class EpicResolver {
     @QueryMapping
     public List<EpicDTO> getAllEpics() {
         return epicService.getAllActiveEpics();
+    }
+
+    /**
+     *
+     * @param epicId id of epic to update
+     * @param status new status
+     * @return EpicDTO
+     */
+    @MutationMapping
+    public EpicDTO updateEpicStatus(@Argument("epicId") String epicId, @Argument("status") Status status) {
+        return epicService.updateEpicStatus(epicId,status);
     }
 }

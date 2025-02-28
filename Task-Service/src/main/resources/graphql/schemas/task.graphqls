@@ -18,11 +18,9 @@ type TaskDTO {
     subTasks : [SubTaskDTO]
 }
 
-input TaskInputDTO{
-    title: String
-    description: String
-    project: String
-    assignees: [String]
+input TaskInputDTO {
+    title: String!
+    description: String!
     status: IssueStatus
     priority: Priority
     tag: IssueTag

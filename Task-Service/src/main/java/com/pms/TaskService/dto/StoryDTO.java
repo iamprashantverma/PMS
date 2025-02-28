@@ -1,6 +1,11 @@
 package com.pms.TaskService.dto;
 
+import com.pms.TaskService.entities.enums.Priority;
+import com.pms.TaskService.entities.enums.Status;
 import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DTO for Story entity, extending IssueDTO to inherit common issue properties.
@@ -20,4 +25,15 @@ public class StoryDTO extends IssueDTO {
      * ID of the epic this story belongs to, if any.
      */
     private String epicId;
+    private String id;
+    private String title;
+    private String description;
+    private String projectId;
+    private List<String> assignees;
+    private String creator;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
+    private Status status;
+    private Priority priority;
+    private Long completionPercent;
 }

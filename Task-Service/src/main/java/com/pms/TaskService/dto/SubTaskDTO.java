@@ -1,5 +1,7 @@
 package com.pms.TaskService.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,4 +20,7 @@ public class SubTaskDTO extends IssueDTO {
      * ID of the parent task this subtask belongs to.
      */
     private String parentTaskId;
+    @NotNull(message = "please provide the task id")
+    @NotBlank(message = "please enter valid taskId")
+    private String taskId;
 }

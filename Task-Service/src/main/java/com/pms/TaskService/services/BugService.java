@@ -32,10 +32,10 @@ public interface BugService {
      * Updates an existing bug with new information.
      *
      * @param bugDTO The data transfer object containing the updated bug details.
-     * @param bugId  The unique identifier of the bug to update.
+
      * @return The updated bug as a BugDTO.
      */
-    BugDTO updateBug(BugDTO bugDTO, String bugId);
+    BugDTO updateBug(BugDTO bugDTO);
 
     /**
      * Deletes a bug by its unique identifier.
