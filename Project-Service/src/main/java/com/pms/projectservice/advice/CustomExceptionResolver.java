@@ -1,4 +1,4 @@
-package com.pms.projectservice.resolver;
+package com.pms.projectservice.advice;
 
 import com.pms.projectservice.exceptions.ResourceNotFound;
 import graphql.GraphQLError;

@@ -1,7 +1,6 @@
 package com.pms.Notification_Service.consumer;
 
 import com.pms.Notification_Service.event.TaskEvent;
-import com.pms.Notification_Service.service.NotificationService;
 import com.pms.Notification_Service.service.impl.NotificationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,4 +30,5 @@ public class TaskConsumer {
             default -> log.warn("Unknown Task Event Type: {}", taskEvent.getEventType());
         }
     }
+
 }

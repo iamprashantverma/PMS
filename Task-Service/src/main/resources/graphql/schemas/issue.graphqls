@@ -46,3 +46,9 @@ enum IssueTag {
     BACKEND
 }
 
+type UserDTO{
+    name:String!
+    email:String
+    image:String
+}
+
