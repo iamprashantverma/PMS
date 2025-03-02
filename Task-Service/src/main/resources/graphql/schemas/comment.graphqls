@@ -1,0 +1,10 @@
+type CommentDTO {
+    taskId: String
+    userId: String
+    message: String
+}
+input CommentInput{
+    taskId:String
+    userId:String
+    message:String
+}

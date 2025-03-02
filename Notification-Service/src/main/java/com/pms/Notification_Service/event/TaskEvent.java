@@ -1,6 +1,7 @@
 package com.pms.Notification_Service.event;
 
 
+import com.pms.Notification_Service.event.enums.Actions;
 import com.pms.Notification_Service.event.enums.EventType;
 import com.pms.Notification_Service.event.enums.Priority;
 import com.pms.Notification_Service.event.enums.Status;
@@ -21,6 +22,7 @@ public class TaskEvent {
     private LocalDateTime updatedDate;
     private Priority priority;
     private String projectId;
+    private Actions action;
     private String assignedBy;
     private List<String> assignees;
     private Status oldStatus;

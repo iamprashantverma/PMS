@@ -6,26 +6,18 @@ import com.pms.Notification_Service.event.TaskEvent;
 
 public interface NotificationService {
 
-    void taskCreatedHandler(TaskEvent taskEvent);
 
-    void taskUpdatedHandler(TaskEvent taskEvent);
+    void taskTopicCreationHandler(TaskEvent taskEvent);
 
-    void taskCompletedHandler(TaskEvent taskEvent);
+    void taskTopicUpdateHandler(TaskEvent taskEvent);
 
-    void projectCreatedHandler(ProjectEvent projectEvent);
+    void taskTopicStatusUpdateHandler(TaskEvent taskEvent);
 
-    void projectUpdatedHandler(ProjectEvent projectEvent);
+    void taskTopicDeletionHandler(TaskEvent taskEvent);
 
-    void projectCompletedHandler(ProjectEvent projectEvent);
+    void taskTopicMemberAssignedHandler(TaskEvent taskEvent);
 
-    void priorityUpdatedHandler(ProjectEvent projectEvent);
+    void taskTopicMemberUnassignedHandler(TaskEvent taskEvent);
 
-    void memberAssignedHandler(ProjectEvent projectEvent);
-
-    void memberRemovedHandler(ProjectEvent projectEvent);
-
-    void statusUpdatedHandler(ProjectEvent projectEvent);
-
-    void projectDeadlineExtendedHandler(ProjectEvent projectEvent);
-
+    void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent);
 }

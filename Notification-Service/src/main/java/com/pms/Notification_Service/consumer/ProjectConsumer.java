@@ -20,24 +20,9 @@ public class ProjectConsumer {
     @KafkaListener(topics = "project-topic", groupId = "project-group")
     public void consumeProjectEvents(ProjectEvent event) {
         log.info("Task Event successfully received: {}", event);
+
         /* Route to the appropriate method based on the event type */
-
-    }
-
-    private void route(ProjectEvent projectEvent) {
-
-        switch (projectEvent.getEventType()) {
-            case PROJECT_CREATED -> notificationService.projectCreatedHandler(projectEvent);
-            case PROJECT_UPDATED -> notificationService.projectUpdatedHandler(projectEvent);
-            case PROJECT_COMPLETED -> notificationService.projectCompletedHandler(projectEvent);
-            case PRIORITY_UPDATED -> notificationService.priorityUpdatedHandler(projectEvent);
-            case MEMBER_ASSIGNED -> notificationService.memberAssignedHandler(projectEvent);
-            case MEMBER_REMOVED -> notificationService.memberRemovedHandler(projectEvent);
-            case STATUS_UPDATED -> notificationService.statusUpdatedHandler(projectEvent);
-            case PROJECT_DEADLINE_EXTENDED -> notificationService.projectDeadlineExtendedHandler(projectEvent);
-            default -> log.warn("Unknown Project Event Type: {}", projectEvent.getEventType());
-        }
-
+        notificationService.handleProjectEvent(event);
     }
 
 }

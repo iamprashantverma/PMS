@@ -1,16 +1,12 @@
 package com.pms.Notification_Service.event.enums;
 
 public enum EventType {
-    TASK_CREATED,
-    TASK_UPDATED,
-    TASK_STATUS_CHANGED,
-    TASK_COMPLETED,
-    PROJECT_CREATED,
-    MEMBER_ASSIGNED,
-    STATUS_UPDATED,
-    PROJECT_UPDATED,
-    PROJECT_COMPLETED,
-    PRIORITY_UPDATED,
-    MEMBER_REMOVED,
-    PROJECT_DEADLINE_EXTENDED
+    TASK,
+    SUBTASK,
+    EPIC,
+    PROJECT,
+    BUG,
+    STORY,
+    ISSUE,
+
 }

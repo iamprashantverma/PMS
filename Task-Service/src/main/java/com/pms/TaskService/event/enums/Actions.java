@@ -1,55 +1,90 @@
 package com.pms.TaskService.event.enums;
 
 public enum Actions {
-    /** New entity created */
+    /** General Actions */
     CREATED,
-
-    /** Entity updated */
     UPDATED,
-
-    /** Entity deleted */
     DELETED,
-
-    /** Status changed (e.g., Open → In Progress) */
     STATUS_CHANGED,
-
-    /** Assigned to a user */
     ASSIGNED,
-
-    /** Unassigned from a user */
     UNASSIGNED,
-
-    /** Comment added */
     COMMENTED,
-
-    /** File/attachment added */
     ATTACHMENT_ADDED,
-
-    /** File/attachment removed */
     ATTACHMENT_REMOVED,
-
-    /** Priority changed (e.g., High → Medium) */
     PRIORITY_CHANGED,
-
-    /** Tag added to an entity */
     TAG_ADDED,
-
-    /** Tag removed from an entity */
     TAG_REMOVED,
-
-    /** Entity linked to another (e.g., Story linked to an Epic) */
     LINKED,
-
-    /** Entity unlinked from another */
     UNLINKED,
-
-    /** Bug or Issue resolved */
     RESOLVED,
-
-    /** Bug or Issue reopened */
     REOPENED,
-
-    /** Entity closed (e.g., Task Completed, Bug Closed) */
     CLOSED,
 
+    /** Project-Specific Actions */
+    PROJECT_CREATED,
+    PROJECT_UPDATED,
+    PROJECT_COMPLETED,
+    PROJECT_DELETED,
+    PROJECT_ARCHIVED,
+    PROJECT_RESTORED,
+    PROJECT_DEADLINE_EXTENDED,
+
+    /** Member Actions */
+    MEMBER_ASSIGNED,
+    MEMBER_UNASSIGNED,
+    MEMBER_REMOVED,
+    MEMBER_ROLE_CHANGED,
+
+    /** Task-Specific Actions */
+    TASK_STARTED,
+    TASK_PAUSED,
+    TASK_RESUMED,
+    TASK_BLOCKED,
+    TASK_UNBLOCKED,
+    TASK_DUE_DATE_UPDATED,
+    TASK_DEPENDENCY_ADDED,
+    TASK_DEPENDENCY_REMOVED,
+
+    /** Subtask-Specific Actions */
+    SUBTASK_CREATED,
+    SUBTASK_UPDATED,
+    SUBTASK_DELETED,
+    SUBTASK_COMPLETED,
+    SUBTASK_REOPENED,
+
+    /** Bug-Specific Actions */
+    BUG_REPORTED,
+    BUG_CONFIRMED,
+    BUG_IN_PROGRESS,
+    BUG_FIXED,
+    BUG_VERIFIED,
+    BUG_CLOSED,
+    BUG_REJECTED,
+
+    /** Epic-Specific Actions */
+    EPIC_CREATED,
+    EPIC_UPDATED,
+    EPIC_CLOSED,
+    EPIC_SCOPE_CHANGED,
+
+    /** Issue-Specific Actions */
+    ISSUE_REPORTED,
+    ISSUE_ACKNOWLEDGED,
+    ISSUE_ESCALATED,
+    ISSUE_RESOLVED,
+    ISSUE_CLOSED,
+
+    /** Story-Specific Actions */
+    STORY_CREATED,
+    STORY_UPDATED,
+    STORY_COMPLETED,
+    STORY_REOPENED,
+    STORY_DEPENDENCY_ADDED,
+    STORY_DEPENDENCY_REMOVED,
+
+    /** Sprint Actions */
+    SPRINT_STARTED,
+    SPRINT_COMPLETED,
+    SPRINT_CANCELED,
+    SPRINT_GOAL_UPDATED
 }
