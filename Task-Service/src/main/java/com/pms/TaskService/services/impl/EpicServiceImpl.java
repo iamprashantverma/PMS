@@ -4,10 +4,8 @@ import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.clients.UserFeignClient;
 import com.pms.TaskService.dto.EpicDTO;
 import com.pms.TaskService.dto.ProjectDTO;
-import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.UserDTO;
 import com.pms.TaskService.entities.Epic;
-import com.pms.TaskService.entities.Issue;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
@@ -21,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -36,6 +35,7 @@ public class EpicServiceImpl implements EpicService {
     private final TaskEventProducer producer;
     private final ProjectFeignClient projectFeignClient;
     private final UserFeignClient userFeignClient;
+
 
     /**
      * Generates a TaskEvent for an Epic.
