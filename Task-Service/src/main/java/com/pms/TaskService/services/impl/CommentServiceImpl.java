@@ -13,11 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Sinks;
-import reactor.core.publisher.Flux;
+import org.reactivestreams.Publisher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +32,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
 
-    //  Add commentSink for real-time updates
-    private final Sinks.Many<Comment> sink = Sinks.many().multicast().onBackpressureBuffer();
+    // Queue for real-time updates
+    private final Queue<Comment> commentQueue = new ConcurrentLinkedQueue<>();
 
     private CommentDTO convertToDTO(Comment comment) {
         return modelMapper.map(comment, CommentDTO.class);
@@ -64,7 +65,7 @@ public class CommentServiceImpl implements CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         // Emit the comment for real-time subscribers
-        sink.tryEmitNext(savedComment);
+        commentQueue.offer(savedComment);
 
         // Extract mentioned users from comment content (e.g., @user123)
         List<String> mentionedUserIds = extractMentionedUsers(commentDto.getMessage());
@@ -85,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
         existingComment.setMessage(commentDto.getMessage());
         Comment updatedComment = commentRepository.save(existingComment);
 
-        sink.tryEmitNext(updatedComment); // Emit updated comment for real-time updates
+        commentQueue.offer(updatedComment); // Emit updated comment for real-time updates
 
         return convertToDTO(updatedComment);
     }
@@ -119,17 +120,20 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Flux<CommentDTO> subscribeToCommentUpdates(String taskId) {
-        // Fetch existing comments from the database
-        Flux<CommentDTO> existingComments = Flux.fromIterable(commentRepository.findAllByTaskId(taskId))
-                .map(this::convertToDTO);
+    public Publisher<CommentDTO> subscribeToCommentUpdates(String taskId) {
+        return subscriber -> {
+            // Send existing comments first
+            List<CommentDTO> existingComments = getCommentsByTaskId(taskId);
+            existingComments.forEach(subscriber::onNext);
 
-        // Stream new comments using sink
-        Flux<CommentDTO> newCommentStream = sink.asFlux()
-                .filter(comment -> comment.getTaskId().equals(taskId)) // Filter for the correct task
-                .map(this::convertToDTO);
-
-        // Combine both: First return existing comments, then subscribe to new ones
-        return Flux.concat(existingComments, newCommentStream);
+            // Continuously send new comments
+            while (!Thread.currentThread().isInterrupted()) {
+                Comment comment = commentQueue.poll();
+                if (comment != null && comment.getTaskId().equals(taskId)) {
+                    subscriber.onNext(convertToDTO(comment));
+                }
+            }
+        };
     }
+
 }

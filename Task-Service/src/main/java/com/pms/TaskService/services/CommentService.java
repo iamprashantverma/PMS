@@ -4,6 +4,7 @@ import com.pms.TaskService.dto.CommentDTO;
 
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.Comment;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import java.util.List;
 
@@ -61,5 +62,5 @@ public interface CommentService {
      * @param postId The unique ID of the post/task.
      * @return A Flux stream of Comment objects for real-time updates.
      */
-    Flux<CommentDTO> subscribeToCommentUpdates(String postId);
+    Publisher<CommentDTO> subscribeToCommentUpdates(String postId);
 }
