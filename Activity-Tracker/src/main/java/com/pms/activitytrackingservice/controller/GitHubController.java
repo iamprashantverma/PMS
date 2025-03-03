@@ -33,7 +33,6 @@ public class GitHubController {
     public ResponseEntity<String> handleGitHubWebhook(
             @RequestBody Map<String, Object> payload,
             @RequestHeader("X-GitHub-Event") String eventType) {
-        log.info(" hey prashant{} ",payload);
 
         log.info("Received GitHub Webhook - Event: {}", eventType);
         log.info("Payload: {}", payload);
@@ -55,10 +54,9 @@ public class GitHubController {
             change.setCommitHash(commitHash);
             change.setAuthor(author);
 
-            System.out.println(change);
             gitHubChangeService.saveGitHubChange(change);
         } catch (Exception e) {
-            log.error("i m reaching dear", e);
+
             return ResponseEntity.badRequest().body("Error processing event");
         }
 
