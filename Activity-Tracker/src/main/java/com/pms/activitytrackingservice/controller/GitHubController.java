@@ -67,7 +67,7 @@ public class GitHubController {
             System.out.println(change.getAuthor());
             System.out.println(change.getBranch());
             System.out.println(change.getRepositoryName());
-
+            log.info("nhi hua");
             // Save the change in your service
             gitHubChangeService.saveGitHubChange(change);
         } catch (Exception e) {
