@@ -37,30 +37,49 @@ public class GitHubController {
         log.info("Received GitHub Webhook - Event: {}", eventType);
 
         try {
-            String repositoryName = ((Map<String, Object>) payload.get("repository")).get("full_name").toString();
-            String commitMessage = ((Map<String, Object>) ((Map<String, Object>) payload.get("head_commit")).get("message")).toString();
-            String commitHash = ((Map<String, Object>) payload.get("head_commit")).get("id").toString();
-            String author = ((Map<String, Object>) ((Map<String, Object>) payload.get("head_commit")).get("author")).get("name").toString();
+            log.info("i m withing");
+            // Extract repository information
+            Map<String, Object> repository = (Map<String, Object>) payload.get("repository");
+            String repositoryName = repository != null ? repository.get("full_name").toString() : "";
 
+            // Extract commit information
+            Map<String, Object> headCommit = (Map<String, Object>) payload.get("head_commit");
+            String commitMessage = headCommit != null ? headCommit.get("message").toString() : "";
+            String commitHash = headCommit != null ? headCommit.get("id").toString() : "";
+            Map<String, Object> author = headCommit != null ? (Map<String, Object>) headCommit.get("author") : null;
+            String authorName = author != null ? author.get("name").toString() : "";
+
+            // Extract branch information
+            String ref = payload.get("ref") != null ? payload.get("ref").toString() : "";
+            String branch = ref.replace("refs/heads/", "");
+
+            // Create and populate the GitHubChangeDTO object
             GitHubChangeDTO change = new GitHubChangeDTO();
             change.setEventType(eventType);
             change.setRepositoryName(repositoryName);
-            change.setBranch(payload.get("ref").toString().replace("refs/heads/", ""));
+            change.setBranch(branch);
             change.setCommitMessage(commitMessage);
             change.setCommitHash(commitHash);
-            change.setAuthor(author);
+            change.setAuthor(authorName);
+
+            // Logging for debugging purposes
             System.out.println(change.getCommitMessage());
             System.out.println(change.getAuthor());
             System.out.println(change.getBranch());
             System.out.println(change.getRepositoryName());
+
+            // Save the change in your service
             gitHubChangeService.saveGitHubChange(change);
         } catch (Exception e) {
-
+            // Log error and return bad request
+            log.error("Error processing webhook event: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("Error processing event");
         }
 
+        // Return success response
         return ResponseEntity.ok("Webhook event processed successfully");
     }
+
 
     @PostMapping("/hello/{hello}")
     public void getHello(@PathVariable String hello) {
