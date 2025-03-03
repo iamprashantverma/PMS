@@ -68,6 +68,7 @@ public class StoryServiceImpl implements StoryService {
      * @param story  The Story entity.
      * @return The generated TaskEvent.
      */
+
     private TaskEvent generateTaskEvent(Story story) {
         return TaskEvent.builder()
                 .entityId(story.getId())

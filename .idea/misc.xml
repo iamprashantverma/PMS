@@ -16,6 +16,7 @@
         <option value="$PROJECT_DIR$/api-gateway/pom.xml" />
         <option value="$PROJECT_DIR$/Notifcation-Service/pom.xml" />
         <option value="$PROJECT_DIR$/Notification-Service/pom.xml" />
+        <option value="$PROJECT_DIR$/Activity-Tracker/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

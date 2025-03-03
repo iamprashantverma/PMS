@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +18,5 @@ public class NotificationEvent {
     private String message;
     private String id;
     @CreationTimestamp
-    private Instant timestamp;
+    private LocalDateTime timestamp;
 }

@@ -14,10 +14,20 @@
         <module name="Task-Service" />
         <module name="User-Service" />
       </profile>
+      <profile name="Annotation profile for Activity-Tracker" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath>
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="Activity-Tracker" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Activity-Tracker" options="-parameters" />
       <module name="Notification-Service" options="-parameters" />
       <module name="Project-Service" options="-parameters" />
       <module name="Task-Service" options="-parameters" />
