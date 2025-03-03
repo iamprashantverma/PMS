@@ -49,7 +49,10 @@ public class GitHubController {
             change.setCommitMessage(commitMessage);
             change.setCommitHash(commitHash);
             change.setAuthor(author);
-
+            System.out.println(change.getCommitMessage());
+            System.out.println(change.getAuthor());
+            System.out.println(change.getBranch());
+            System.out.println(change.getRepositoryName());
             gitHubChangeService.saveGitHubChange(change);
         } catch (Exception e) {
 
