@@ -35,7 +35,6 @@ public class GitHubController {
             @RequestHeader("X-GitHub-Event") String eventType) {
 
         log.info("Received GitHub Webhook - Event: {}", eventType);
-        log.info("Payload: {}", payload);
 
         try {
             for (Object o:payload.keySet()) {
