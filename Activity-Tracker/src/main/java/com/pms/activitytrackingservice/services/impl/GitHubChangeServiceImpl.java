@@ -20,6 +20,10 @@ public class GitHubChangeServiceImpl implements GitHubChangeService {
 
     @Override
     public GitHubChangeDTO saveGitHubChange(GitHubChangeDTO gitHubChange) {
+        System.out.println(gitHubChange.getAuthor());
+        System.out.println(gitHubChange.getBranch());
+        System.out.println(gitHubChange.getCommitMessage());
+
         return null;
     }
 

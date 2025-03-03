@@ -51,6 +51,7 @@ public class GitHubController {
             change.setCommitHash(commitHash);
             change.setAuthor(author);
 
+            System.out.println(change);
             gitHubChangeService.saveGitHubChange(change);
         } catch (Exception e) {
             log.error("i m reaching dear", e);
