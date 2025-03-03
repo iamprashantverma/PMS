@@ -33,6 +33,7 @@ public class GitHubController {
     public ResponseEntity<String> handleGitHubWebhook(
             @RequestBody Map<String, Object> payload,
             @RequestHeader("X-GitHub-Event") String eventType) {
+        log.info(" hey prashant ");
 
         log.info("Received GitHub Webhook - Event: {}", eventType);
         log.info("Payload: {}", payload);
