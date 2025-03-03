@@ -38,6 +38,9 @@ public class GitHubController {
         log.info("Payload: {}", payload);
 
         try {
+            for (Object o:payload.keySet()) {
+                System.out.println(payload.get(o));
+            }
             String repositoryName = ((Map<String, Object>) payload.get("repository")).get("full_name").toString();
             String commitMessage = ((Map<String, Object>) ((Map<String, Object>) payload.get("head_commit")).get("message")).toString();
             String commitHash = ((Map<String, Object>) payload.get("head_commit")).get("id").toString();
