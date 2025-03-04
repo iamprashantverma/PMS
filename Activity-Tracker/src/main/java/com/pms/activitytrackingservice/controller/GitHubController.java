@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller for handling GitHub change events and processing webhook payloads.
@@ -39,7 +40,10 @@ public class GitHubController {
             log.info("i m withing");
             // Extract repository information
             Map<String, Object> repository = (Map<String, Object>) payload.get("repository");
-            String repositoryName = repository != null ? repository.get("full_name").toString() : "";
+            String repositoryName = Optional.ofNullable(repository)
+                    .map(repo -> repo.get("full_name").toString().split("/"))
+                    .map(parts -> parts[parts.length - 1]) // Extract the last part (actual repo name)
+                    .orElse("Unknown");
 
             // Extract commit information
             Map<String, Object> headCommit = (Map<String, Object>) payload.get("head_commit");
