@@ -7,11 +7,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="discovery-server" />
+        <module name="Task-Service" />
         <module name="api-gateway" />
         <module name="Project-Service" />
         <module name="Notification-Service" />
-        <module name="discovery-server" />
-        <module name="Task-Service" />
+        <module name="Config-Server" />
         <module name="User-Service" />
       </profile>
       <profile name="Annotation profile for Activity-Tracker" enabled="true">
@@ -28,6 +29,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Activity-Tracker" options="-parameters" />
+      <module name="Config-Server" options="-parameters" />
       <module name="Notification-Service" options="-parameters" />
       <module name="Project-Service" options="-parameters" />
       <module name="Task-Service" options="-parameters" />

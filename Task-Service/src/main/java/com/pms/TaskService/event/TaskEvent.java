@@ -56,7 +56,7 @@ public class TaskEvent {
     /* User who performed the last update */
     private String updatedBy;
 
-    /* Type of event (CREATED, UPDATED, DELETED, etc.) */
+
     private EventType eventType;
 
     /* Action performed on this entity (CREATED, UPDATED, DELETED) */
