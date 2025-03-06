@@ -5,6 +5,8 @@ import com.pms.TaskService.entities.enums.Status;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
@@ -51,8 +53,9 @@ public abstract class Issue {
     private List<String> assignees;
     private String creator;
 
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
+    private LocalDate deadLine;
 
     /**
      * Current status of the issue (TODO, IN_PROGRESS, DONE, etc.)

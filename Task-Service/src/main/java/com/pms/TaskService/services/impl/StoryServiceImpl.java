@@ -9,6 +9,7 @@ import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.StoryRepository;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final EpicRepository epicRepository;
     private final TaskEventProducer taskEventProducer;
+    private final CalendarEventProducer calendarEventProducer;
 
     /**
      * Converts a StoryDTO to a Story entity.
@@ -75,6 +78,10 @@ public class StoryServiceImpl implements StoryService {
                 .title(story.getTitle())
                 .projectId(story.getProjectId())
                 .eventType(EventType.STORY)
+                .assignees(story.getAssignees())
+                .deadline(story.getDeadLine())
+                .createdDate(story.getCreatedDate())
+                .priority(story.getPriority())
                 .build();
     }
 
@@ -83,7 +90,7 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO createStory(StoryDTO storyDTO) {
         // convert into the story entity
         Story story = convertToEntity(storyDTO);
-        story.setCreatedDate(LocalDateTime.now());
+        story.setCreatedDate(LocalDate.now());
         // saved the new story into the DB
         Story savedStory = storyRepository.save(story);
 
@@ -99,6 +106,9 @@ public class StoryServiceImpl implements StoryService {
         taskEvent.setDescription("Story Created");
         taskEventProducer.sendTaskEvent(taskEvent);
 
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
+
         return convertToDTO(story);
     }
 
@@ -106,11 +116,11 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO updateStory(StoryDTO storyDTO) {
 
         Story story = getStoryEntity(storyDTO.getId());
-        story.setUpdatedDate(LocalDateTime.now());
+        story.setUpdatedDate(LocalDate.now());
 
         Story modifiedStory = modelMapper.map(storyDTO, Story.class);
         // persist into the db
-        modifiedStory.setUpdatedDate(LocalDateTime.now());
+        modifiedStory.setUpdatedDate(LocalDate.now());
         Story savedStory =  storyRepository.save(modifiedStory);
 
         TaskEvent taskEvent = generateTaskEvent(savedStory);
@@ -119,10 +129,13 @@ public class StoryServiceImpl implements StoryService {
         taskEvent.setNewStatus(modifiedStory.getStatus());
         taskEvent.setNewStatus(modifiedStory.getStatus());
         taskEvent.setProjectId(modifiedStory.getProjectId());
-        taskEvent.setUpdatedDate(LocalDateTime.now());
+        taskEvent.setUpdatedDate(LocalDate.now());
         taskEvent.setDescription("Story Updated Successfully ");
 
         taskEventProducer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedStory);
     }
@@ -143,17 +156,20 @@ public class StoryServiceImpl implements StoryService {
         }
         Status oldStatus = story.getStatus();
         // Mark as ARCHIVED
-        story.setStatus(Status.ARCHIVED);
+        story.setStatus(Status.COMPLETED);
         // Save the updated story
         storyRepository.save(story);
 
         // Publish Story Deletion Event
         TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setAction(Actions.DELETED);
-        taskEvent.setNewStatus(Status.ARCHIVED);
+        taskEvent.setNewStatus(Status.COMPLETED);
         taskEvent.setOldStatus(oldStatus);
 
         taskEventProducer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(story);
     }
@@ -220,7 +236,7 @@ public class StoryServiceImpl implements StoryService {
             story.setStatus(status);
             storyRepository.save(story);
             TaskEvent taskEvent = generateTaskEvent(story);
-            taskEvent.setAction(Actions.UPDATED);
+            taskEvent.setAction(Actions.STATUS_CHANGED);
             taskEventProducer.sendTaskEvent(taskEvent);
 
             return convertToDTO(story);

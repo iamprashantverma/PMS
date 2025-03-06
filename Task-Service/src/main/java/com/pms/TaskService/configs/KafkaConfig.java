@@ -9,6 +9,7 @@ public class KafkaConfig {
 
     public static final String KAFKA_TASK_SERVICE_TOPIC = "task-topic";
     public static final String KAFKA_NOTIFICATION_SERVICE_TOPIC = "notification-topic";
+    public static final String KAFKA_CALENDAR_SERVICE_TOPIC = "calendar-topic";
 
     @Bean
     public NewTopic taskTopic() {
@@ -19,4 +20,9 @@ public class KafkaConfig {
     public NewTopic notificationTopic() {
         return new NewTopic(KAFKA_NOTIFICATION_SERVICE_TOPIC, 2, (short) 1);
     }
+    @Bean
+    public NewTopic calendarTopic() {
+        return new NewTopic(KAFKA_CALENDAR_SERVICE_TOPIC, 2, (short) 1);
+    }
+
 }

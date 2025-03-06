@@ -8,11 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.client5.http.auth.InvalidCredentialsException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.example.dto.ForgetPasswordDTO;
 
 import java.util.Arrays;
@@ -20,9 +19,13 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@RefreshScope
 public class AuthController {
 
     private final AuthService authService;
+    @Value("${name}")
+    private String name;
+
 
     @PostMapping("/signup")
     public ResponseEntity<ResponseDTO> signUp( @Valid @RequestBody UserDTO userDTO) {
@@ -30,6 +33,13 @@ public class AuthController {
         return ResponseEntity.ok(resp);
     }
 
+    @GetMapping("/name")
+    public ResponseEntity<ResponseDTO> getName(){
+        ResponseDTO responseDTO = ResponseDTO.builder()
+                .message(name)
+                .build();
+        return ResponseEntity.ok(responseDTO);
+    }
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) throws InvalidCredentialsException {
 

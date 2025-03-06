@@ -1,5 +1,5 @@
  extend type Mutation{
     createTask(task: TaskInputDTO): TaskDTO
     deleteTask(taskId: ID!) : ResponseDTO
-    updateTask(task: TaskInputDTO) : TaskDTO
+    updateTask(task: TaskInputDTO,) : TaskDTO
 }

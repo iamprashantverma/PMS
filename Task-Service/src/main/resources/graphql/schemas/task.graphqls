@@ -1,31 +1,30 @@
-
+scalar  Date
 type TaskDTO {
-    id : ID!
+    id : String!
     title: String
     description: String
     project: String
     assignees: [String]
-    creator: String
-    createdDate: String
     updatedDate: String
     status: IssueStatus
     priority: Priority
     tag: IssueTag
-
     isBlocking : Boolean
     memberId : [String]
+    deadline: Date!
     epic : EpicDTO
     subTasks : [SubTaskDTO]
 }
 
 input TaskInputDTO {
+    id:String
     title: String!
     description: String!
     status: IssueStatus
     priority: Priority
     tag: IssueTag
     isBlocking : Boolean
-    dueDate: String
+    deadline: Date!
     epicId:String
     storyId:String
 

@@ -1,38 +1,39 @@
 package com.pms.TaskService.dto;
 
+import com.pms.TaskService.entities.enums.Priority;
+import com.pms.TaskService.entities.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO for Task entity, extending IssueDTO to inherit common issue properties.
+ * DTO for Task entity.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class TaskDTO extends IssueDTO {
+public class TaskDTO {
 
-    /**
-     * If true, this task is preventing others from progressing.
-     */
+    private String id;
+    private String title;
+    private String description;
+    private String projectId;
+    private List<String> assignees = new ArrayList<>();
+    private String creator;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
+    private LocalDate deadline;
+    private Status status;
+    private Priority priority;
+    private Long completionPercent;
     private boolean isBlocking;
-
-    /**
-     * ID of the epic this task belongs to, if any.
-     */
     private String epicId;
-
-    /**
-     * ID of the story this task belongs to, if any.
-     */
     private String storyId;
-
-    /**
-     * List of IDs of subtasks associated with this task.
-     */
-    private List<String> subTaskIds;
+    private List<String> subTaskIds = new ArrayList<>();
 }

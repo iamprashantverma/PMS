@@ -1,5 +1,4 @@
 input BugInput {
-    id:ID!
     title: String!
     description: String
     epicId: String
@@ -13,7 +12,7 @@ input BugInput {
 }
 
 type BugDTO {
-    id: ID!
+    id: String!
     title: String!
     description: String
     epicId: String
@@ -22,6 +21,7 @@ type BugDTO {
     status: IssueStatus!
     priority: Priority!
     tag: IssueTag
-    createdAt: String!
-    updatedAt: String!
+    createdDate: Date!
+    updatedDate: Date!
+    deadline:Date
 }

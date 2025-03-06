@@ -11,6 +11,7 @@ import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.services.EpicService;
@@ -21,6 +22,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,7 @@ public class EpicServiceImpl implements EpicService {
     private final TaskEventProducer producer;
     private final ProjectFeignClient projectFeignClient;
     private final UserFeignClient userFeignClient;
+    private final CalendarEventProducer calendarEventProducer;
 
 
     /**
@@ -48,6 +51,10 @@ public class EpicServiceImpl implements EpicService {
                 .title(epic.getTitle())
                 .projectId(epic.getProjectId())
                 .eventType(EventType.EPIC)
+                .priority(epic.getPriority())
+                .deadline(epic.getDeadLine())
+                .createdDate(epic.getCreatedDate())
+                .assignees(epic.getAssignees())
                 .build();
     }
 
@@ -91,7 +98,7 @@ public class EpicServiceImpl implements EpicService {
 
         Epic epic = convertToEpicEntity(epicDTO);
         epic.setStatus(Status.TODO);
-        epic.setCreatedDate(LocalDateTime.now());
+        epic.setCreatedDate(LocalDate.now());
 
         Epic savedEpic = epicRepository.save(epic);
 
@@ -99,9 +106,13 @@ public class EpicServiceImpl implements EpicService {
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(epic.getStatus());
         taskEvent.setCreatedDate(savedEpic.getCreatedDate());
-        taskEvent.setDescription("Epic Created ");
+
+        taskEvent.setDescription(epic.getDescription());
 
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
     }
@@ -114,7 +125,7 @@ public class EpicServiceImpl implements EpicService {
         Status oldStatus = existingEpic.getStatus();
 
         existingEpic.setStatus(newStatus);
-        existingEpic.setUpdatedDate(LocalDateTime.now());
+        existingEpic.setUpdatedDate(LocalDate.now());
         Epic savedEpic = epicRepository.save(existingEpic);
 
         if (!oldStatus.equals(newStatus)) {
@@ -129,10 +140,14 @@ public class EpicServiceImpl implements EpicService {
         taskEvent.setAction(Actions.UPDATED);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(newStatus);
-        taskEvent.setUpdatedDate(LocalDateTime.now());
+        taskEvent.setUpdatedDate(LocalDate.now());
         taskEvent.setAssignees(savedEpic.getAssignees());
 
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
     }
@@ -142,22 +157,29 @@ public class EpicServiceImpl implements EpicService {
     public EpicDTO deleteEpic(String epicId) {
         Epic epic = getEpicEntity(epicId);
         // if epic is already archived then throw error
-        if (epic.getStatus() == Status.ARCHIVED)
+        if (epic.getStatus() == Status.COMPLETED)
             throw new ResourceNotFound("No Epic found : "+epicId );
 
         // Check if any associated stories or tasks are not completed
-        boolean hasIncompleteTasks = epic.getStories().stream()
+        boolean hasIncompleteEpics = epic.getStories().stream()
                 .anyMatch(story -> story.getStatus() != Status.COMPLETED);
-
+        boolean hasIncompleteTasks = epic.getTasks().stream()
+                .allMatch(task -> task.getStatus() != Status.COMPLETED);
         if (hasIncompleteTasks) {
             throw new IllegalStateException("Epic cannot be deleted as it has incomplete stories or tasks.");
         }
+
         // set the epic as ARCHIVED
-        epic.setStatus(Status.ARCHIVED);
+        epic.setStatus(Status.COMPLETED);
         // Perform deletion
         epicRepository.save(epic);
 
+        TaskEvent taskEvent = getEpicTaskEvent(epic);
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.DELETED);
+        taskEvent.setNewStatus(Status.COMPLETED);
 
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(epic);
     }
@@ -172,7 +194,7 @@ public class EpicServiceImpl implements EpicService {
     public List<EpicDTO> getAllActiveEpics() {
         List<Epic> epics = epicRepository.findAll();
         return epics.stream()
-                .filter(epic -> epic.getStatus() != Status.ARCHIVED)
+                .filter(epic -> epic.getStatus() != Status.COMPLETED)
                 .map(this::convertToEpicDTo)
                 .toList();
     }

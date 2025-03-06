@@ -5,7 +5,7 @@ spring:
         git:
           uri: https://github.com/iamprashantverma/PMS-Config-Server
           username: iamprashantverma
-          password: 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
+          password: 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
           default-label: main
 server:
   port: 8888

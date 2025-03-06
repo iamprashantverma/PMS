@@ -1,7 +1,7 @@
 package com.pms.activitytrackingservice.controller;
 
-import com.pms.activitytrackingservice.dto.GitHubChangeDTO;
-import com.pms.activitytrackingservice.services.GitHubChangeService;
+import com.pms.activitytrackingservice.dto.GitHubDTO;
+import com.pms.activitytrackingservice.services.GitHubService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequestMapping("/github")
 public class GitHubController {
 
-    private final GitHubChangeService gitHubChangeService;
+    private final GitHubService gitHubService;
 
     /**
      * GitHub Webhook Endpoint to receive and process GitHub events.
@@ -57,7 +57,7 @@ public class GitHubController {
             String branch = ref.replace("refs/heads/", "");
 
             // Create and populate the GitHubChangeDTO object
-            GitHubChangeDTO change = new GitHubChangeDTO();
+            GitHubDTO change = new GitHubDTO();
             change.setEventType(eventType);
             change.setRepositoryName(repositoryName);
             change.setBranch(branch);
@@ -66,7 +66,7 @@ public class GitHubController {
             change.setAuthor(authorName);
 
             // Save the change in your service
-            gitHubChangeService.saveGitHubChange(change);
+            gitHubService.saveGitHubChange(change);
 
         } catch (Exception e) {
             // Log error and return bad request
@@ -88,27 +88,27 @@ public class GitHubController {
      * Endpoint to retrieve all GitHub change events.
      */
     @GetMapping("/all")
-    public ResponseEntity<List<GitHubChangeDTO>> getAllGitHubChanges() {
+    public ResponseEntity<List<GitHubDTO>> getAllGitHubChanges() {
         log.info("Fetching all GitHub changes");
-        return ResponseEntity.ok(gitHubChangeService.getAllGitHubChanges());
+        return ResponseEntity.ok(gitHubService.getAllGitHubChanges());
     }
 
     /**
      * Endpoint to retrieve GitHub change events by repository name.
      */
     @GetMapping("/repo/{repositoryName}")
-    public ResponseEntity<List<GitHubChangeDTO>> getChangesByRepository(@PathVariable String repositoryName) {
+    public ResponseEntity<List<GitHubDTO>> getChangesByRepository(@PathVariable String repositoryName) {
         log.info("Fetching changes for repository: {}", repositoryName);
-        return ResponseEntity.ok(gitHubChangeService.getChangesByRepository(repositoryName));
+        return ResponseEntity.ok(gitHubService.getChangesByRepository(repositoryName));
     }
 
     /**
      * Endpoint to retrieve GitHub change events by author.
      */
     @GetMapping("/author/{author}")
-    public ResponseEntity<List<GitHubChangeDTO>> getChangesByAuthor(@PathVariable String author) {
+    public ResponseEntity<List<GitHubDTO>> getChangesByAuthor(@PathVariable String author) {
         log.info("Fetching changes by author: {}", author);
-        return ResponseEntity.ok(gitHubChangeService.getChangesByAuthor(author));
+        return ResponseEntity.ok(gitHubService.getChangesByAuthor(author));
     }
 
 

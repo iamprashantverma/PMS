@@ -7,17 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import static com.pms.TaskService.configs.KafkaConfig.KAFKA_CALENDAR_SERVICE_TOPIC;
 import static com.pms.TaskService.configs.KafkaConfig.KAFKA_TASK_SERVICE_TOPIC;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TaskEventProducer {
+public class CalendarEventProducer {
 
     private final KafkaTemplate<String, TaskEvent> kafkaTemplate;
 
     /* Sending the new task event to Kafka */
     public void sendTaskEvent(TaskEvent task) {
-        kafkaTemplate.send(KAFKA_TASK_SERVICE_TOPIC,task.getEntityId(),task);
+        kafkaTemplate.send(KAFKA_CALENDAR_SERVICE_TOPIC,task.getEntityId(),task);
+
     }
 }

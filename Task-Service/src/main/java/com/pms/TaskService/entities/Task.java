@@ -1,12 +1,10 @@
 package com.pms.TaskService.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.action.internal.OrphanRemovalAction;
 
 import java.util.List;
 

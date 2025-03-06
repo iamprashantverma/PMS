@@ -53,9 +53,10 @@ public class TaskResolver {
     }
 
     @MutationMapping
-    public ResponseEntity<TaskDTO> updateTask(@Argument("task") TaskDTO taskDTO, @Argument String taskId){
-        TaskDTO task = taskService.updateTask(taskDTO, taskId);
-        return new ResponseEntity<>(task, HttpStatus.OK);
+    public TaskDTO updateTask(@Argument("task") TaskDTO taskDTO){
+        TaskDTO task = taskService.updateTask(taskDTO);
+        log.info("updated Task Entity {}",task);
+        return task;
     }
 
     @QueryMapping

@@ -20,6 +20,7 @@ import java.sql.SQLException;
 @Slf4j
 public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter {
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
         if (ex instanceof ResourceNotFound) {
@@ -29,8 +30,7 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .build();
-        }
-        else if (ex instanceof FeignException.NotFound) {
+        } else if (ex instanceof FeignException.NotFound) {
             log.warn("Feign Client Error (404): {}", ex.getMessage());
             String errorMessage = extractFeignErrorMessage((FeignException) ex);
             return GraphqlErrorBuilder.newError()
@@ -39,8 +39,7 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .build();
-        }
-        else if (ex instanceof FeignException) {
+        } else if (ex instanceof FeignException) {
             log.error("Feign Client Exception: {}", ex.getMessage(), ex);
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.INTERNAL_ERROR)
@@ -48,8 +47,7 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .build();
-        }
-        else if (ex instanceof DataAccessException || (ex.getCause() instanceof SQLException)) {
+        } else if (ex instanceof DataAccessException || (ex.getCause() instanceof SQLException)) {
             log.error("Database Error: {}", ex.getMessage(), ex);
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.INTERNAL_ERROR)
@@ -57,8 +55,7 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .build();
-        }
-        else {
+        } else {
             log.error("Unexpected Error: {}", ex.getMessage(), ex);
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.INTERNAL_ERROR)

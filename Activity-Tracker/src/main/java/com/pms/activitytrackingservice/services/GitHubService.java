@@ -1,12 +1,12 @@
 package com.pms.activitytrackingservice.services;
 
-import com.pms.activitytrackingservice.dto.GitHubChangeDTO;
+import com.pms.activitytrackingservice.dto.GitHubDTO;
 import java.util.List;
 
 /**
  * Service interface for managing GitHub change events.
  */
-public interface GitHubChangeService {
+public interface GitHubService {
 
     /**
      * Saves a new GitHub change event.
@@ -14,14 +14,14 @@ public interface GitHubChangeService {
      * @param gitHubChange The GitHub change event to save.
 
      */
-    void saveGitHubChange(GitHubChangeDTO gitHubChange);
+    void saveGitHubChange(GitHubDTO gitHubChange);
 
     /**
      * Retrieves all GitHub change events.
      *
      * @return A list of all GitHub change events.
      */
-    List<GitHubChangeDTO> getAllGitHubChanges();
+    List<GitHubDTO> getAllGitHubChanges();
 
 
     /**
@@ -30,7 +30,7 @@ public interface GitHubChangeService {
      * @param repositoryName The name of the repository.
      * @return A list of GitHub change events for the specified repository.
      */
-    List<GitHubChangeDTO> getChangesByRepository(String repositoryName);
+    List<GitHubDTO> getChangesByRepository(String repositoryName);
 
     /**
      * Retrieves GitHub change events by author.
@@ -38,6 +38,6 @@ public interface GitHubChangeService {
      * @param author The author of the commits.
      * @return A list of GitHub change events by the specified author.
      */
-    List<GitHubChangeDTO> getChangesByAuthor(String author);
+    List<GitHubDTO> getChangesByAuthor(String author);
 
 }

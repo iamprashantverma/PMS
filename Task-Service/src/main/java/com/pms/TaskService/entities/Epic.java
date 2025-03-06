@@ -7,7 +7,9 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -26,13 +28,11 @@ public class Epic extends Issue {
      * CascadeType.ALL ensures stories get deleted when the epic is removed.
      */
     @OneToMany(mappedBy = "epic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Story> stories = new ArrayList<>();
+    private Set<Story> stories = new HashSet<>();
 
     /**
      * List of tasks directly assigned under this epic.
      */
     @OneToMany(mappedBy = "epic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Task> tasks;
-
-    private LocalDate dueDate;
+    private Set<Task> tasks = new HashSet<>();
 }

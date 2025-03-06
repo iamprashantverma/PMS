@@ -19,7 +19,6 @@ public class SubTaskDTO extends IssueDTO {
     /**
      * ID of the parent task this subtask belongs to.
      */
-    private String parentTaskId;
     @NotNull(message = "please provide the task id")
     @NotBlank(message = "please enter valid taskId")
     private String taskId;

@@ -4,6 +4,7 @@ import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class IssueDTO {
     private String projectId;
     private List<String> assignees;
     private String creator;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
     private Status status;
     private Priority priority;
     private Long completionPercent;

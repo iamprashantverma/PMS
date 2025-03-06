@@ -1,14 +1,15 @@
 
 
 type IssueDTO{
-    id : ID!
+    id : String!
     title: String
     description: String
     project: String
     assignees: [String]
     creator: String
-    createdDate: String
-    updatedDate: String
+    createdDate: Date
+    updatedDate: Date
+    deadline:Date
     status: IssueStatus
     priority: Priority
     tag: IssueTag

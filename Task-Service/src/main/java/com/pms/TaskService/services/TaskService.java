@@ -44,11 +44,10 @@ public interface TaskService {
      * Updates an existing task with new information.
      *
      * @param taskDTO The data transfer object containing the updated task details.
-     * @param taskId  The unique identifier of the task to update.
      * @return The updated task as a TaskDTO.
      * @throws ResourceNotFound if the task with the given ID does not exist.
      */
-    TaskDTO updateTask(TaskDTO taskDTO, String taskId);
+    TaskDTO updateTask(TaskDTO taskDTO);
 
     /**
      * Retrieves all tasks associated with a specific project.

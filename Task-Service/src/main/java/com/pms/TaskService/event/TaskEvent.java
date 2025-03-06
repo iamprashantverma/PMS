@@ -6,6 +6,7 @@ import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class TaskEvent {
     /* Unique identifier for task, bug, epic, story, subtask, etc. */
     private String entityId;
 
+
     /* Title of the task, bug, epic, story, or subtask */
     private String title;
 
@@ -27,13 +29,13 @@ public class TaskEvent {
     private String projectId;
 
     /* Timestamp when the entity was created */
-    private LocalDateTime createdDate;
+    private LocalDate createdDate;
 
     /* Timestamp when the entity was last updated */
-    private LocalDateTime updatedDate;
+    private LocalDate updatedDate;
 
     /* Due date for the task, bug, epic, or subtask */
-    private LocalDateTime dueDate;
+    private LocalDate deadline;
 
     /* Timestamp when the entity was completed */
     private LocalDateTime completionTime;

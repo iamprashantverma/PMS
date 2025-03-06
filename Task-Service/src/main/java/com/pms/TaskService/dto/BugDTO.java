@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * DTO for Bug entity, extending IssueDTO to inherit common issue properties.
  */
@@ -23,6 +26,7 @@ public class BugDTO extends IssueDTO {
      * Expected behavior after executing the steps.
      */
     private String expectedOutcome;
+    private LocalDate deadline;
 
     /**
      * Actual behavior that differs from the expected outcome.

@@ -6,11 +6,13 @@ import com.pms.TaskService.entities.Bug;
 import com.pms.TaskService.entities.Epic;
 import com.pms.TaskService.entities.Story;
 import com.pms.TaskService.entities.Task;
+import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.BugRepository;
 import com.pms.TaskService.repository.EpicRepository;
@@ -20,6 +22,7 @@ import com.pms.TaskService.services.BugService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +40,7 @@ public class BugServiceImpl implements BugService {
     private final TaskEventProducer producer;
     private final EpicRepository epicRepository;
     private final StoryRepository storyRepository;
+    private final CalendarEventProducer calendarEventProducer;
 
     /**
      * Converts BugDTO to Bug entity.
@@ -70,7 +74,10 @@ public class BugServiceImpl implements BugService {
                 .title(bug.getTitle())
                 .projectId(bug.getEpic().getProjectId())
                 .priority(bug.getPriority())
-                .eventType(EventType.TASK)
+                .eventType(EventType.BUG)
+                .deadline(bug.getDeadLine())
+                .createdDate(bug.getCreatedDate())
+                .description(bug.getDescription())
                 .build();
     }
 
@@ -107,6 +114,9 @@ public class BugServiceImpl implements BugService {
 
         producer.sendTaskEvent(taskEvent);
 
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
+
         return convertToDTO(savedBug);
     }
 
@@ -117,16 +127,20 @@ public class BugServiceImpl implements BugService {
                 .orElseThrow(() -> new ResourceNotFound("Bug not found: " + bugId));
 
         Status oldStatus = bug.getStatus();
-        bug.setStatus(Status.ARCHIVED);
+        bug.setStatus(Status.COMPLETED);
         // Soft delete the Bug
         bugRepository.save(bug);
 
         // Publish the Bug Deletion Event
         TaskEvent taskEvent = generateTaskEvent(bug);
         taskEvent.setOldStatus(oldStatus);
-        taskEvent.setNewStatus(Status.ARCHIVED);
+        taskEvent.setNewStatus(Status.COMPLETED);
 
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug deleted successfully");
     }
@@ -140,7 +154,29 @@ public class BugServiceImpl implements BugService {
 
     @Override
     public BugDTO updateBug(BugDTO bugDTO) {
-        return null;
+
+        String id = bugDTO.getId();
+        Bug toBeModified = convertToEntity(bugDTO);
+        Bug existingBug = bugRepository.findById(id).orElseThrow(()->
+                new ResourceNotFound("Invalid Bug id"));
+        Status oldStatus = existingBug.getStatus();
+        Priority oldPriority = existingBug.getPriority() ;
+
+        toBeModified.setId(id);
+        bugRepository.save(toBeModified);
+
+        TaskEvent taskEvent = generateTaskEvent(toBeModified);
+        taskEvent.setOldStatus(oldStatus);
+        taskEvent.setNewStatus(bugDTO.getStatus());
+        taskEvent.setDeadline(bugDTO.getDeadline());
+        taskEvent.setAction(Actions.UPDATED);
+
+        producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(toBeModified);
     }
 
     @Override

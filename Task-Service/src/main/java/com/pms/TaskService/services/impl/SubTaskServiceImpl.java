@@ -9,6 +9,7 @@ import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.SubTaskRepository;
 import com.pms.TaskService.repository.TaskRepository;
@@ -31,6 +32,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final TaskRepository taskRepository;
     private final ModelMapper modelMapper;
     private final TaskEventProducer producer;
+    private final CalendarEventProducer calendarEventProducer;
 
     /**
      * Converts SubTaskDTO to SubTask entity.
@@ -64,6 +66,10 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .title(subTask.getTitle())
                 .projectId(subTask.getParentTask().getEpic().getProjectId())
                 .eventType(EventType.SUBTASK)
+                .deadline(subTask.getDeadLine())
+                .createdDate(subTask.getCreatedDate())
+                .newStatus(subTask.getStatus())
+                .assignees(subTask.getAssignees())
                 .build();
     }
 
@@ -81,9 +87,11 @@ public class SubTaskServiceImpl implements SubTaskService {
         SubTask subTask = convertToEntity(subTaskDTO);
 
         // Check if the related Task exists
-        Task task = taskRepository.findById(subTaskDTO.getParentTaskId())
-                .orElseThrow(() -> new ResourceNotFound("Task not found: " + subTaskDTO.getParentTaskId()));
+        Task task = taskRepository.findById(subTaskDTO.getTaskId())
+                .orElseThrow(() -> new ResourceNotFound("Task not found: " + subTaskDTO.getTaskId()));
 
+        if(task.getStatus() == Status.COMPLETED|| task.getStatus() == Status.ARCHIVED)
+                throw new ResourceNotFound("Parent Task is Already marked as completed, Can't be Create new Task");
         // Associate the subtask with the parent task
         subTask.setParentTask(task);
 
@@ -92,9 +100,15 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         // Publish the SubTask Creation Event.
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
-        taskEvent.setAction(Actions.CREATED);
 
+        taskEvent.setAction(Actions.CREATED);
+        taskEvent.setNewStatus(savedSubTask.getStatus());
+        // sending the task-topic to the notification service
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        // sending the task-topic to the Activity tracker service
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedSubTask);
     }
@@ -112,16 +126,22 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .orElseThrow(() -> new ResourceNotFound("SubTask not found: " + subTaskId));
 
         Status oldStatus = subTask.getStatus();
+
         // Soft delete the SubTask by setting its status to ARCHIVED
-        subTask.setStatus(Status.ARCHIVED);
+        subTask.setStatus(Status.COMPLETED);
         subTaskRepository.save(subTask);
 
-        // Publish the SubTask Deletion Event
+        // Publish the SubTask Completion Event
         TaskEvent taskEvent = generateTaskEvent(subTask);
         taskEvent.setOldStatus(oldStatus);
-        taskEvent.setNewStatus(Status.ARCHIVED);
+        taskEvent.setNewStatus(Status.COMPLETED);
 
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.DELETED);
+        taskEvent.setNewStatus(Status.COMPLETED);
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("SubTask archived successfully");
     }
@@ -136,6 +156,8 @@ public class SubTaskServiceImpl implements SubTaskService {
     public SubTaskDTO getSubTaskById(String subTaskId) {
         SubTask subTask = subTaskRepository.findById(subTaskId)
                 .orElseThrow(() -> new ResourceNotFound("SubTask not found: " + subTaskId));
+
+        TaskEvent taskEvent = generateTaskEvent(subTask);
         return convertToDTO(subTask);
     }
 

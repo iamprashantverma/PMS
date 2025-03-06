@@ -10,16 +10,19 @@ import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.exceptions.ResourceAlreadyExist;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.TaskRepository;
 import com.pms.TaskService.services.TaskService;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +36,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final EpicRepository epicRepository;
     private final TaskEventProducer taskEventProducer;
+    private final CalendarEventProducer calendarEventProducer;
 
     /**
      * convert the Task entity into the TaskDTO
@@ -66,6 +70,7 @@ public class TaskServiceImpl implements TaskService {
                .eventType(EventType.TASK)
                .createdDate(taskDTO.getCreatedDate())
                .priority(taskDTO.getPriority())
+               .deadline(taskDTO.getDeadLine())
                .build();
    }
 
@@ -85,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
 
         Task task = convertToEntity(taskDTO) ;
         task.setStatus(Status.TODO);
-        task.setCreatedDate(LocalDateTime.now());
+        task.setCreatedDate(LocalDate.now());
 
         Task savedTask = taskRepository.save(task);
 
@@ -102,6 +107,9 @@ public class TaskServiceImpl implements TaskService {
         taskEvent.setNewStatus(Status.TODO);
 
         taskEventProducer.sendTaskEvent(taskEvent);
+        // now convert the EventType to CALENDAR
+        taskEvent.setEventType(EventType.CALENDER);
+       calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedTask);
     }
@@ -120,38 +128,78 @@ public class TaskServiceImpl implements TaskService {
 
         // Check if all subtasks are completed
         boolean allSubtasksCompleted = task.getSubTasks().stream()
-                .allMatch(subTask -> subTask.getCompletionPercent() == 100 || subTask.getStatus() == Status.ARCHIVED);
+                .allMatch(subTask -> subTask.getCompletionPercent() == 100 || subTask.getStatus() == Status.COMPLETED);
 
         // If all subtasks are completed, mark the task as ARCHIVED
         if (allSubtasksCompleted) {
-            task.setStatus(Status.ARCHIVED);
+            task.setStatus(Status.COMPLETED);
             taskRepository.save(task);
         } else {
             // If not all subtasks are completed, return an error response
             throw  new ResourceAlreadyExist("Task cannot be Deleted. Not all subtasks are completed.");
         }
+        TaskEvent taskEvent = generateTaskEvent(task);
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.DELETED);
+        taskEvent.setOldStatus(task.getStatus());
+        taskEvent.setNewStatus(Status.COMPLETED);
+        taskEvent.setDescription("Task Successfully deleted");
 
+        calendarEventProducer.sendTaskEvent(taskEvent);
         //  Return a response indicating success
         return new ResponseDTO("Task has been archived or deleted successfully.");
     }
 
     @Override
-    public TaskDTO updateTask(TaskDTO taskDTO, String taskId) {
+    public TaskDTO updateTask(TaskDTO taskDTO) {
+
         // Fetch the existing task from the database
-        Task existingTask = getTaskEntity(taskId);
-        modelMapper.map(taskDTO, existingTask);
+        Task existingTask = getTaskEntity(taskDTO.getId());
+
+        if(existingTask.getStatus() == Status.COMPLETED ||existingTask.getStatus()== Status.ARCHIVED )
+            throw new ResourceNotFound("Task is Already Marked as Completed , Can't Updated");
+
+        Task toBeModifiedTask =   modelMapper.map(taskDTO,Task.class);
 
         if (taskDTO.getEpicId() != null) {
             Epic epic = epicRepository.findById(taskDTO.getEpicId())
                     .orElseThrow(() -> new ResourceNotFound("Epic not found"));  // If the epic is not found, throw an exception
-            existingTask.setEpic(epic);
+            toBeModifiedTask.setEpic(epic);
         }
 
-        existingTask.setUpdatedDate(LocalDateTime.now());
+        toBeModifiedTask.setUpdatedDate(LocalDate.now());
+        toBeModifiedTask.setCreatedDate(existingTask.getCreatedDate());
 
-        taskRepository.save(existingTask);
+        Task modifiedTask =  taskRepository.save(toBeModifiedTask);
 
-        return modelMapper.map(existingTask, TaskDTO.class);
+        // added the task into the new Epic
+        if (taskDTO.getEpicId() != null) {
+
+            if (!taskDTO.getEpicId().equals(existingTask.getEpic().getId())) {
+                Epic epic = epicRepository.findById(existingTask.getEpic().getId()).orElseThrow(()->
+                        new ResourceNotFound("Invalid Epic Id:"));
+                epic.getTasks().remove(existingTask.getId());
+
+            }
+            addTaskOnEpic(taskDTO.getEpicId(),modifiedTask);
+        }
+
+
+        TaskEvent taskEvent = generateTaskEvent(modifiedTask);
+
+        taskEvent.setAction(Actions.UPDATED);
+        taskEvent.setNewStatus(existingTask.getStatus());
+        taskEvent.setOldStatus(modifiedTask.getStatus());
+        taskEvent.setUpdatedDate(LocalDate.now());
+
+        // sending the task-topic to the notification service
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        // sending the calendar-topic to the activity tracker service
+        calendarEventProducer.sendTaskEvent(taskEvent);
+
+        return modelMapper.map(modifiedTask, TaskDTO.class);
     }
 
 
@@ -168,6 +216,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void addTaskOnEpic(String epicId, Task task) {
+
         Epic epic = epicRepository.findById(epicId).orElseThrow(()->
                 new ResourceNotFound("Epic not found :"+ epicId));
 
@@ -186,7 +235,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskDTO> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream()
-                .filter(task -> task.getStatus() != Status.ARCHIVED)
+                .filter(task -> task.getStatus() != Status.COMPLETED)
                 .map(this::convertToDTO)
                 .toList();
     }

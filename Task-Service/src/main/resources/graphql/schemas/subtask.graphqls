@@ -1,15 +1,14 @@
 type SubTaskDTO {
-    id : ID!
+    id : String!
     title: String
     description: String
     assignees: [String]
     creator: String
-    createdDate: String
-    updatedDate: String
+    createdDate: Date
+    updatedDate: Date
     status: IssueStatus
     priority: Priority
     tag: IssueTag
-
     parentTask : TaskDTO
 }
 
@@ -20,5 +19,5 @@ input SubTaskInputDTO{
     status: IssueStatus!
     priority: Priority!
     tag: IssueTag
-    dueDate: String!
+    deadline: Date!
 }

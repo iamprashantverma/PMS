@@ -40,10 +40,10 @@ public class EpicDTO  {
     private String projectId;
     private List<String> assignees;
     private String creator;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
     private Status status;
     private Priority priority;
     private Long completionPercent;
-    private LocalDate dueDate;
+    private LocalDate deadline;
 }
