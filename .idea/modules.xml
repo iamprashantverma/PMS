@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Config-Server/Config-Server.iml" filepath="$PROJECT_DIR$/Config-Server/Config-Server.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/PMS-Server.iml" filepath="$PROJECT_DIR$/.idea/PMS-Server.iml" />
     </modules>
   </component>
