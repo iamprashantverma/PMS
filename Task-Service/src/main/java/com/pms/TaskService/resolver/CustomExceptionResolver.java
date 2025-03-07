@@ -66,14 +66,16 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
         }
     }
 
-    private String extractFeignErrorMessage(FeignException ex) {
+    public String extractFeignErrorMessage(FeignException ex) {
         try {
             String responseBody = ex.contentUTF8();
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-            return jsonNode.has("message") ? jsonNode.get("message").asText() : "Unknown error from external service";
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(responseBody);
+
+            JsonNode errorNode = rootNode.path("error").path("message");
+            return errorNode.asText("Unknown error occurred");
         } catch (IOException e) {
-            log.error("Failed to parse Feign error response: {}", e.getMessage(), e);
-            return "Error communicating with external service";
+            return "Failed to parse Feign error message";
         }
     }
 }

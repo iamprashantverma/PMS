@@ -62,5 +62,22 @@ public interface SubTaskService {
      */
     List<SubTaskDTO> getSubTasksByTaskId(String taskId);
 
+    /**
+     * Assigns a member to the specified task.
+     *
+     * @param taskId   the ID of the task to which the member should be assigned
+     * @param memberId the ID of the member to be assigned to the task
+     * @return the updated TaskDTO after assigning the member
+     */
+    SubTaskDTO assignMemberToSubTask(String taskId, String memberId);
+
+    /**
+     * Unassigns a member from the specified task.
+     *
+     * @param taskId   the ID of the task from which the member should be removed
+     * @param memberId the ID of the member to be unassigned from the task
+     * @return the updated TaskDTO after unassigning the member
+     */
+    SubTaskDTO unAssignedMemberFromTask(String taskId, String memberId);
 
 }

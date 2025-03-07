@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -100,13 +101,11 @@ public class StoryServiceImpl implements StoryService {
             throw  new ResourceNotFound("Epic Id has not provided ");
         else
             addStoryOnEpic(epicId, savedStory);
-
-        TaskEvent taskEvent = generateTaskEvent(story);
-        taskEvent.setAction(Actions.CREATED);
-        taskEvent.setDescription("Story Created");
-        taskEventProducer.sendTaskEvent(taskEvent);
-
+        TaskEvent taskEvent  = generateTaskEvent(story);
         taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.CREATED);
+        taskEvent.setNewStatus(savedStory.getStatus());
+
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(story);
@@ -124,6 +123,7 @@ public class StoryServiceImpl implements StoryService {
         Story savedStory =  storyRepository.save(modifiedStory);
 
         TaskEvent taskEvent = generateTaskEvent(savedStory);
+
         taskEvent.setAction(Actions.UPDATED);
         taskEvent.setPriority(modifiedStory.getPriority());
         taskEvent.setNewStatus(modifiedStory.getStatus());
@@ -203,10 +203,9 @@ public class StoryServiceImpl implements StoryService {
 
         TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setAction(Actions.ASSIGNED);
-        taskEvent.setAssignees(List.of(userId));
+        taskEvent.setAssignees(Set.of(userId));
 
         taskEventProducer.sendTaskEvent(taskEvent);
-
         return convertToDTO(savedStory);
 
     }
@@ -221,7 +220,7 @@ public class StoryServiceImpl implements StoryService {
 
         TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setAction(Actions.UNASSIGNED);
-        taskEvent.setAssignees(List.of(userId));
+        taskEvent.setAssignees(Set.of(userId));
 
         taskEventProducer.sendTaskEvent(taskEvent);
 
@@ -235,7 +234,9 @@ public class StoryServiceImpl implements StoryService {
             Status oldStatus = story.getStatus();
             story.setStatus(status);
             storyRepository.save(story);
+
             TaskEvent taskEvent = generateTaskEvent(story);
+
             taskEvent.setAction(Actions.STATUS_CHANGED);
             taskEventProducer.sendTaskEvent(taskEvent);
 

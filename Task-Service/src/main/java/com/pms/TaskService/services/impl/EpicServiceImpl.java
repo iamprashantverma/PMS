@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -94,24 +95,16 @@ public class EpicServiceImpl implements EpicService {
         String projectId = epicDTO.getProjectId();
         // call the project Service to ensure that given ProjectId is Valid
         ProjectDTO projectDTO = projectFeignClient.getProject(projectId);
-
-
         Epic epic = convertToEpicEntity(epicDTO);
         epic.setStatus(Status.TODO);
         epic.setCreatedDate(LocalDate.now());
 
         Epic savedEpic = epicRepository.save(epic);
 
-        TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
-        taskEvent.setAction(Actions.CREATED);
-        taskEvent.setNewStatus(epic.getStatus());
-        taskEvent.setCreatedDate(savedEpic.getCreatedDate());
-
-        taskEvent.setDescription(epic.getDescription());
-
-        producer.sendTaskEvent(taskEvent);
-
+        TaskEvent taskEvent  = getEpicTaskEvent(savedEpic);
         taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.CREATED);
+
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
@@ -212,7 +205,9 @@ public class EpicServiceImpl implements EpicService {
 
             // inform user that he is assigned to this epic
             TaskEvent taskEvent = getEpicTaskEvent(existingEpic);
+
             taskEvent.setAction(Actions.ASSIGNED);
+            taskEvent.setAssignees(Set.of(memberId));
             taskEvent.setDescription("You are assigned to Epic");
 
             // produce to the broker
@@ -224,10 +219,19 @@ public class EpicServiceImpl implements EpicService {
 
     @Override
     public EpicDTO removeMemberFromEpic(String epicId, String memberId) {
+
         UserDTO userDTO = userFeignClient.getUserById(memberId );
         Epic exitingEpic = getEpicEntity(epicId);
+
         exitingEpic.getAssignees().remove(memberId);
         Epic savedEpic = epicRepository.save(exitingEpic);
+
+        TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
+        taskEvent.setAction(Actions.UNASSIGNED);
+        taskEvent.setAssignees(Set.of(memberId));
+        taskEvent.setDescription("You are unassigned from the Epic "+ epicId);
+        // produce to the broker
+        producer.sendTaskEvent(taskEvent);
 
         return  convertToEpicDTo(savedEpic);
     }

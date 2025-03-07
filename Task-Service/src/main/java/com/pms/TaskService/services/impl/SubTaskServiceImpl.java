@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,12 +100,8 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         // Publish the SubTask Creation Event.
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
-
-        taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(savedSubTask.getStatus());
-        // sending the task-topic to the notification service
-        producer.sendTaskEvent(taskEvent);
-
+        taskEvent.setAction(Actions.CREATED);
         taskEvent.setEventType(EventType.CALENDER);
         // sending the task-topic to the Activity tracker service
         calendarEventProducer.sendTaskEvent(taskEvent);
@@ -216,5 +213,41 @@ public class SubTaskServiceImpl implements SubTaskService {
         return subTasks.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public SubTaskDTO assignMemberToSubTask(String taskId, String memberId) {
+        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()-
+                new ResourceNotFound("Invalid Task Id:"+taskId));
+        subTask.getAssignees().add(memberId);
+
+        SubTask savedSubTask = subTaskRepository.save(subTask);
+
+        TaskEvent taskEvent = generateTaskEvent(savedSubTask);
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAssignees(Set.of(memberId));
+
+        producer.sendTaskEvent(taskEvent);
+
+        convertToDTO(savedSubTask);
+    }
+
+    @Override
+    public SubTaskDTO unAssignedMemberFromTask(String taskId, String memberId) {
+        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()-
+                new ResourceNotFound("Invalid Task Id:"+taskId));
+        if (!subTask.getAssignees().contains(memberId))
+            throw  new ResourceNotFound("Member not found ! "+memberId);
+        subTask.getAssignees().remove(memberId);
+
+        SubTask savedSubTask = subTaskRepository.save(subTask);
+
+        TaskEvent taskEvent = generateTaskEvent(savedSubTask);
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.UNASSIGNED);
+
+        producer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(savedSubTask);
     }
 }

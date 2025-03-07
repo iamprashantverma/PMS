@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -100,15 +101,12 @@ public class TaskServiceImpl implements TaskService {
         if (epicId != null)
             addTaskOnEpic(epicId,savedTask);
 
-        // create the TaskEvent  of event CREATED type,and produce the event
         TaskEvent taskEvent = generateTaskEvent(savedTask);
         // set the necessary details
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(Status.TODO);
-
-        taskEventProducer.sendTaskEvent(taskEvent);
-        // now convert the EventType to CALENDAR
         taskEvent.setEventType(EventType.CALENDER);
+
        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedTask);
@@ -258,4 +256,40 @@ public class TaskServiceImpl implements TaskService {
                 .map(this::convertToDTO)
                 .toList();
     }
+
+    @Override
+    public TaskDTO assignMemberToTask(String taskId, String memberId) {
+        Task task = getTaskEntity(taskId);
+        task.getAssignees().remove(memberId);
+
+        Task savedTask = taskRepository.save(task);
+
+        TaskEvent taskEvent = generateTaskEvent(savedTask);
+        taskEvent.setAction(Actions.ASSIGNED);
+        taskEvent.setEventType(EventType.TASK);
+        taskEvent.setAssignees(Set.of(memberId));
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+        return convertToDTO(savedTask);
+    }
+
+    @Override
+    public TaskDTO unAssignedMemberFromTask(String taskId, String memberId) {
+        Task task  = getTaskEntity(taskId);
+        if (!task.getAssignees().contains(memberId)){
+            throw  new ResourceNotFound("Member is not present at this task:"+ memberId);
+        }
+        task.getAssignees().remove(memberId);
+        Task task1 = taskRepository.save(task);
+        TaskEvent taskEvent = generateTaskEvent(task1);
+        taskEvent.setEventType(EventType.CALENDER);
+        taskEvent.setAction(Actions.UNASSIGNED);
+        taskEvent.setAssignees(Set.of(memberId));
+
+        taskEventProducer.sendTaskEvent(taskEvent);
+
+        return convertToDTO(task1);
+    }
+
+
 }

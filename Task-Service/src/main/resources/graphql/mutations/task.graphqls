@@ -1,5 +1,7 @@
  extend type Mutation{
-    createTask(task: TaskInputDTO): TaskDTO
-    deleteTask(taskId: ID!) : ResponseDTO
-    updateTask(task: TaskInputDTO,) : TaskDTO
-}
+     createTask(task: TaskInputDTO): TaskDTO
+     deleteTask(taskId: ID!) : ResponseDTO
+     updateTask(task: TaskInputDTO,) : TaskDTO
+     assignMemberToTask(taskId:String!,memberId:String!):TaskDTO
+     unAssignMemberToTask(taskId:String!,memberId:String!):TaskDTO
+ }

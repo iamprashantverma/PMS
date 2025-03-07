@@ -2,6 +2,7 @@ package com.pms.TaskService.resolver;
 
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.SubTaskDTO;
+import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.services.SubTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +88,30 @@ public class SubTaskResolver {
     @QueryMapping
     public List<SubTaskDTO> getSubTasksByTaskId(@Argument String taskId){
         return subTaskService.getSubTasksByTaskId(taskId);
+    }
+
+    /**
+     * Assigns a member to the specified SubTask using GraphQL mutation.
+     *
+     * @param taskId   the ID of the task to which the member should be assigned
+     * @param memberId the ID of the member to be assigned to the SubTask
+     * @return the updated SubTaskDTO after assigning the member
+     */
+    @MutationMapping
+    public SubTaskDTO assignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        return subTaskService.assignMemberToSubTask(taskId, memberId);
+    }
+
+    /**
+     * Unassigns a member from the specified SubTask using GraphQL mutation.
+     *
+     * @param taskId   the ID of the task from which the member should be removed
+     * @param memberId the ID of the member to be unassigned from the SubTask
+     * @return the updated SubTaskDTO after unassigning the member
+     */
+    @MutationMapping
+    public SubTaskDTO unAssignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        return subTaskService.unAssignedMemberFromTask(taskId,memberId);
     }
 
 }

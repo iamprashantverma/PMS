@@ -34,9 +34,6 @@ public class TaskConsumer {
             case ASSIGNED -> notificationService.taskTopicMemberAssignedHandler(taskEvent);
             case UNASSIGNED -> notificationService.taskTopicMemberUnassignedHandler(taskEvent);
             case PRIORITY_CHANGED -> notificationService.taskTopicPriorityUpdatedHandler(taskEvent);
-//            case COMMENTED -> notificationService.taskTopicCommentAddedHandler(taskEvent);
-//            case ATTACHMENT_ADDED -> notificationService.taskTopicAttachmentAddedHandler(taskEvent);
-
             default -> log.warn("Unhandled Task Action: {}", action);
         }
     }

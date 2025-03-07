@@ -27,6 +27,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,9 +112,6 @@ public class BugServiceImpl implements BugService {
         // Publish the Bug Creation Event.
         TaskEvent taskEvent =  generateTaskEvent(savedBug);
         taskEvent.setAction(Actions.CREATED);
-
-        producer.sendTaskEvent(taskEvent);
-
         taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
@@ -191,8 +189,7 @@ public class BugServiceImpl implements BugService {
 
         // Publish the Bug Update Event
         TaskEvent taskEvent  = generateTaskEvent(bug);
-        taskEvent.getAssignees().add(userId);
-
+        taskEvent.setAssignees(Set.of(userId));
         producer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug assigned to user successfully");

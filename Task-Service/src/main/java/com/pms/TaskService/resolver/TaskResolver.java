@@ -94,4 +94,29 @@ public class TaskResolver {
     public List<TaskDTO> getTasksByStatus(@Argument("status")Status status) {
         return taskService.getTasksByStatus(status);
     }
+    /**
+     * Assigns a member to the specified task using GraphQL mutation.
+     *
+     * @param taskId   the ID of the task to which the member should be assigned
+     * @param memberId the ID of the member to be assigned to the task
+     * @return the updated TaskDTO after assigning the member
+     */
+    @MutationMapping
+    public TaskDTO assignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        return taskService.assignMemberToTask(taskId, memberId);
+    }
+
+    /**
+     * Unassigns a member from the specified task using GraphQL mutation.
+     *
+     * @param taskId   the ID of the task from which the member should be removed
+     * @param memberId the ID of the member to be unassigned from the task
+     * @return the updated TaskDTO after unassigning the member
+     */
+    @MutationMapping
+    public TaskDTO unAssignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        return taskService.unAssignedMemberFromTask(taskId, memberId);
+    }
+
+
 }

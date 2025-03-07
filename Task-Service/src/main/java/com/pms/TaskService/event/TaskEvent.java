@@ -9,6 +9,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -53,7 +54,7 @@ public class TaskEvent {
     private String assignedBy;
 
     /* List of users assigned to this entity */
-    private List<String> assignees;
+    private Set<String> assignees;
 
     /* User who performed the last update */
     private String updatedBy;
@@ -65,7 +66,7 @@ public class TaskEvent {
     private Actions action;
 
     /* Tags associated with the entity (for tagging feature) */
-    private List<String> tags;
+    private Set<String> tags;
 
     /* Comment text, used when a comment is added */
     private String commentText;
@@ -77,5 +78,5 @@ public class TaskEvent {
     private List<String> attachmentUrls;
 
     /* List of linked entities (used for linking tasks, bugs, epics, etc.) */
-    private List<String> linkedEntityIds;
+    private Set<String> linkedEntityIds;
 }

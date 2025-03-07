@@ -1,4 +1,6 @@
  extend type Mutation {
     createSubTask(subTask: SubTaskInputDTO): SubTaskDTO
     deleteSubTask(subTaskId: ID!) : ResponseDTO
+     assignMemberToSubTask(taskId:String!,memberId:String!):SubTaskDTO
+     unAssignMemberToSubTask(taskId:String!,memberId:String!):SubTaskDTO
 }

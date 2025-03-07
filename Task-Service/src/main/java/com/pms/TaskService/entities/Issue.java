@@ -9,6 +9,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public abstract class Issue {
      * Uses ElementCollection since it's a simple list of strings.
      */
     @ElementCollection
-    private List<String> assignees;
+    private Set<String> assignees;
     private String creator;
 
     private LocalDate createdDate;
