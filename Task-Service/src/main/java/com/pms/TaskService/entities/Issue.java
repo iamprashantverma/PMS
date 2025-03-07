@@ -7,11 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
-import java.util.List;
 
 /**
  * Base entity representing a generic issue.

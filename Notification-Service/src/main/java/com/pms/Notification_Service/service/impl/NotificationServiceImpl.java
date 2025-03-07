@@ -7,8 +7,8 @@ import com.pms.Notification_Service.service.NotificationService;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.projectservice.event.enums.Priority;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,12 +18,13 @@ import java.util.Set;
 
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class NotificationServiceImpl  implements NotificationService {
 
-    private final UserFeignClient userFeignClient;
-    private final EmailService emailService;
+    @Autowired
+    private UserFeignClient userFeignClient;
+    @Autowired
+    private  EmailService emailService;
 
 
     @Override
@@ -65,18 +66,17 @@ public class NotificationServiceImpl  implements NotificationService {
     public void taskTopicStatusUpdateHandler(TaskEvent taskEvent) {
 
         EventType eventType = taskEvent.getEventType();
-        LocalDate createdDate = taskEvent.getCreatedDate();
-        LocalDate deadline = taskEvent.getDeadline();
-        String createdBy = taskEvent.getAssignedBy();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
         String taskId = taskEvent.getEntityId();
         List<UserDTO> assignees =  new ArrayList<>();
 
+
         for (String userId: taskEvent.getAssignees()) {
             UserDTO user = userFeignClient.getUserById(userId).getData();
             assignees.add(user);
         }
+
         // send the email to each and every assignee
         for (UserDTO user : assignees) {
             String subject = eventType +" Status Update Notification: " + title;
@@ -87,10 +87,10 @@ public class NotificationServiceImpl  implements NotificationService {
                     "Title:          " + title + "\n" +
                     "Description:    " + description + "\n" +
                     "Status:         " + eventType + "\n" +
-                    "Created Date:   " + createdDate + "\n" +
-                    "Deadline:       " + deadline + "\n" +
+//                    "Created Date:   " + createdDate + "\n" +
+//                    "Deadline:       " + deadline + "\n" +
                     eventType + " ID:        " + taskId + "\n" +
-                    "Updated By:     " + createdBy + "\n" +
+//                    "Updated By:     " + createdBy + "\n" +
                     "--------------------\n\n" +
                     "Please log in to your dashboard to view the full details and take any necessary actions.\n\n" +
                     "Thank you,\n" +

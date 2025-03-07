@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Data Transfer Object (DTO) representing a Bug entity.
@@ -77,7 +78,7 @@ public class BugDTO {
     /**
      * List of users assigned to fix this bug.
      */
-    private List<String> assignees;
+    private Set<String> assignees;
 
     /**
      * The creator of the bug.

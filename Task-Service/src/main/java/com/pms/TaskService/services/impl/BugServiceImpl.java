@@ -164,18 +164,27 @@ public class BugServiceImpl implements BugService {
 
         String id = bugDTO.getId();
         Bug toBeModified = convertToEntity(bugDTO);
+
         Bug existingBug = bugRepository.findById(id).orElseThrow(()->
                 new ResourceNotFound("Invalid Bug id"));
+
         Status oldStatus = existingBug.getStatus();
         Priority oldPriority = existingBug.getPriority() ;
 
+        toBeModified.setUpdatedDate(LocalDate.now());
+        toBeModified.setCreatedDate(existingBug.getCreatedDate());
         toBeModified.setId(id);
-        bugRepository.save(toBeModified);
+        toBeModified.setUpdatedDate(LocalDate.now());
+        toBeModified.setAssignees(existingBug.getAssignees());
+
+        Bug savedBug =  bugRepository.save(toBeModified);
 
         TaskEvent taskEvent = generateTaskEvent(toBeModified);
+        taskEvent.setCreatedDate(savedBug.getCreatedDate());
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(bugDTO.getStatus());
         taskEvent.setDeadline(bugDTO.getDeadline());
+        taskEvent.setAssignees(existingBug.getAssignees());
         taskEvent.setAction(Actions.UPDATED);
 
         producer.sendTaskEvent(taskEvent);
@@ -199,6 +208,7 @@ public class BugServiceImpl implements BugService {
         // Publish the Bug Update Event
         TaskEvent taskEvent  = generateTaskEvent(bug);
         taskEvent.setAssignees(Set.of(userId));
+        taskEvent.setAction(Actions.ASSIGNED);
         producer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug assigned to user successfully");
@@ -218,8 +228,12 @@ public class BugServiceImpl implements BugService {
         TaskEvent taskEvent = generateTaskEvent(bug) ;
         taskEvent.setNewStatus(status);
         taskEvent.setOldStatus(oldStatus);
-
+        taskEvent.setAction(Actions.STATUS_CHANGED);
+        taskEvent.setAssignees(bug.getAssignees());
         producer.sendTaskEvent(taskEvent);
+
+        taskEvent.setEventType(EventType.CALENDER);
+        calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug status updated successfully");
     }

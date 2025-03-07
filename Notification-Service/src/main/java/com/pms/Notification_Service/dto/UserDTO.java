@@ -11,6 +11,5 @@ public class UserDTO {
 //    private Roles role;
     private String gender;
 //    private Status status;
-    private String password;
     private String language;
 }

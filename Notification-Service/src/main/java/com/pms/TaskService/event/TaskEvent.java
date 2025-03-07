@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class TaskEvent {
     private String assignedBy;
 
     /* List of users assigned to this entity */
-    private Set<String> assignees;
+    private Set<String> assignees = new HashSet<>();
 
     /* User who performed the last update */
     private String updatedBy;
@@ -66,7 +67,7 @@ public class TaskEvent {
     private Actions action;
 
     /* Tags associated with the entity (for tagging feature) */
-    private Set<String> tags;
+    private Set<String> tags = new HashSet<>();
 
     /* Comment text, used when a comment is added */
     private String commentText;
@@ -75,8 +76,8 @@ public class TaskEvent {
     private String commentedBy;
 
     /* List of attachment URLs (for files/images) */
-    private Set<String> attachmentUrls;
+    private Set<String> attachmentUrls = new HashSet<>();
 
     /* List of linked entities (used for linking tasks, bugs, epics, etc.) */
-    private Set<String> linkedEntityIds;
+    private Set<String> linkedEntityIds = new HashSet<>();
 }

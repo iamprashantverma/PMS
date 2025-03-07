@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Data
+@RequiredArgsConstructor
 public class InAppNotification {
 
     @Id
