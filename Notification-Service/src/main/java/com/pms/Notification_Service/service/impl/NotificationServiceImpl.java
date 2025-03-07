@@ -1,8 +1,9 @@
 package com.pms.Notification_Service.service.impl;
 
 
-import com.pms.Notification_Service.event.TaskEvent;
+
 import com.pms.Notification_Service.service.NotificationService;
+import com.pms.TaskService.event.TaskEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

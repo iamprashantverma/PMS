@@ -1,8 +1,8 @@
 package com.pms.Notification_Service.entities;
 
-import com.pms.Notification_Service.event.enums.EventType;
-import com.pms.Notification_Service.event.enums.Priority;
-import com.pms.Notification_Service.event.enums.Status;
+import com.pms.projectservice.event.enums.EventType;
+import com.pms.projectservice.event.enums.Priority;
+import com.pms.projectservice.event.enums.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

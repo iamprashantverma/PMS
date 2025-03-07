@@ -1,8 +1,7 @@
 package com.pms.Notification_Service.service;
 
 
-import com.pms.Notification_Service.event.ProjectEvent;
-import com.pms.Notification_Service.event.TaskEvent;
+import com.pms.TaskService.event.TaskEvent;
 
 public interface NotificationService {
 

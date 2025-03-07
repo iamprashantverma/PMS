@@ -1,7 +1,6 @@
 package com.pms.Notification_Service.consumer;
 
-import com.pms.Notification_Service.event.ProjectEvent;
-import com.pms.Notification_Service.event.TaskEvent;
+import com.pms.projectservice.event.ProjectEvent;
 import com.pms.Notification_Service.service.NotificationService;
 import com.pms.Notification_Service.service.impl.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +18,7 @@ public class ProjectConsumer {
 
     @KafkaListener(topics = "project-topic", groupId = "project-group")
     public void consumeProjectEvents(ProjectEvent event) {
-        log.info("Task Event successfully received: {}", event);
-
-        /* Route to the appropriate method based on the event type */
-        notificationService.handleProjectEvent(event);
+        log.info("Project Event successfully received: {}", event);
     }
 
 }

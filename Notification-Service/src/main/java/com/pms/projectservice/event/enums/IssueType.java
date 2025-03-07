@@ -1,4 +1,4 @@
-package com.pms.Notification_Service.event.enums;
+package com.pms.projectservice.event.enums;
 
 public enum IssueType {
     BUG, FEATURE, DEVELOPMENT, IMPROVEMENT;

@@ -64,7 +64,6 @@ public class SubTaskServiceImpl implements SubTaskService {
         return TaskEvent.builder()
                 .entityId(subTask.getId())
                 .title(subTask.getTitle())
-                .projectId(subTask.getParentTask().getEpic().getProjectId())
                 .eventType(EventType.SUBTASK)
                 .deadline(subTask.getDeadLine())
                 .createdDate(subTask.getCreatedDate())

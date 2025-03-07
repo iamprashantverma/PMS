@@ -1,9 +1,10 @@
 package com.pms.Notification_Service.consumer;
 
-import com.pms.Notification_Service.event.TaskEvent;
-import com.pms.Notification_Service.event.enums.Actions;
+
+import com.pms.TaskService.event.TaskEvent;
 import com.pms.Notification_Service.service.impl.NotificationServiceImpl;
 
+import com.pms.TaskService.event.enums.Actions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +21,6 @@ public class TaskConsumer {
     public void consumeTaskTopicEvents(TaskEvent taskEvent) {
         log.info("Task Event successfully received: {}", taskEvent);
 
-        /* Route to the appropriate method based on the event type */
         routeTaskTopicEvent(taskEvent);
     }
 
@@ -36,15 +36,7 @@ public class TaskConsumer {
             case PRIORITY_CHANGED -> notificationService.taskTopicPriorityUpdatedHandler(taskEvent);
 //            case COMMENTED -> notificationService.taskTopicCommentAddedHandler(taskEvent);
 //            case ATTACHMENT_ADDED -> notificationService.taskTopicAttachmentAddedHandler(taskEvent);
-//            case ATTACHMENT_REMOVED -> notificationService.taskTopicAttachmentRemovedHandler(taskEvent);
 
-//            case TAG_ADDED -> notificationService.taskTopicTagAddedHandler(taskEvent);
-//            case TAG_REMOVED -> notificationService.taskTopicTagRemovedHandler(taskEvent);
-//            case LINKED -> notificationService.taskTopicLinkedHandler(taskEvent);
-//            case UNLINKED -> notificationService.taskTopicUnlinkedHandler(taskEvent);
-//            case RESOLVED -> notificationService.taskTopicResolvedHandler(taskEvent);
-//            case REOPENED -> notificationService.taskTopicReopenedHandler(taskEvent);
-//            case CLOSED -> notificationService.taskTopicClosedHandler(taskEvent);
             default -> log.warn("Unhandled Task Action: {}", action);
         }
     }
