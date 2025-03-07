@@ -30,4 +30,4 @@ build/
 !**/src/test/**/build/
 
 src/test
-src/main/resources
+src/main/resources/application.yml
