@@ -27,7 +27,6 @@ public class TaskConsumer {
     private void routeTaskTopicEvent(TaskEvent taskEvent) {
         Actions action = taskEvent.getAction();
         switch (action) {
-            case CREATED -> notificationService.taskTopicCreationHandler(taskEvent);
             case UPDATED -> notificationService.taskTopicUpdateHandler(taskEvent);
             case DELETED -> notificationService.taskTopicDeletionHandler(taskEvent);
             case STATUS_CHANGED -> notificationService.taskTopicStatusUpdateHandler(taskEvent);

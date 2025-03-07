@@ -8,24 +8,28 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class InAppNotification {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     private String title;
     private String userId;
     private String taskId;
     private String description;
-    private LocalDateTime dueDate;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private LocalDate dueDate;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
     private Priority priority;
     private String projectId;
     private String assignedBy;
-    private List<String> assignees;
+    private Set<String> assignees;
     private Status oldStatus;
     private Status newStatus;
     private String updatedBy;

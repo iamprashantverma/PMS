@@ -6,7 +6,6 @@ import com.pms.TaskService.event.TaskEvent;
 public interface NotificationService {
 
 
-    void taskTopicCreationHandler(TaskEvent taskEvent);
 
     void taskTopicUpdateHandler(TaskEvent taskEvent);
 
@@ -19,4 +18,5 @@ public interface NotificationService {
     void taskTopicMemberUnassignedHandler(TaskEvent taskEvent);
 
     void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent);
+
 }
