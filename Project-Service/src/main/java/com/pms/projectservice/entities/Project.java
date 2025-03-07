@@ -54,17 +54,19 @@ public class Project {
     private String clientId;
 
     @ElementCollection
-    private List<String> membersId = new ArrayList<>();
+    private Set<String> memberIds = new HashSet<>();
 
     @ElementCollection
-    private List<String> taskId = new ArrayList<>();
+    private Set<String> epicIds =  new HashSet<>();
 
     @ElementCollection
-    private List<String> milestoneId = new ArrayList<>();
+    private Set<String> taskIds =  new HashSet<>();
 
     @ElementCollection
-    private List<String> chatRoomId = new ArrayList<>();
+    private Set<String> bugIds =  new HashSet<>();
 
     @ElementCollection
-    private List<String> documentId = new ArrayList<>();
+    private Set<String> chatRoomsIds = new HashSet<>();
+
+
 }

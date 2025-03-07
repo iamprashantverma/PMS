@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.pms.projectservice.event.EventType.PROJECT_DEADLINE_EXTENDED;
 
@@ -58,7 +59,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /* create the project Event of type MEMBER_ASSIGNED */
-    private ProjectEvent getMemberAssignedEvent(Project p,List<String> members) {
+    private ProjectEvent getMemberAssignedEvent(Project p,Set<String> members) {
         return ProjectEvent.builder()
                 /* Project Id */
                 .projectId(p.getProjectId())
@@ -95,7 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .name(project.getTitle())
                 /* when your removed from this project */
                 .createdDate(LocalDate.now())
-                .members(List.of(memberId))
+                .members(Set.of(memberId))
                 .triggeredBy(getCurrentUserId())
                 .eventType(EventType.MEMBER_REMOVED)
                 .build();
@@ -139,6 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         /* convert the projectDTO into the project Entity */
         Project newProject = convertToProjectEntity(projectDTO) ;
+
         /* add the necessary information about the project e.g. Status */
         newProject.setStatus(Status.INITIATED);
         newProject.setProjectCreator(getCurrentUserId());
@@ -295,7 +297,7 @@ public class ProjectServiceImpl implements ProjectService {
     /* assign the members to project */
     @Override
     @Transactional
-    public ProjectDTO addMembersToProject( String projectId, List<String> member) {
+    public ProjectDTO addMembersToProject( String projectId, Set<String> member) {
 
         /* get the project */
         Project project = getProjectEntityById(projectId) ;
@@ -303,7 +305,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         /* add assign the member to the project */
         for (String memberId:member) {
-            project.getMembersId().add(memberId);
+            project.getMemberIds().add(memberId);
         }
 
         /* saved the updated project into the DB */
@@ -325,12 +327,12 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = getProjectEntityById(projectId);
 
         /*Check if the member exists in the project*/
-        if (!project.getMembersId().contains(memberId)) {
+        if (!project.getMemberIds().contains(memberId)) {
             throw new ResourceNotFoundException("Member with ID " + memberId + " is not part of project " + projectId);
         }
 
         /* Remove the member from the project*/
-        project.getMembersId().remove(memberId);
+        project.getMemberIds().remove(memberId);
         Project modifiedProject = projectRepository.save(project);
 
         /*Create memberRemovedEvent and produce it*/
@@ -361,4 +363,35 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(this::convertToProjectDTO)
                 .toList();
     }
+
+    @Override
+    public ProjectDTO addEpicInToTheProject(String projectId, String epicId) {
+        Project project = getProjectEntityById(projectId);
+        project.getEpicIds().add(epicId);
+
+        Project modifiedProject = projectRepository.save(project);
+
+        return convertToProjectDTO(modifiedProject);
+    }
+
+    @Override
+    public ProjectDTO addTaskInToTheProject(String projectId, String taskId) {
+       Project project = getProjectEntityById(projectId);
+       project.getTaskIds().add(taskId);
+
+       Project modifiedProject = projectRepository.save(project);
+
+        return convertToProjectDTO(modifiedProject);
+    }
+
+    @Override
+    public ProjectDTO addBugInToTheProject(String projectId, String bugId) {
+        Project project = getProjectEntityById(projectId);
+        project.getBugIds().add(bugId);
+
+        Project modifiedProject = projectRepository.save(project);
+
+        return convertToProjectDTO(modifiedProject);
+    }
+
 }

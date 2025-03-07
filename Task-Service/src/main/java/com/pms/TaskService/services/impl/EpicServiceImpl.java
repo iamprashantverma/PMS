@@ -100,6 +100,8 @@ public class EpicServiceImpl implements EpicService {
         epic.setCreatedDate(LocalDate.now());
 
         Epic savedEpic = epicRepository.save(epic);
+        // add the epic within the current project
+        projectFeignClient.addEpicToProject(savedEpic.getProjectId(),savedEpic.getId());
 
         TaskEvent taskEvent  = getEpicTaskEvent(savedEpic);
         taskEvent.setEventType(EventType.CALENDER);

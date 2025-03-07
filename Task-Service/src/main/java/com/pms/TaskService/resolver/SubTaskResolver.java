@@ -98,7 +98,7 @@ public class SubTaskResolver {
      * @return the updated SubTaskDTO after assigning the member
      */
     @MutationMapping
-    public SubTaskDTO assignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+    public SubTaskDTO assignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
         return subTaskService.assignMemberToSubTask(taskId, memberId);
     }
 
@@ -110,7 +110,7 @@ public class SubTaskResolver {
      * @return the updated SubTaskDTO after unassigning the member
      */
     @MutationMapping
-    public SubTaskDTO unAssignMemberToTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+    public SubTaskDTO unAssignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
         return subTaskService.unAssignedMemberFromTask(taskId,memberId);
     }
 

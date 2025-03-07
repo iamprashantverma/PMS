@@ -12,13 +12,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class ProjectConsumer {
-    private final EmailService emailService;
+
     private final NotificationService notificationService;
 
 
     @KafkaListener(topics = "project-topic", groupId = "project-group")
     public void consumeProjectEvents(ProjectEvent event) {
         log.info("Project Event successfully received: {}", event);
+
+
+
     }
 
 }

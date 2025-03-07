@@ -35,11 +35,11 @@ type ProjectA {
     priority: PriorityA
     projectCreator: String
     clientId: String
-    membersId: [String]
-    taskId: [String]
-    milestoneId: [String]
-    chatRoomId: [String]
-    documentId: [String]
+    memberIds: [String]
+    chatRoomIds: [String]
+    epicIds:[String]
+    taskIds:[String]
+    bugIds:[String]
 }
 
 input ProjectInput {

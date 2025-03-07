@@ -10,15 +10,17 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 public class ProjectEvent {
+
     private String projectId;
     private String name;
     private String description;
     private String triggeredBy;
-    private List<String> members;
+    private Set<String> members;
     private String memberId;
     private Status oldStatus;
     private Status newStatus;
@@ -30,4 +32,5 @@ public class ProjectEvent {
     private LocalDate timestamp;
     private LocalDate newDeadLine;
     private LocalDate oldDeadLine;
+
 }

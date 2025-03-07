@@ -217,7 +217,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDTO assignMemberToSubTask(String taskId, String memberId) {
-        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()-
+        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()->
                 new ResourceNotFound("Invalid Task Id:"+taskId));
         subTask.getAssignees().add(memberId);
 
@@ -229,12 +229,12 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         producer.sendTaskEvent(taskEvent);
 
-        convertToDTO(savedSubTask);
+       return convertToDTO(savedSubTask);
     }
 
     @Override
     public SubTaskDTO unAssignedMemberFromTask(String taskId, String memberId) {
-        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()-
+        SubTask subTask = subTaskRepository.findById(taskId).orElseThrow(()->
                 new ResourceNotFound("Invalid Task Id:"+taskId));
         if (!subTask.getAssignees().contains(memberId))
             throw  new ResourceNotFound("Member not found ! "+memberId);

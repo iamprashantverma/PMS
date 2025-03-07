@@ -1,5 +1,6 @@
 package com.pms.TaskService.services.impl;
 
+import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.Epic;
@@ -38,6 +39,7 @@ public class TaskServiceImpl implements TaskService {
     private final EpicRepository epicRepository;
     private final TaskEventProducer taskEventProducer;
     private final CalendarEventProducer calendarEventProducer;
+    private final ProjectFeignClient projectFeignClient;
 
     /**
      * convert the Task entity into the TaskDTO
@@ -98,8 +100,13 @@ public class TaskServiceImpl implements TaskService {
         // add the task into the epic if epic id present
         String epicId = taskDTO.getEpicId();
 
-        if (epicId != null)
+        if (epicId != null) {
+            // add the task within the epic
             addTaskOnEpic(epicId,savedTask);
+        } else {
+            // add the task within project directly
+            projectFeignClient.addTaskToProject(task.getProjectId(),savedTask.getId());
+        }
 
         TaskEvent taskEvent = generateTaskEvent(savedTask);
         // set the necessary details

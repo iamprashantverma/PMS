@@ -9,6 +9,7 @@ input BugInput {
     tag: IssueTag
     expectedOutcome: String!
     actualOutcome: String!
+    projectId:String
 }
 
 type BugDTO {
@@ -21,7 +22,9 @@ type BugDTO {
     status: IssueStatus!
     priority: Priority!
     tag: IssueTag
-    createdDate: Date!
-    updatedDate: Date!
+    createdDate: Date
+    updatedDate: Date
     deadline:Date
+    projectId:String
+
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -64,7 +65,7 @@ public class ProjectResolver {
     }
 
     @MutationMapping
-    public ProjectDTO addMembersToProject(@Argument("projectId") String projectId, @Argument("members") List<String> members) {
+    public ProjectDTO addMembersToProject(@Argument("projectId") String projectId, @Argument("members") Set<String> members) {
         log.info("Adding members {} to project ID: {}", members, projectId);
         return projectService.addMembersToProject(projectId, members);
     }

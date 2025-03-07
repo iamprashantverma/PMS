@@ -1,21 +1,23 @@
 package com.pms.TaskService.dto;
 
+import com.pms.TaskService.entities.enums.Priority;
+import com.pms.TaskService.entities.enums.Status;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * DTO for Bug entity, extending IssueDTO to inherit common issue properties.
+ * Data Transfer Object (DTO) representing a Bug entity.
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BugDTO extends IssueDTO {
+@Builder
+public class BugDTO {
 
     /**
      * Steps to reproduce the bug.
@@ -26,14 +28,84 @@ public class BugDTO extends IssueDTO {
      * Expected behavior after executing the steps.
      */
     private String expectedOutcome;
+
+    /**
+     * The deadline by which the bug should be fixed.
+     */
     private LocalDate deadline;
 
     /**
      * Actual behavior that differs from the expected outcome.
      */
     private String actualOutcome;
+
+    /**
+     * The ID of the epic this bug is associated with.
+     */
     private String epicId;
+
+    /**
+     * The ID of the task this bug is associated with.
+     */
     private String taskId;
+
+    /**
+     * The ID of the story this bug is related to.
+     */
     private String storyId;
 
+    /**
+     * Unique identifier for the bug.
+     */
+    private String id;
+
+    /**
+     * Title or short description of the bug.
+     */
+    private String title;
+
+    /**
+     * Detailed description of the bug.
+     */
+    private String description;
+
+    /**
+     * The project ID to which this bug belongs.
+     */
+    private String projectId;
+
+    /**
+     * List of users assigned to fix this bug.
+     */
+    private List<String> assignees;
+
+    /**
+     * The creator of the bug.
+     */
+    private String creator;
+
+    /**
+     * The date when the bug was reported.
+     */
+    private LocalDate createdDate;
+
+    /**
+     * The last updated date of the bug.
+     */
+    private LocalDate updatedDate;
+
+    /**
+     * Current status of the bug.
+     */
+    private Status status;
+
+    /**
+     * Priority level of the bug.
+     */
+    private Priority priority;
+
+    /**
+     * Percentage of completion of the bug fix.
+     */
+    private Integer completionPercent;
 }

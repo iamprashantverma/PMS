@@ -8,6 +8,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -16,7 +17,7 @@ public class ProjectEvent {
     private String name;
     private String description;
     private String triggeredBy;
-    private List<String> members;
+    private Set<String> members;
     private String memberId;
     private Status oldStatus;
     private Status newStatus;

@@ -1,5 +1,6 @@
 package com.pms.TaskService.services.impl;
 
+import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.dto.BugDTO;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.Bug;
@@ -26,6 +27,7 @@ import org.checkerframework.checker.units.qual.C;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ public class BugServiceImpl implements BugService {
     private final EpicRepository epicRepository;
     private final StoryRepository storyRepository;
     private final CalendarEventProducer calendarEventProducer;
+    private final ProjectFeignClient projectFeignClient;
 
     /**
      * Converts BugDTO to Bug entity.
@@ -73,7 +76,7 @@ public class BugServiceImpl implements BugService {
         return TaskEvent.builder()
                 .entityId(bug.getId())
                 .title(bug.getTitle())
-                .projectId(bug.getEpic().getProjectId())
+                .projectId(bug.getEpic() == null ? bug.getProjectId():bug.getEpic().getProjectId())
                 .priority(bug.getPriority())
                 .eventType(EventType.BUG)
                 .deadline(bug.getDeadLine())
@@ -89,13 +92,11 @@ public class BugServiceImpl implements BugService {
         // Convert DTO to Entity
         Bug bug = convertToEntity(bugDTO);
 
-        // Check if the related Task exists
-        Task task = taskRepository.findById(bugDTO.getTaskId())
-                .orElseThrow(() -> new ResourceNotFound("Task not found: " + bugDTO.getTaskId()));
-
         // Associate Bug with the Epic or Story
         String epicId = bugDTO.getEpicId();
         String storyId = bugDTO.getStoryId();
+        String taskId =  bugDTO.getTaskId();
+
         if (epicId != null) {
             Epic epic = epicRepository.findById(epicId).orElseThrow(()->
                     new ResourceNotFound("Invalid Epic Id"));
@@ -104,11 +105,19 @@ public class BugServiceImpl implements BugService {
             Story story = storyRepository.findById(storyId).orElseThrow(()->
                     new ResourceNotFound("Invalid storyId: "+ storyId));
             bug.setStory(story);
+        } else if (taskId != null) {
+            Task task1 = taskRepository.findById(taskId).orElseThrow(()->
+                    new ResourceNotFound("Invalid Task iD "));
         }
-
+        bug.setCreatedDate(LocalDate.now());
         // Save the Bug
         Bug savedBug = bugRepository.save(bug);
 
+        if (taskId == null && epicId == null && storyId == null) {
+            // add this bug directly to the project
+            log.info("{}",savedBug);
+            projectFeignClient.addBugToProject(savedBug.getProjectId(),savedBug.getId());
+        }
         // Publish the Bug Creation Event.
         TaskEvent taskEvent =  generateTaskEvent(savedBug);
         taskEvent.setAction(Actions.CREATED);

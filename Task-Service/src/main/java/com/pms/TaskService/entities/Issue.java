@@ -36,9 +36,7 @@ public abstract class Issue {
      */
     @PrePersist
     public void generateId() {
-        if (this.id == null) {
-            this.id = String.format("%06d", new Random().nextInt(999999));
-        }
+        this.id = String.format("%06d", new Random().nextInt(999999));
     }
 
 

@@ -10,7 +10,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,6 +21,8 @@ import java.util.List;
 public class ProjectDTO {
 
     private String projectId;
+
+    private LocalDate createdAt;
 
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must not exceed 100 characters")
@@ -48,11 +52,11 @@ public class ProjectDTO {
     @NotBlank(message = "Client ID is required")
     private String clientId;
 
-    private LocalDate createdAt;
 
-    private List<String> memberId;
-    private List<String> taskId;
-    private List<String> milestoneId;
-    private List<String> chatRoomId;
-    private List<String> documentId;
+    private Set<String> memberIds = new HashSet<>();
+    private Set<String> taskIds = new HashSet<>();
+    private Set<String> epicIds = new HashSet<>();
+    private Set<String> bugIds = new HashSet<>();
+    private Set<String> chatRoomIds = new HashSet<>();
+
 }

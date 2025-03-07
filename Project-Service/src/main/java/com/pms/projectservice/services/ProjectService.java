@@ -7,6 +7,7 @@ import com.pms.projectservice.entities.enums.Status;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Service interface for managing projects.
@@ -82,7 +83,7 @@ public interface ProjectService {
      * @param members the list of member IDs to add to the project
      * @return the updated project as a ProjectDTO
      */
-    ProjectDTO addMembersToProject(String projectId, List<String> members);
+    ProjectDTO addMembersToProject(String projectId, Set<String> members);
 
     /**
      * Removes a user from a project.
@@ -108,4 +109,32 @@ public interface ProjectService {
      * @return a list of projects that match the title
      */
     List<ProjectDTO> searchProjectsByTitle(String title);
+
+    /**
+     * Adds an Epic to the specified Project.
+     *
+     * @param projectId The ID of the project to which the epic should be added.
+     * @param epicId    The ID of the epic to be added.
+     * @return Updated ProjectDTO with the added epic details.
+     */
+    ProjectDTO addEpicInToTheProject(String projectId, String epicId);
+
+    /**
+     * Adds a Task to the specified Project.
+     *
+     * @param projectId The ID of the project to which the task should be added.
+     * @param taskId    The ID of the task to be added.
+     * @return Updated ProjectDTO with the added task details.
+     */
+    ProjectDTO addTaskInToTheProject(String projectId, String taskId);
+
+    /**
+     * Adds a Bug to the specified Project.
+     *
+     * @param projectId The ID of the project to which the bug should be added.
+     * @param bugId     The ID of the bug to be added.
+     * @return Updated ProjectDTO with the added bug details.
+     */
+    ProjectDTO addBugInToTheProject(String projectId, String bugId);
+
 }
