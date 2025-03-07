@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Completion Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        h2 { color: #e74c3c; }
+        .details { background: #ecf0f1; padding: 15px; border-radius: 5px; margin-top: 10px; line-height: 1.6; }
+        .footer { margin-top: 20px; font-size: 14px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🚨 Task Completed</h2>
+    <p>Dear <strong th:text="${userName}"></strong>,</p>
+    <p>We would like to inform you that the task "<strong th:text="${title}"></strong>" has been completed.</p>
+
+    <div class="details">
+        <p><strong>Task Title:</strong> <span th:text="${title}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${description}" th:unless="${description == null}">No description available</span></p>
+        <p><strong>Task ID:</strong> <span th:text="${taskId}"></span></p>
+    </div>
+
+    <p>Please check your dashboard for more details.</p>
+
+    <div class="footer">
+        <p>Thank you,<br> The Task Management Team</p>
+    </div>
+</div>
+</body>
+</html>

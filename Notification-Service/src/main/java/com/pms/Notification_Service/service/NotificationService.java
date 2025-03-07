@@ -1,6 +1,7 @@
 package com.pms.Notification_Service.service;
 
 import com.pms.TaskService.event.TaskEvent;
+import jakarta.mail.MessagingException;
 
 /**
  * Interface for handling various task-related events received from Kafka topics.
@@ -12,7 +13,7 @@ public interface NotificationService {
      *
      * @param taskEvent The event containing task update details.
      */
-    void taskTopicUpdateHandler(TaskEvent taskEvent);
+    void taskTopicUpdateHandler(TaskEvent taskEvent) throws MessagingException;
 
     /**
      * Handles the event when a task's status is updated.
@@ -26,26 +27,26 @@ public interface NotificationService {
      *
      * @param taskEvent The event containing task deletion details.
      */
-    void taskTopicDeletionHandler(TaskEvent taskEvent);
+    void taskTopicDeletionHandler(TaskEvent taskEvent) throws MessagingException;
 
     /**
      * Handles the event when a member is assigned to a task.
      *
      * @param taskEvent The event containing task member assignment details.
      */
-    void taskTopicMemberAssignedHandler(TaskEvent taskEvent);
+    void taskTopicMemberAssignedHandler(TaskEvent taskEvent) throws MessagingException;
 
     /**
      * Handles the event when a member is unassigned from a task.
      *
      * @param taskEvent The event containing task member unassignment details.
      */
-    void taskTopicMemberUnassignedHandler(TaskEvent taskEvent);
+    void taskTopicMemberUnassignedHandler(TaskEvent taskEvent) throws MessagingException;
 
     /**
      * Handles the event when a task's priority is updated.
      *
      * @param taskEvent The event containing task priority update details.
      */
-    void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent);
+    void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent) throws MessagingException;
 }

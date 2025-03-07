@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Status Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        .details {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        .old-status {
+            font-weight: bold;
+            color: #f39c12; /* Orange for visibility */
+            text-decoration: line-through;
+        }
+        .new-status {
+            font-weight: bold;
+            color: #27ae60; /* Green for new status */
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🔔 Task Status Update</h2>
+    <p>Dear <strong th:text="${userName}"></strong>,</p>
+    <p>We would like to inform you that the status of <strong th:if="${eventType}" th:text="${eventType}"></strong>
+        "<strong th:text="${title}"></strong>" has been updated.</p>
+
+    <div class="details">
+        <p><strong>Title:</strong> <span th:text="${title}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${description}" th:unless="${description == null}">No description available</span></p>
+        <p><strong>Task ID:</strong> <span th:text="${taskId}"></span></p>
+        <p><strong>Old Status:</strong> <span class="old-status" th:text="${oldStatus}"></span></p>
+        <p><strong>New Status:</strong> <span class="new-status" th:text="${newStatus}"></span></p>
+    </div>
+
+    <p>Please log in to your dashboard to view the full details and take any necessary actions.</p>
+
+    <div class="footer">
+        <p>Thank you,<br> The Task Management Team</p>
+    </div>
+</div>
+</body>
+</html>

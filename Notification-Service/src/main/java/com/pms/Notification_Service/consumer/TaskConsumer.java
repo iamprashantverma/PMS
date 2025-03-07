@@ -5,6 +5,7 @@ import com.pms.Notification_Service.service.NotificationService;
 import com.pms.Notification_Service.service.impl.NotificationServiceImpl;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.Actions;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,12 +19,12 @@ public class TaskConsumer {
     private final NotificationService notificationService;
 
     @KafkaListener(topics = "task-topic", groupId = "task-group")
-    public void consumeTaskTopicEvents(TaskEvent taskEvent) {
+    public void consumeTaskTopicEvents(TaskEvent taskEvent) throws MessagingException {
         log.info("Task Event successfully received: {}", taskEvent);
         routeTaskTopicEvent(taskEvent);
     }
 
-    private void routeTaskTopicEvent(TaskEvent taskEvent) {
+    private void routeTaskTopicEvent(TaskEvent taskEvent) throws MessagingException {
 
         Actions action = taskEvent.getAction();
         switch (action) {

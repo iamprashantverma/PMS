@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Update Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 15px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Task Update Notification</h2>
+    </div>
+    <div class="content">
+        <p>Dear <span th:text="${assigneeName}">User</span>,</p>
+        <p>The following task has been updated:</p>
+        <p><strong>Task Title:</strong> <span th:text="${title}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${description}"></span></p>
+        <p><strong>Created Date:</strong> <span th:text="${createdDate}"></span></p>
+        <p><strong>Deadline:</strong> <span th:text="${deadline}"></span></p>
+        <p><strong>Updated By:</strong> <span th:text="${updatedBy}"></span></p>
+        <p><strong>Event Type:</strong> <span th:text="${eventType}"></span></p>
+        <p>Kindly check the project dashboard for more details.</p>
+        <p>Best Regards,</p>
+        <p><strong>Project Management Team</strong></p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply.</p>
+    </div>
+</div>
+</body>
+</html>

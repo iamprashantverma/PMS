@@ -7,28 +7,31 @@ import com.pms.Notification_Service.service.NotificationService;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.projectservice.event.enums.Priority;
+import com.pms.projectservice.event.enums.Status;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.mail.MessagingException;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationServiceImpl  implements NotificationService {
 
-    @Autowired
-    private UserFeignClient userFeignClient;
-    @Autowired
-    private  EmailService emailService;
+    private final UserFeignClient userFeignClient;
+    private final   EmailService emailService;
 
 
     @Override
-    public void taskTopicUpdateHandler(TaskEvent taskEvent) {
+    public void taskTopicUpdateHandler(TaskEvent taskEvent) throws MessagingException {
         String entityId = taskEvent.getEntityId();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
@@ -38,154 +41,178 @@ public class NotificationServiceImpl  implements NotificationService {
         EventType eventType = taskEvent.getEventType();
         Set<String> assigneeIds = taskEvent.getAssignees();
 
+        // Define subject
+        String subject = eventType + " Update Notification: " + title;
+
+        // Iterate over assignee IDs and send emails
         for (String userId : assigneeIds) {
             UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null) {
-                String subject = eventType + " Update Notification: " + title;
-                String body = "Hello " + user.getName() + ",\n\n" +
-                        "The " + eventType + " \"" + title + "\" has been updated.\n\n" +
-                        "Details:\n" +
-                        "--------------------\n" +
-                        "Title: " + title + "\n" +
-                        "Description: " + description + "\n" +
-                        "ID: " + entityId + "\n" +
-                        "Created Date: " + createdDate + "\n" +
-                        "Deadline: " + deadline + "\n" +
-                        "Updated By: " + updatedBy + "\n" +
-                        "--------------------\n\n" +
-                        "Please log in to your dashboard to view the latest details.\n\n" +
-                        "Regards,\n" +
-                        "The Task Management Team";
-                emailService.sendEmail(user.getEmail(), subject, body);
-                log.info("Email sent to {} for {} update (ID: {})", user.getEmail(), eventType, entityId);
+
+            if (user != null && user.getEmail() != null) {
+                // Prepare email template variables
+                Map<String, Object> variables = Map.of(
+                        "userName", user.getName(),
+                        "title", title,
+                        "description", description,
+                        "taskId", entityId,  // Assuming entityId is the task ID
+                        "oldStatus", taskEvent.getOldStatus(),  // Assuming you have oldStatus in TaskEvent
+                        "newStatus", taskEvent.getNewStatus(),  // Assuming you have newStatus in TaskEvent
+                        "eventType", eventType
+                );
+
+                // Send the email
+                emailService.sendEmail(user.getEmail(), subject, "task-status-update", variables);
+                log.info("Email sent to {} for {} update (Task ID: {})", user.getEmail(), eventType, entityId);
+            } else {
+                log.warn("User with ID {} not found or has no email.", userId);
             }
         }
     }
 
     @Override
     public void taskTopicStatusUpdateHandler(TaskEvent taskEvent) {
-
         EventType eventType = taskEvent.getEventType();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
         String taskId = taskEvent.getEntityId();
-        List<UserDTO> assignees =  new ArrayList<>();
+        Status newStatus = taskEvent.getNewStatus();
+        Status oldStatus = taskEvent.getOldStatus();
+        List<UserDTO> assignees = new ArrayList<>();
+        String subject = eventType + " Status Update Notification: " + title;
 
-
-        for (String userId: taskEvent.getAssignees()) {
+        // Fetch all users from UserService
+        for (String userId : taskEvent.getAssignees()) {
             UserDTO user = userFeignClient.getUserById(userId).getData();
             assignees.add(user);
         }
 
-        // send the email to each and every assignee
+        // Send email to each assignee
         for (UserDTO user : assignees) {
-            String subject = eventType +" Status Update Notification: " + title;
-            String body = "Dear " + user.getName() + ",\n\n" +
-                    "We would like to inform you that the status of the\"" + eventType + "  " + title + "\" has been updated.\n\n" +
-                    "Task Details:\n" +
-                    "--------------------\n" +
-                    "Title:          " + title + "\n" +
-                    "Description:    " + description + "\n" +
-                    "Status:         " + eventType + "\n" +
-//                    "Created Date:   " + createdDate + "\n" +
-//                    "Deadline:       " + deadline + "\n" +
-                    eventType + " ID:        " + taskId + "\n" +
-//                    "Updated By:     " + createdBy + "\n" +
-                    "--------------------\n\n" +
-                    "Please log in to your dashboard to view the full details and take any necessary actions.\n\n" +
-                    "Thank you,\n" +
-                    "The Task Management Team";
-            emailService.sendEmail(user.getEmail(), subject, body);
-            log.info("Email sent to {} regarding task update for taskId {}", user.getEmail(), taskId);
-        }
+            try {
+                Map<String, Object> variables = Map.of(
+                        "userName", user.getName(),
+                        "title", title,
+                        "description", description,
+                        "taskId", taskId,
+                        "oldStatus", oldStatus,
+                        "newStatus", newStatus,
+                        "eventType", eventType
+                );
 
+                emailService.sendEmail(user.getEmail(), subject, "task-status-update", variables);
+                log.info("Email sent to {} regarding task update for taskId {}", user.getEmail(), taskId);
+            } catch (MessagingException e) {
+                log.error("Failed to send email to {} for taskId {}", user.getEmail(), taskId, e);
+            }
+        }
     }
 
     @Override
-    public void taskTopicDeletionHandler(TaskEvent taskEvent) {
+    public void taskTopicDeletionHandler(TaskEvent taskEvent) throws MessagingException {
         String entityId = taskEvent.getEntityId();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
         Set<String> memberIds = taskEvent.getAssignees();
 
+        // Subject for the email
+        String subject = "Task Deletion Notification: " + title;
+
         for (String userId : memberIds) {
+            // Fetch user details via Feign client
             UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null) {
-                String subject = "Task Completion Notification: " + title;
-                String body = "Hello " + user.getName() + ",\n\n" +
-                        "We would like to inform you that the task \"" + title + "\" has been marked as complete.\n\n" +
-                        "Task Details:\n" +
-                        "Title: " + title + "\n" +
-                        "Description: " + description + "\n" +
-                        "ID: " + entityId + "\n\n" +
-                        "Please check your dashboard for more details.\n\n" +
-                        "Regards,\n" +
-                        "The Task Management Team";
-                emailService.sendEmail(user.getEmail(), subject, body);
-                log.info("Email sent to {} for task completion (ID: {})", user.getEmail(), entityId);
+
+            if (user != null && user.getEmail() != null) {
+                // Prepare email template variables
+                Map<String, Object> variables = Map.of(
+                        "userName", user.getName(),
+                        "title", title,
+                        "description", description != null ? description : "No description available",
+                        "taskId", entityId
+                );
+
+                // Send email using Thymeleaf template
+                emailService.sendEmail(user.getEmail(), subject, "task-deletion", variables);
+                log.info("Email sent to {} for task deletion (Task ID: {})", user.getEmail(), entityId);
+            } else {
+                log.warn("User with ID {} not found or has no email.", userId);
             }
         }
     }
 
-
     @Override
-    public void taskTopicMemberAssignedHandler(TaskEvent taskEvent) {
+    public void taskTopicMemberAssignedHandler(TaskEvent taskEvent) throws MessagingException {
+    String entityId = taskEvent.getEntityId();
+    String title = taskEvent.getTitle();
+    String description = taskEvent.getDescription();
+    EventType eventType = taskEvent.getEventType();
+    Priority priority = taskEvent.getPriority();
+    Set<String> assigneeIds = taskEvent.getAssignees();
 
-        String entityId = taskEvent.getEntityId();
-        String title = taskEvent.getTitle();
-        String description = taskEvent.getDescription();
-        EventType eventType = taskEvent.getEventType();
-        Set<String> assigneeIds = taskEvent.getAssignees();
+    // Subject for the email
+    String subject = "New " + eventType + " Assignment: " + title;
 
-        for (String userId : assigneeIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null) {
-                String subject = "New " + eventType + " Assignment: " + title;
-                String body = "Hello " + user.getName() + ",\n\n" +
-                        "You have been assigned to the " + eventType + " \"" + title + "\".\n\n" +
-                        eventType + " Details:\n" +
-                        "Title: " + title + "\n" +
-                        "Description: " + description + "\n" +
-                        "ID: " + entityId + "\n\n" +
-                        "Please check your dashboard for more details.\n\n" +
-                        "Regards,\n" +
-                        "The Task Management Team";
-                emailService.sendEmail(user.getEmail(), subject, body);
-                log.info("Email sent to {} for {} assignment (ID: {})", user.getEmail(), eventType, entityId);
-            }
+    for (String userId : assigneeIds) {
+
+        // Fetch user details via Feign client
+        UserDTO user = userFeignClient.getUserById(userId).getData();
+
+        if (user != null && user.getEmail() != null) {
+
+            // Prepare email template variables
+            Map<String, Object> variables = Map.of(
+                    "userName", user.getName(),
+                    "title", title,
+                    "description", description != null ? description : "No description available",
+                    "taskId", entityId,
+                    "priority", priority,
+                    "eventType",eventType
+            );
+
+            // Send email using Thymeleaf template
+            emailService.sendEmail(user.getEmail(), subject, "task-assigned", variables);
+            log.info("Email sent to {} for {} assignment (Task ID: {})", user.getEmail(), eventType, entityId);
+        } else {
+            log.warn("User with ID {} not found or has no email.", userId);
         }
     }
-
+}
 
     @Override
-    public void taskTopicMemberUnassignedHandler(TaskEvent taskEvent) {
+    public void taskTopicMemberUnassignedHandler(TaskEvent taskEvent) throws MessagingException {
+
         String entityId = taskEvent.getEntityId();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
         EventType eventType = taskEvent.getEventType();
         Set<String> memberIds = taskEvent.getAssignees();
 
+        // Subject for the email
+        String subject = eventType + " Unassignment Notification: " + title;
+
         for (String userId : memberIds) {
+            // Fetch user details via Feign client
             UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null) {
-                String subject = eventType + " Unassignment Notification: " + title;
-                String body = "Hello " + user.getName() + ",\n\n" +
-                        "You have been unassigned from the " + eventType + " \"" + title + "\".\n\n" +
-                        "Details:\n" +
-                        "Title: " + title + "\n" +
-                        "Description: " + description + "\n" +
-                        "ID: " + entityId + "\n\n" +
-                        "Please check your dashboard for more details.\n\n" +
-                        "Regards,\n" +
-                        "The Task Management Team";
-                emailService.sendEmail(user.getEmail(), subject, body);
-                log.info("Email sent to {} for {} unassignment (ID: {})", user.getEmail(), eventType, entityId);
+
+            if (user != null && user.getEmail() != null) {
+                // Prepare email template variables
+                Map<String, Object> variables = Map.of(
+                        "userName", user.getName(),
+                        "title", title,
+                        "description", description != null ? description : "No description available",
+                        "taskId", entityId
+                );
+
+                // Send email using Thymeleaf template
+                emailService.sendEmail(user.getEmail(), subject, "task-unassignment", variables);
+                log.info("Email sent to {} for {} unassignment (Task ID: {})", user.getEmail(), eventType, entityId);
+            } else {
+                log.warn("User with ID {} not found or has no email.", userId);
             }
         }
     }
 
     @Override
-    public void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent) {
+    public void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent) throws MessagingException {
         String entityId = taskEvent.getEntityId();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
@@ -193,25 +220,30 @@ public class NotificationServiceImpl  implements NotificationService {
         Priority newPriority = taskEvent.getPriority();
         Set<String> memberIds = taskEvent.getAssignees();
 
+        // Subject for the email
+        String subject = "Priority Updated Notification: " + title;
+
         for (String userId : memberIds) {
+            // Fetch user details via Feign client
             UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null) {
-                String subject = "Priority Updated Notification: " + title;
-                String body = "Hello " + user.getName() + ",\n\n" +
-                        "The priority for the " + eventType + " \"" + title + "\" has been updated.\n\n" +
-                        "New Priority: " + newPriority + "\n" +
-                        "Task Details:\n" +
-                        "Title: " + title + "\n" +
-                        "Description: " + description + "\n" +
-                        "ID: " + entityId + "\n\n" +
-                        "Please check your dashboard for more details.\n\n" +
-                        "Regards,\n" +
-                        "The Task Management Team";
-                emailService.sendEmail(user.getEmail(), subject, body);
-                log.info("Email sent to {} for priority update (ID: {})", user.getEmail(), entityId);
+
+            if (user != null && user.getEmail() != null) {
+                // Prepare email template variables
+                Map<String, Object> variables = Map.of(
+                        "userName", user.getName(),
+                        "title", title,
+                        "description", description != null ? description : "No description available",
+                        "taskId", entityId,
+                        "newPriority", newPriority
+                );
+
+                // Send email using Thymeleaf template
+                emailService.sendEmail(user.getEmail(), subject, "task-priority-update", variables);
+                log.info("Email sent to {} for priority update (Task ID: {})", user.getEmail(), entityId);
+            } else {
+                log.warn("User with ID {} not found or has no email.", userId);
             }
         }
     }
-
 
 }
