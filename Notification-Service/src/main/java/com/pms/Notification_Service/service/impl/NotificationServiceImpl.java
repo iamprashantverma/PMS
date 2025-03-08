@@ -15,10 +15,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -49,16 +46,15 @@ public class NotificationServiceImpl  implements NotificationService {
             UserDTO user = userFeignClient.getUserById(userId).getData();
 
             if (user != null && user.getEmail() != null) {
-                // Prepare email template variables
-                Map<String, Object> variables = Map.of(
-                        "userName", user.getName(),
-                        "title", title,
-                        "description", description,
-                        "taskId", entityId,  // Assuming entityId is the task ID
-                        "oldStatus", taskEvent.getOldStatus(),  // Assuming you have oldStatus in TaskEvent
-                        "newStatus", taskEvent.getNewStatus(),  // Assuming you have newStatus in TaskEvent
-                        "eventType", eventType
-                );
+                // Prepare email template variables using HashMap<>
+                Map<String, Object> variables = new HashMap<>();
+                variables.put("userName", user.getName());
+                variables.put("title", title);
+                variables.put("description", description);
+                variables.put("taskId", entityId);
+                variables.put("oldStatus", taskEvent.getOldStatus());
+                variables.put("newStatus", taskEvent.getNewStatus());
+                variables.put("eventType", eventType);
 
                 // Send the email
                 emailService.sendEmail(user.getEmail(), subject, "task-status-update", variables);
@@ -68,6 +64,7 @@ public class NotificationServiceImpl  implements NotificationService {
             }
         }
     }
+
 
     @Override
     public void taskTopicStatusUpdateHandler(TaskEvent taskEvent) {
@@ -79,26 +76,25 @@ public class NotificationServiceImpl  implements NotificationService {
         Status oldStatus = taskEvent.getOldStatus();
         List<UserDTO> assignees = new ArrayList<>();
         String subject = eventType + " Status Update Notification: " + title;
-
         // Fetch all users from UserService
         for (String userId : taskEvent.getAssignees()) {
             UserDTO user = userFeignClient.getUserById(userId).getData();
             assignees.add(user);
         }
-
         // Send email to each assignee
         for (UserDTO user : assignees) {
+            log.info(" i m here 3 user  :{}",user);
             try {
-                Map<String, Object> variables = Map.of(
-                        "userName", user.getName(),
-                        "title", title,
-                        "description", description,
-                        "taskId", taskId,
-                        "oldStatus", oldStatus,
-                        "newStatus", newStatus,
-                        "eventType", eventType
-                );
+                HashMap<String, Object> variables = new HashMap<>();
+                variables.put("userName", user.getName());
+                variables.put("title", title);
+                variables.put("description", description);
+                variables.put("taskId", taskId);
+                variables.put("oldStatus", oldStatus);
+                variables.put("newStatus", newStatus);
+                variables.put("eventType", eventType);
 
+                log.info(" i m here 4 5");
                 emailService.sendEmail(user.getEmail(), subject, "task-status-update", variables);
                 log.info("Email sent to {} regarding task update for taskId {}", user.getEmail(), taskId);
             } catch (MessagingException e) {
@@ -199,11 +195,12 @@ public class NotificationServiceImpl  implements NotificationService {
                         "userName", user.getName(),
                         "title", title,
                         "description", description != null ? description : "No description available",
-                        "taskId", entityId
+                        "taskId", entityId,
+                        "eventType",eventType
                 );
 
                 // Send email using Thymeleaf template
-                emailService.sendEmail(user.getEmail(), subject, "task-unassignment", variables);
+                emailService.sendEmail(user.getEmail(), subject, "task-unassigned", variables);
                 log.info("Email sent to {} for {} unassignment (Task ID: {})", user.getEmail(), eventType, entityId);
             } else {
                 log.warn("User with ID {} not found or has no email.", userId);

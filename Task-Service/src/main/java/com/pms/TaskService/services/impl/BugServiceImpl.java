@@ -130,6 +130,7 @@ public class BugServiceImpl implements BugService {
     @Override
     @Transactional
     public ResponseDTO deleteBug(String bugId) {
+
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new ResourceNotFound("Bug not found: " + bugId));
 
@@ -140,13 +141,13 @@ public class BugServiceImpl implements BugService {
 
         // Publish the Bug Deletion Event
         TaskEvent taskEvent = generateTaskEvent(bug);
+
         taskEvent.setOldStatus(oldStatus);
+        taskEvent.setAction(Actions.DELETED);
+
         taskEvent.setNewStatus(Status.COMPLETED);
-
         producer.sendTaskEvent(taskEvent);
-
         taskEvent.setEventType(EventType.CALENDER);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug deleted successfully");
@@ -174,8 +175,11 @@ public class BugServiceImpl implements BugService {
         toBeModified.setUpdatedDate(LocalDate.now());
         toBeModified.setCreatedDate(existingBug.getCreatedDate());
         toBeModified.setId(id);
+        toBeModified.setCreatedDate(existingBug.getCreatedDate());
         toBeModified.setUpdatedDate(LocalDate.now());
         toBeModified.setAssignees(existingBug.getAssignees());
+        toBeModified.setStory(existingBug.getStory());
+        toBeModified.setEpic(existingBug.getEpic());
 
         Bug savedBug =  bugRepository.save(toBeModified);
 
@@ -200,7 +204,8 @@ public class BugServiceImpl implements BugService {
     public ResponseDTO assignBugToUser(String bugId, String userId) {
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new ResourceNotFound("Bug not found: " + bugId));
-
+        if (bug.getStatus() == Status.COMPLETED)
+                throw  new ResourceNotFound(" Bug is already marks as completed, can't assign new member");
         // Add the user to the list of assignees
         bug.getAssignees().add(userId);
         bugRepository.save(bug);

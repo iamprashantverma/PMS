@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -28,7 +29,12 @@ public class Story extends Issue {
     /**
      * A Story can have multiple tasks.
      */
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Task> tasks;
+    private Set<Task> tasks;
+
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Bug> bugs;
+
 }

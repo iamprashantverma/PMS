@@ -15,7 +15,7 @@
 <div class="container">
     <h2>📌 <span th:text="${eventType}"> </span> Assigned </h2>
     <p>Dear <strong th:text="${userName}"></strong>,</p>
-    <p>You have been assigned a new task: "<strong th:text="${title}"></strong>".</p>
+    <p>You have been assigned a new <span th:text="${eventType}"></span> "<strong th:text="${title}"></strong>".</p>
 
     <div class="details">
         <p><strong>Title:</strong> <span th:text="${title}"></span></p>

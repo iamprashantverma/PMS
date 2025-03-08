@@ -82,6 +82,7 @@ public class StoryServiceImpl implements StoryService {
                 .assignees(story.getAssignees())
                 .deadline(story.getDeadLine())
                 .createdDate(story.getCreatedDate())
+                .description(story.getDescription())
                 .priority(story.getPriority())
                 .build();
     }
@@ -115,11 +116,19 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO updateStory(StoryDTO storyDTO) {
 
         Story story = getStoryEntity(storyDTO.getId());
+        if (story.getStatus() == Status.COMPLETED)
+            throw  new ResourceNotFound("Story is Already Completed , Can't Modified");
         story.setUpdatedDate(LocalDate.now());
 
         Story modifiedStory = modelMapper.map(storyDTO, Story.class);
         // persist into the db
         modifiedStory.setUpdatedDate(LocalDate.now());
+        modifiedStory.setAssignees(story.getAssignees());
+        modifiedStory.setTasks(story.getTasks());
+        modifiedStory.setEpic(story.getEpic());
+        modifiedStory.getBugs().addAll(story.getBugs());
+        modifiedStory.setProjectId(story.getProjectId());
+
         Story savedStory =  storyRepository.save(modifiedStory);
 
         TaskEvent taskEvent = generateTaskEvent(savedStory);
@@ -150,10 +159,13 @@ public class StoryServiceImpl implements StoryService {
         // Check if all tasks related to this story are completed
         boolean allTasksCompleted = story.getTasks().stream()
                 .allMatch(task -> task.getStatus() == Status.COMPLETED);
+        boolean allBugsCompleted = story.getBugs().stream()
+                .allMatch(bug -> bug.getStatus() == Status.COMPLETED);
 
-        if (!allTasksCompleted) {
+        if (!allTasksCompleted || !allBugsCompleted) {
             throw new IllegalStateException("Cannot delete story. All associated tasks must be completed first.");
         }
+
         Status oldStatus = story.getStatus();
         // Mark as ARCHIVED
         story.setStatus(Status.COMPLETED);
@@ -230,7 +242,9 @@ public class StoryServiceImpl implements StoryService {
     @Override
     @Transactional
     public StoryDTO changeStoryStatus(String storyId, Status status) {
+
             Story story = getStoryEntity(storyId);
+            story.setUpdatedDate(LocalDate.now());
             Status oldStatus = story.getStatus();
             story.setStatus(status);
             storyRepository.save(story);
@@ -238,6 +252,9 @@ public class StoryServiceImpl implements StoryService {
             TaskEvent taskEvent = generateTaskEvent(story);
 
             taskEvent.setAction(Actions.STATUS_CHANGED);
+            taskEvent.setOldStatus(oldStatus);
+            taskEvent.setNewStatus(status);
+            taskEvent.setUpdatedDate(LocalDate.now());
             taskEventProducer.sendTaskEvent(taskEvent);
 
             return convertToDTO(story);
@@ -256,6 +273,8 @@ public class StoryServiceImpl implements StoryService {
     public void addStoryOnEpic(String epicId, Story story) {
         Epic epic = epicRepository.findById(epicId).orElseThrow(()->
                 new ResourceNotFound("Epic not found : "+epicId));
+        if (epic.getStatus() == Status.COMPLETED)
+                throw  new ResourceNotFound("Epic is already marked as completed or deleted");
         epic.getStories().add(story);
         story.setEpic(epic);
 

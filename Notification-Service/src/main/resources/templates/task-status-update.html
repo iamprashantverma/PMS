@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task Status Update</title>
+    <title> Status Update</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,7 +45,7 @@
 </head>
 <body>
 <div class="container">
-    <h2>🔔 Task Status Update</h2>
+    <h2>🔔 <span th:text="${eventType}"></span> Status Update</h2>
     <p>Dear <strong th:text="${userName}"></strong>,</p>
     <p>We would like to inform you that the status of <strong th:if="${eventType}" th:text="${eventType}"></strong>
         "<strong th:text="${title}"></strong>" has been updated.</p>
@@ -53,7 +53,7 @@
     <div class="details">
         <p><strong>Title:</strong> <span th:text="${title}"></span></p>
         <p><strong>Description:</strong> <span th:text="${description}" th:unless="${description == null}">No description available</span></p>
-        <p><strong>Task ID:</strong> <span th:text="${taskId}"></span></p>
+        <p><strong><span th:text="${eventType}"></span>k ID:</strong> <span th:text="${taskId}"></span></p>
         <p><strong>Old Status:</strong> <span class="old-status" th:text="${oldStatus}"></span></p>
         <p><strong>New Status:</strong> <span class="new-status" th:text="${newStatus}"></span></p>
     </div>

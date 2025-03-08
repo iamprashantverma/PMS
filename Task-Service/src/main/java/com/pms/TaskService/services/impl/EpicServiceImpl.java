@@ -54,6 +54,7 @@ public class EpicServiceImpl implements EpicService {
                 .eventType(EventType.EPIC)
                 .priority(epic.getPriority())
                 .deadline(epic.getDeadLine())
+                .description(epic.getDescription())
                 .createdDate(epic.getCreatedDate())
                 .assignees(epic.getAssignees())
                 .build();
@@ -132,7 +133,7 @@ public class EpicServiceImpl implements EpicService {
 
         // create an EPIC event and produce it
         TaskEvent taskEvent = getEpicTaskEvent(existingEpic);
-        taskEvent.setAction(Actions.UPDATED);
+        taskEvent.setAction(Actions.STATUS_CHANGED);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(newStatus);
         taskEvent.setUpdatedDate(LocalDate.now());

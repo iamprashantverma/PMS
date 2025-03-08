@@ -4,6 +4,7 @@ import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.Epic;
+import com.pms.TaskService.entities.Story;
 import com.pms.TaskService.entities.Task;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.event.enums.Actions;
@@ -14,6 +15,7 @@ import com.pms.TaskService.exceptions.ResourceNotFound;
 import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
+import com.pms.TaskService.repository.StoryRepository;
 import com.pms.TaskService.repository.TaskRepository;
 import com.pms.TaskService.services.TaskService;
 import jakarta.transaction.Transactional;
@@ -40,6 +42,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskEventProducer taskEventProducer;
     private final CalendarEventProducer calendarEventProducer;
     private final ProjectFeignClient projectFeignClient;
+    private final StoryRepository storyRepository;
 
     /**
      * convert the Task entity into the TaskDTO
@@ -74,6 +77,7 @@ public class TaskServiceImpl implements TaskService {
                .createdDate(taskDTO.getCreatedDate())
                .priority(taskDTO.getPriority())
                .deadline(taskDTO.getDeadLine())
+               .description(taskDTO.getDescription())
                .build();
    }
 
@@ -99,11 +103,14 @@ public class TaskServiceImpl implements TaskService {
 
         // add the task into the epic if epic id present
         String epicId = taskDTO.getEpicId();
+        String storyId = taskDTO.getStoryId();
 
         if (epicId != null) {
             // add the task within the epic
             addTaskOnEpic(epicId,savedTask);
-        } else {
+        } else  if ( storyId != null){
+            addTaskOnStory(storyId,savedTask);
+        }else {
             // add the task within project directly
             projectFeignClient.addTaskToProject(task.getProjectId(),savedTask.getId());
         }
@@ -118,6 +125,8 @@ public class TaskServiceImpl implements TaskService {
 
         return convertToDTO(savedTask);
     }
+
+
 
     @Override
     public TaskDTO getTaskById(String taskId) {
@@ -165,29 +174,17 @@ public class TaskServiceImpl implements TaskService {
             throw new ResourceNotFound("Task is Already Marked as Completed , Can't Updated");
 
         Task toBeModifiedTask =   modelMapper.map(taskDTO,Task.class);
-
-        if (taskDTO.getEpicId() != null) {
-            Epic epic = epicRepository.findById(taskDTO.getEpicId())
-                    .orElseThrow(() -> new ResourceNotFound("Epic not found"));  // If the epic is not found, throw an exception
-            toBeModifiedTask.setEpic(epic);
-        }
+        log.info(" assignees {}",existingTask.getAssignees());
+        toBeModifiedTask.setAssignees(existingTask.getAssignees());
+        toBeModifiedTask.setStory(existingTask.getStory());
+        toBeModifiedTask.setEpic(existingTask.getEpic());
+        toBeModifiedTask.setProjectId(existingTask.getProjectId());
+        toBeModifiedTask.setSubTasks(existingTask.getSubTasks());
 
         toBeModifiedTask.setUpdatedDate(LocalDate.now());
         toBeModifiedTask.setCreatedDate(existingTask.getCreatedDate());
 
         Task modifiedTask =  taskRepository.save(toBeModifiedTask);
-
-        // added the task into the new Epic
-        if (taskDTO.getEpicId() != null) {
-
-            if (!taskDTO.getEpicId().equals(existingTask.getEpic().getId())) {
-                Epic epic = epicRepository.findById(existingTask.getEpic().getId()).orElseThrow(()->
-                        new ResourceNotFound("Invalid Epic Id:"));
-                epic.getTasks().remove(existingTask.getId());
-
-            }
-            addTaskOnEpic(taskDTO.getEpicId(),modifiedTask);
-        }
 
 
         TaskEvent taskEvent = generateTaskEvent(modifiedTask);
@@ -224,7 +221,8 @@ public class TaskServiceImpl implements TaskService {
 
         Epic epic = epicRepository.findById(epicId).orElseThrow(()->
                 new ResourceNotFound("Epic not found :"+ epicId));
-
+        if (epic.getStatus() == Status.COMPLETED)
+                throw  new ResourceNotFound("Task is Already Completed or Deleted ");
         epic.getTasks().add(task);
         task.setEpic(epic);
         // persist the changes into the db
@@ -236,6 +234,16 @@ public class TaskServiceImpl implements TaskService {
                 .build();
     }
 
+    private void addTaskOnStory(String storyId, Task savedTask) {
+        Story story = storyRepository.findById(storyId).orElseThrow(()->
+                new ResourceNotFound("Invalid Story Id: "+storyId));
+        if (story.getStatus() == Status.COMPLETED)
+            throw  new ResourceNotFound(" Story is already marked as completed or Deleted");
+        story.getTasks().add(savedTask);
+        savedTask.setStory(story);
+        storyRepository.save(story);
+        taskRepository.save(savedTask);
+    }
     @Override
     public List<TaskDTO> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
@@ -266,8 +274,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO assignMemberToTask(String taskId, String memberId) {
+
         Task task = getTaskEntity(taskId);
-        task.getAssignees().remove(memberId);
+        task.getAssignees().add(memberId);
 
         Task savedTask = taskRepository.save(task);
 
@@ -277,6 +286,7 @@ public class TaskServiceImpl implements TaskService {
         taskEvent.setAssignees(Set.of(memberId));
 
         taskEventProducer.sendTaskEvent(taskEvent);
+
         return convertToDTO(savedTask);
     }
 
@@ -289,7 +299,6 @@ public class TaskServiceImpl implements TaskService {
         task.getAssignees().remove(memberId);
         Task task1 = taskRepository.save(task);
         TaskEvent taskEvent = generateTaskEvent(task1);
-        taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.UNASSIGNED);
         taskEvent.setAssignees(Set.of(memberId));
 

@@ -13,14 +13,14 @@
 </head>
 <body>
 <div class="container">
-    <h2>🚨 Task Unassigned</h2>
+    <h2>🚨 <span th:text="${eventType}"></span> Unassigned</h2>
     <p>Dear <strong th:text="${userName}"></strong>,</p>
-    <p>You have been unassigned from the task: "<strong th:text="${title}"></strong>".</p>
+    <p>You have been unassigned from the  <span th:text="${eventType}"></span>: "<strong th:text="${title}"></strong>".</p>
 
     <div class="details">
         <p><strong>Title:</strong> <span th:text="${title}"></span></p>
         <p><strong>Description:</strong> <span th:text="${description}" th:unless="${description == null}">No description available</span></p>
-        <p><strong>Task ID:</strong> <span th:text="${taskId}"></span></p>
+        <p><strong> <span th:text="${eventType}"></span> ID:</strong> <span th:text="${taskId}"></span></p>
     </div>
 
     <p>Please check your dashboard for further updates.</p>

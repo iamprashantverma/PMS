@@ -33,6 +33,10 @@ public class Task extends Issue {
     @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubTask> subTasks;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "story_id")
+    private Story story;
+
 
 }
 
