@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Config-Server/Config-Server.iml" filepath="$PROJECT_DIR$/Config-Server/Config-Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Notification-Service/Notification-Service.iml" filepath="$PROJECT_DIR$/Notification-Service/Notification-Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/PMS-Server.iml" filepath="$PROJECT_DIR$/.idea/PMS-Server.iml" />
     </modules>
   </component>
