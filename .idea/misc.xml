@@ -18,6 +18,14 @@
         <option value="$PROJECT_DIR$/Notification-Service/pom.xml" />
         <option value="$PROJECT_DIR$/Activity-Tracker/pom.xml" />
         <option value="$PROJECT_DIR$/Config-Server/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/Activity-Tracker/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/discovery-server/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/Notification-Service/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/Project-Service/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/Task-Service/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/Config-Server/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/PMS-Server/User-Service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

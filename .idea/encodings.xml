@@ -5,6 +5,14 @@
     <file url="file://$PROJECT_DIR$/Config-Server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Notifcation-Service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Notification-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/Activity-Tracker/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/Config-Server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/Notification-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/Project-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/Task-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/User-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PMS-Server/discovery-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Project-Service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Task-Service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/User-Service/src/main/java" charset="UTF-8" />
