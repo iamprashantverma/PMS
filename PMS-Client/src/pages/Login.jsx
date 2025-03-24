@@ -4,12 +4,12 @@ import { AuthContext } from '@/context/AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
-  const { login } = useContext(AuthContext); 
+  const { login } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [userForm, setUserForm] = useState({ email: '', password: ''});
-  
+  const [userForm, setUserForm] = useState({ email: '', password: '' });
+
   const formHandler = (e) => {
     const { name, value } = e.target;
     setUserForm((prev) => ({
@@ -45,15 +45,17 @@ function Login() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
-      <nav className="mb-4">
-        <h1 className="text-2xl font-bold">Login</h1>
+      <nav className="mb-6">
+        <h1 className="text-3xl font-bold text-blue-600">Welcome Back</h1>
+        <p className="text-gray-600 text-center mt-1">Login to your account</p>
       </nav>
 
       <form
         onSubmit={loginHandler}
-        className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
+        className="bg-white p-8 rounded-xl shadow-md w-full max-w-md"
       >
-        <label className="block mb-1 font-semibold">Email</label>
+        {/* Email */}
+        <label className="block mb-1 font-medium text-gray-700">Email</label>
         <input
           placeholder="Enter your email"
           name="email"
@@ -61,10 +63,11 @@ function Login() {
           onChange={formHandler}
           required
           type="email"
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <label className="block mb-1 font-semibold">Password</label>
+        {/* Password */}
+        <label className="block mb-1 font-medium text-gray-700">Password</label>
         <input
           placeholder="Enter your password"
           name="password"
@@ -73,20 +76,37 @@ function Login() {
           minLength={4}
           required
           type="password"
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full px-4 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
+        {/* Forgot Password */}
+        <div className="text-right mb-4">
+          <a href="#" className="text-sm text-blue-600 hover:underline">
+            Forgot Password?
+          </a>
+        </div>
+
+        {/* Login Button */}
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded disabled:opacity-50"
           disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg font-semibold transition duration-200 disabled:opacity-50"
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
+        {/* Error Message */}
         {error && (
-          <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
+          <p className="text-red-500 text-sm mt-4 text-center">{error}</p>
         )}
+
+        {/* Signup Link */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <a href="/signup" className="text-blue-600 font-medium hover:underline">
+            Sign Up
+          </a>
+        </div>
       </form>
     </div>
   );

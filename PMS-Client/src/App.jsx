@@ -1,11 +1,10 @@
 import "./App.css";
+import NavBar from "./components/NavBar";
 import PublicRoutes from "./routes/PublicRoutes";
 function App() {
   return (
     <>
-      <p className="app">
-          <strong> Project Running BC , </strong>
-      </p>
+      <NavBar/>
       <PublicRoutes/>
 
     </>

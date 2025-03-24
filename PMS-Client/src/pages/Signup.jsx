@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { signup } from '@/services/AuthService';
 
@@ -9,7 +9,7 @@ function Signup() {
     name: '',
     email: '',
     phoneNo: '',
-    role: '',
+    role: 'USER',
     gender: '',
     dob: '',
     password: '',
@@ -23,115 +23,125 @@ function Signup() {
     }));
   };
 
-  const handleSignup = async(e) => {
-    setError(null);
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
-    try{
-        const resp = await signup(userForm);
-        console.log(resp)
-        toast.success(resp.data.message);
-    } catch(error){
-        setError(error?.message);
-        console.log(error);
-    } finally{
-        setLoading(false);
+    try {
+      const resp = await signup(userForm);
+      toast.success(resp.data.message);
+    } catch (error) {
+      setError(error?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div >
-      <form onSubmit={handleSignup}>
-        <h2 >Sign Up</h2>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <nav className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-blue-600">bordio.</h2>
+        <div className="flex items-center gap-2 text-sm sm:text-base">
+          <p className="text-gray-700">Already have an account?</p>
+          <button className="text-blue-600 font-medium hover:underline">Login</button>
+        </div>
+      </nav>
 
-        <label >Name</label>
-        <input
-          type="text"
-          name="name"
-          value={userForm.name}
-          onChange={formHandler}
-          placeholder="Enter your name"
-          required
-          className="p-2 mb-2 border rounded"
-        />
-
-        <label >Email</label>
-        <input
-          type="email"
-          name="email"
-          value={userForm.email}
-          onChange={formHandler}
-          placeholder="Enter your email"
-          required
-          className="p-2 mb-4 border rounded"
-        />
-
-        <label >Phone Number</label>
-        <input
-          type="tel"
-          name="phoneNo"
-          value={userForm.phoneNo}
-          onChange={formHandler}
-          placeholder="Enter your phone number"
-          className="p-2 mb-4 border rounded"
-          required
-        />
-
-        <label >Role</label>
-        <input
-          type="text"
-          name="role"
-          value={userForm.role}
-          onChange={formHandler}
-          placeholder="e.g., student, admin"
-          className="p-2 mb-4 border rounded"
-          required
-        />
-
-        <label >Gender</label>
-        <select
-          name="gender"
-          value={userForm.gender}
-          onChange={formHandler}
-          className=" p-2 mb-4 border rounded"
-          required
+      {/* Signup Form */}
+      <div className="flex-grow flex items-center justify-center p-4">
+        <form
+          onSubmit={handleSignup}
+          className="bg-white shadow-lg rounded-xl p-8 w-full max-w-lg"
         >
-          <option value="">Select gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-6">
+            Create your account
+          </h2>
 
-        <label >Date of Birth</label>
-        <input
-          type="date"
-          name="dob"
-          value={userForm.dob}
-          onChange={formHandler}
-          className="p-2 mb-4 border rounded"
-          required
-        />
+          {/* Form Fields */}
+          {[
+            { label: 'Name', name: 'name', type: 'text', placeholder: 'Enter your name' },
+            { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter your email' },
+            { label: 'Phone Number', name: 'phoneNo', type: 'tel', placeholder: 'Enter your phone number' },
+          ].map(({ label, name, type, placeholder }) => (
+            <div key={name} className="mb-4">
+              <label className="block mb-1 font-medium text-gray-700">{label}</label>
+              <input
+                type={type}
+                name={name}
+                value={userForm[name]}
+                onChange={formHandler}
+                placeholder={placeholder}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+          ))}
 
-        <label >Password</label>
-        <input
-          type="password"
-          name="password"
-          value={userForm.password}
-          onChange={formHandler}
-          placeholder="Enter a password"
-          minLength={6}
-          required
-          className=" p-2 mb-4 border rounded"
-        />
+          {/* Gender */}
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">Gender</label>
+            <select
+              name="gender"
+              value={userForm.gender}
+              onChange={formHandler}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading} >
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-        {error && <p className="bg-red-400 text-white p-2 mt-2 rounded">{error}</p>}
-      </form>
+          {/* DOB */}
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">Date of Birth</label>
+            <input
+              type="date"
+              name="dob"
+              value={userForm.dob}
+              onChange={formHandler}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
 
+          {/* Password */}
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={userForm.password}
+              onChange={formHandler}
+              placeholder="Enter a password"
+              minLength={6}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 mt-2 rounded-lg font-semibold text-white transition duration-200 ${
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </button>
+
+          {/* Error Message */}
+          {error && (
+            <p className="mt-4 text-sm bg-red-500 text-white py-2 px-3 rounded text-center">
+              {error}
+            </p>
+          )}
+        </form>
+      </div>
     </div>
   );
 }
