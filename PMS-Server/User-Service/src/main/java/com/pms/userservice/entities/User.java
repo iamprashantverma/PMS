@@ -42,7 +42,6 @@ public class User {
     @Column(nullable = false, length = 20)
     private Status status;
     private LocalDate dob;
-    private LocalDateTime lastLoginTime;
     private String address;
     private String gender;
 
@@ -69,7 +68,7 @@ public class User {
     private String language;
 
     @CreationTimestamp
-    private LocalDateTime creationDate;
+    private LocalDate joinedAt;
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -7,15 +7,16 @@ import com.pms.userservice.entities.enums.Roles;
 import com.pms.userservice.entities.enums.Status;
 import com.pms.userservice.exceptions.ResourceNotFound;
 import com.pms.userservice.repositories.UserRepository;
+import com.pms.userservice.services.CloudinaryService;
 import com.pms.userservice.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -24,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
 
     private UserDTO convertToUserDTO(User user) {
         return modelMapper.map(user, UserDTO.class);
@@ -74,9 +76,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseDTO updateUserDetails(UserDTO userDTO) {
+    public ResponseDTO updateUserDetails(UserDTO userDTO, MultipartFile file) {
+
         User existingUser = getUserById(userDTO.getUserId());
-        modelMapper.map(userDTO, existingUser);
+
+        // change some only the particular information
+        existingUser.setName(userDTO.getName());
+        existingUser.setAddress(userDTO.getAddress());
+        existingUser.setDob(userDTO.getDob());
+        existingUser.setGender(userDTO.getGender());
+        existingUser.setEmail(userDTO.getEmail());
+        existingUser.setPhoneNo(userDTO.getPhoneNo());
+
+        String  profileUrl = cloudinaryService.uploadImage(file);
+        existingUser.setImage(profileUrl);
+
         userRepository.save(existingUser);
         return ResponseDTO.builder().message("User details updated successfully").build();
     }

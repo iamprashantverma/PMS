@@ -1,6 +1,6 @@
 package com.pms.userservice.services.impl;
 
-import com.example.dto.ForgetPasswordDTO;
+
 import com.pms.userservice.dto.*;
 import com.pms.userservice.entities.User;
 import com.pms.userservice.entities.enums.Roles;
@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -75,7 +76,6 @@ public class AuthServiceImpl implements AuthService {
         /* set up the initial fields */
         toBeCreated.setStatus(Status.ACTIVE);
         toBeCreated.setRole(Roles.USER);
-
         String password = user.getPassword();
         /* hash the password*/
         String hashPass = passwordEncoder.encode(password);
@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser  =  userRepository.save(toBeCreated);
 
         /* return the response */
-        return ResponseDTO.builder().message("signup successfully, check your E-Mail").build();
+        return ResponseDTO.builder().message("Signup successful!").build();
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.dto.ForgetPasswordDTO;
+
 
 import java.util.Arrays;
 
@@ -20,6 +20,7 @@ import java.util.Arrays;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @RefreshScope
+@CrossOrigin
 public class AuthController {
 
     private final AuthService authService;

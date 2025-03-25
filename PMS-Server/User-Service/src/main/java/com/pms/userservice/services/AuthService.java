@@ -24,5 +24,5 @@ public interface AuthService {
 
     /* send the password reset otp to user email */
     @Transactional
-    ResponseDTO sendOtp(com.example.dto.ForgetPasswordDTO forgetPasswordDTO);
+    ResponseDTO sendOtp(ForgetPasswordDTO forgetPasswordDTO);
 }

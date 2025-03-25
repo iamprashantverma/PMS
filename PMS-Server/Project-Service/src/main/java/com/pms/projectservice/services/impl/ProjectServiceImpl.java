@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -392,6 +395,16 @@ public class ProjectServiceImpl implements ProjectService {
         Project modifiedProject = projectRepository.save(project);
 
         return convertToProjectDTO(modifiedProject);
+    }
+
+    @Override
+    public List<ProjectDTO> findAllProject(String creatorId, int page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Project> projectPage = projectRepository.findByCreatorOrMember(creatorId, pageable);
+        log.info("size,{}",projectPage.getContent().size());
+        return projectPage.getContent().stream()
+                .map(project -> modelMapper.map(project, ProjectDTO.class))
+                .toList();
     }
 
 }

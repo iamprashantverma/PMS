@@ -10,6 +10,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class ProjectResolver {
 
     private final ProjectService projectService;
@@ -79,5 +81,10 @@ public class ProjectResolver {
     @MutationMapping
     public ProjectDTO deleteProject(@Argument("projectId") String projectId) {
         return projectService.deleteProject(projectId);
+    }
+    @QueryMapping
+    public List<ProjectDTO> findAllProject(@Argument("userId") String userId , @Argument("pageNo") int page){
+        log.info("Finding All Project for the User ID,{}",userId);
+        return projectService.findAllProject(userId,page);
     }
 }

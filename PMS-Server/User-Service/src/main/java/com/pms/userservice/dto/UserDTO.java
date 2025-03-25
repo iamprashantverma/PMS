@@ -25,13 +25,17 @@ public class UserDTO {
 
     private String image;
 
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number")
     @NotNull(message = "Please enter the phone number")
+    @Pattern(
+            regexp = "^\\+?[0-9]{10,15}$",
+            message = "Phone number must be 10 to 15 digits and can optionally start with +"
+    )
     private String phoneNo;
 
     @NotNull(message = "Role is required")
     private Roles role;
 
+    @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
     private String gender;
 
     @Past(message = "Date of birth must be in the past")
@@ -43,13 +47,13 @@ public class UserDTO {
 
     private LocalDateTime lastLoginTime;
 
+    @NotBlank(message = "Address is required")
+    @Size(min = 5, max = 255, message = "Address must be between 5 and 255 characters")
     private String address;
 
-    private List<String> projectId;
-
-    private List<String> taskId;
-
+    @NotBlank(message = "Language is required")
+    @Size(max = 50, message = "Language must be less than 50 characters")
     private String language;
 
-    private LocalDateTime creationDate;
+    private LocalDate joinedAt;
 }

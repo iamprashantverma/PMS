@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="discovery-server" />
+        <module name="Task-Service" />
+        <module name="api-gateway" />
+        <module name="Notification-Service" />
+        <module name="Project-Service" />
+        <module name="Config-Server" />
+        <module name="User-Service" />
+      </profile>
+      <profile name="Annotation profile for Activity-Tracker" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="Activity-Tracker" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Activity-Tracker" options="-parameters" />
+      <module name="Config-Server" options="-parameters" />
+      <module name="Notification-Service" options="-parameters" />
+      <module name="Project-Service" options="-parameters" />
+      <module name="Task-Service" options="-parameters" />
+      <module name="User-Service" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="discovery-server" options="-parameters" />
+    </option>
+  </component>
+</project>

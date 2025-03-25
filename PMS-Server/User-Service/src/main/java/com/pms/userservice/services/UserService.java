@@ -5,6 +5,7 @@ import com.pms.userservice.dto.UserDTO;
 import com.pms.userservice.entities.User;
 import com.pms.userservice.entities.enums.Roles;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface UserService {
 
     /*update the user details */
     @Transactional
-    ResponseDTO updateUserDetails(UserDTO userDTO);
+    ResponseDTO updateUserDetails(UserDTO userDTO, MultipartFile file);
 
     /*deactivate the user */
     @Transactional
