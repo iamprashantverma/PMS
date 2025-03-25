@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { signup } from '@/services/AuthService';
+import { Languages } from 'lucide-react';
 
 function Signup() {
   const [loading, setLoading] = useState(false);
@@ -9,10 +10,12 @@ function Signup() {
     name: '',
     email: '',
     phoneNo: '',
+    address: '',
     role: 'USER',
     gender: '',
     dob: '',
     password: '',
+    language:'English'
   });
 
   const formHandler = (e) => {
@@ -38,7 +41,7 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen w-full border-2 border-gray-900 overflow-x-hidden bg-gray-50 flex flex-col">
       {/* Navbar */}
       <nav className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <h2 className="text-3xl font-bold text-blue-600">bordio.</h2>
@@ -58,11 +61,12 @@ function Signup() {
             Create your account
           </h2>
 
-          {/* Form Fields */}
+          {/* Common Fields */}
           {[
             { label: 'Name', name: 'name', type: 'text', placeholder: 'Enter your name' },
             { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter your email' },
             { label: 'Phone Number', name: 'phoneNo', type: 'tel', placeholder: 'Enter your phone number' },
+            { label: 'Address', name: 'address', type: 'text', placeholder: 'Enter your address' },
           ].map(({ label, name, type, placeholder }) => (
             <div key={name} className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">{label}</label>
@@ -89,9 +93,9 @@ function Signup() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 

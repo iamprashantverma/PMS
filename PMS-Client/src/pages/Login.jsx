@@ -34,7 +34,6 @@ function Login() {
       await login({ email, password });
 
       toast.success('Login successful!');
-      // TODO: Redirect to dashboard or home page here
     } catch (err) {
       toast.error(err.message || 'Login failed');
       setError(err.message);
@@ -44,7 +43,8 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+    <div className="h-[90dvh] w-[100dvw] border-2 border-red-500 flex flex-col items-center justify-center bg-gray-100">
+      
       <nav className="mb-6">
         <h1 className="text-3xl font-bold text-blue-600">Welcome Back</h1>
         <p className="text-gray-600 text-center mt-1">Login to your account</p>

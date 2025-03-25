@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState, createContext } from 'react'
 import {jwtDecode} from 'jwt-decode';
 import { login as loginService} from '@/services/AuthService';
-import { createContext } from 'react';
 
 const AuthContext = createContext();
 
@@ -28,7 +27,7 @@ function AuthProvider({children}) {
         name: decoded.name,
         userId: decoded.sub,
         exp: decoded.exp,
-        sub: decoded.sub,
+        id: decoded.sub,
       });
     } catch (error){
         console.log(error);
@@ -93,4 +92,7 @@ function AuthProvider({children}) {
 }
 
 export default AuthProvider
+
 export {AuthContext}
+
+export  const useAuth =()=> useContext(AuthContext);
