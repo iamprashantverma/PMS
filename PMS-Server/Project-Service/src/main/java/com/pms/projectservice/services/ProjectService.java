@@ -70,11 +70,10 @@ public interface ProjectService {
     /**
      * Sets the priority of a project.
      *
-     * @param projectId the ID of the project
-     * @param priority the new priority to set
+     * @param projectDTO the ID of the project
      * @return the updated project as a ProjectDTO
      */
-    ProjectDTO setProjectPriority(String projectId, Priority priority);
+    ProjectDTO  updateProjectDetails(ProjectDTO projectDTO);
 
     /**
      * Adds members to an existing project.

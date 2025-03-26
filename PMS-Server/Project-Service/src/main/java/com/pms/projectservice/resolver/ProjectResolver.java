@@ -55,9 +55,9 @@ public class ProjectResolver {
     }
 
     @MutationMapping
-    public ProjectDTO setProjectPriority(@Argument("projectId") String projectId, @Argument("priority") Priority priority) {
-        log.info("Updating project priority for ID: {} to {}", projectId, priority);
-        return projectService.setProjectPriority(projectId, priority);
+    public ProjectDTO  updateProjectDetails(@Argument("project") ProjectDTO project) {
+        log.info("Updating project  ID: {}", project);
+        return projectService.updateProjectDetails(project);
     }
 
     @MutationMapping

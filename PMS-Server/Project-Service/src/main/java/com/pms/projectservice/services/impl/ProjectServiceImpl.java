@@ -274,23 +274,28 @@ public class ProjectServiceImpl implements ProjectService {
     /* update the priority of the project */
     @Override
     @Transactional
-    public ProjectDTO setProjectPriority(String projectId,Priority priority) {
+    public ProjectDTO  updateProjectDetails(ProjectDTO projectDTO) {
 
         /* get the project */
-        Project project = getProjectEntityById(projectId);
+        Project project = getProjectEntityById(projectDTO.getProjectId());
+
         /* get the old Priority */
         Priority oldPriority = project.getPriority();
+//        /* update the project details */
         /* update the project priority */
-        project.setPriority(priority);
-
+        project.setPriority(projectDTO.getPriority());
+        project.setTitle(projectDTO.getTitle());
+        project.setDescription(projectDTO.getDescription());
+        project.setStatus(projectDTO.getStatus());
+        project.setClientId(projectDTO.getClientId());
         /* saved into the DB*/
         Project modifedProject = projectRepository.save(project);
-        log.info("project priority changed:{}",modifedProject);
 
+        log.info("project priority changed:{}",modifedProject);
         /* create the projectEvent */
         ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,oldPriority);
 
-        producer.sendProjectEvent(projectEvent);
+//        producer.sendProjectEvent(projectEvent);
 
         /* convert into the DTO and return it*/
         return  convertToProjectDTO(modifedProject);
@@ -317,7 +322,7 @@ public class ProjectServiceImpl implements ProjectService {
         /* create the project event and  produce to KAFKA */
         ProjectEvent projectEvent = getMemberAssignedEvent(updatedProject,member);
 
-        producer.sendProjectEvent(projectEvent);
+//        producer.sendProjectEvent(projectEvent);
 
         return convertToProjectDTO(updatedProject);
     }

@@ -43,11 +43,13 @@ type ProjectA {
 }
 
 input ProjectInput {
+    projectId:String!
     title: String!
-    description: String
+    description: String!
     startDate: Date
     deadline: Date
     status: Status
     priority: PriorityA
+    clientId:String
 }
 
