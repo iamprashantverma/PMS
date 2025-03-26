@@ -9,26 +9,30 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ProjectDropDown from './Project/ProjectDropDown';
 
 function NavBar() {
   const [showMore, setShowMore] = useState(false);
   const [notificationCount, setNotificationCount] = useState(6);
-  const { setDropDown, setOpen, open } = useAppContext();
+  const { setDropDown, dropDown, setOpen, open } = useAppContext();
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowMore(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+  const handleDropDownToggle = (menu) => {
+    if (dropDown === menu && open) {
+      setOpen(false);
+      setDropDown(null);
+    } else {
+      setDropDown(menu);
+      setOpen(true);
+    }
+  };
 
   return (
-    <nav className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 shadow-sm px-4 sm:px-8 relative">
+    <nav
+      className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 shadow-sm px-4 sm:px-8 fixed"
+      ref={dropdownRef}
+    >
       {/* Left Side */}
       <div className="flex items-center flex-1 gap-4">
         <h1 className="text-xl sm:text-2xl font-semibold">PSM</h1>
@@ -39,15 +43,9 @@ function NavBar() {
             <div
               key={item}
               className="flex items-center gap-1 cursor-pointer hover:text-blue-500"
+              onClick={() => handleDropDownToggle(item.toLowerCase())}
             >
-              <p
-                onClick={() => {
-                  setDropDown(item.toLowerCase());
-                  setOpen(!open);
-                }}
-              >
-                {item}
-              </p>
+              <p>{item}</p>
               <ChevronDown className="w-4 h-4" />
             </div>
           ))}
@@ -58,7 +56,7 @@ function NavBar() {
       {/* Right Side */}
       <div className="flex items-center justify-end gap-8 md:w-[30%] w-[50%] relative">
         {/* Mobile More Dropdown */}
-        <div className="md:hidden relative" ref={dropdownRef}>
+        <div className="md:hidden relative">
           <button
             onClick={() => setShowMore(!showMore)}
             className="flex items-center gap-1 text-sm"
@@ -71,13 +69,7 @@ function NavBar() {
                 <div
                   key={item}
                   className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                  onClick={() => {
-                    if (item !== 'Create') {
-                      setDropDown(item.toLowerCase());
-                      setOpen(true);
-                    }
-                    // setShowMore(false);
-                  }}
+                  onClick={() => handleDropDownToggle(item.toLowerCase())}
                 >
                   <p>{item}</p>
                   {item !== 'Create' && <ChevronRight className="w-4 h-4" />}
@@ -106,6 +98,8 @@ function NavBar() {
           <User className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500" />
         </Link>
       </div>
+
+      {dropDown === 'project' && open && <ProjectDropDown />}
     </nav>
   );
 }

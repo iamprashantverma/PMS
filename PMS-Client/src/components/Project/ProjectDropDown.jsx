@@ -8,16 +8,13 @@ import { Link } from 'react-router-dom';
 function ProjectDropDown() {
   const { user } = useAuth();
   const userId = user?.id;
-  const { dropDown, open } = useAppContext();
+  const { dropDown, open ,setOpen} = useAppContext();
   const page = 0;
-
   const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
     variables: { userId,pageNo:page },
     skip: !userId, 
   });
-
   if (dropDown !== 'project' || !open) return null;
-  console.log(user);
   const containerClasses = `
     absolute z-50 bg-white border border-gray-200 rounded-md shadow-md 
     top-[110%] left-[10%] 
@@ -67,10 +64,17 @@ function ProjectDropDown() {
 
       {/* Fixed bottom action buttons */}
       <div className="border-t border-gray-200 px-3 py-2 flex flex-col gap-2 bg-white">
-        <Link to="/allproject" className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
+        <Link
+          to="/projects"
+          onClick={() => setOpen(false)}
+          className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
           View All Projects
         </Link>
-        <button className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
+        <button
+          onClick={() => {
+            setOpen(false);
+          }}
+          className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
           Create Project
         </button>
       </div>

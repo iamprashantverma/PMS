@@ -4,36 +4,40 @@ import { FIND_ALL_PROJECT_BY_USER } from '../../graphql/Queries/project-service'
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { MoreVertical } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function AllProject() {
-  const { user } = useAuth();
-  const userId = user?.id;
-  const { dropDown, open } = useAppContext();
+    const { user } = useAuth();
+    const userId = user?.id;
+    const  navigate = useNavigate();
 
-  const [page, setPage] = useState(0);
-  const [openActionMenu, setOpenActionMenu] = useState(null);
+    const [page, setPage] = useState(0);
+    const [openActionMenu, setOpenActionMenu] = useState(null);
 
-  const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
-    variables: { userId, pageNo: page },
-    skip: !userId,
-  });
+    const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
+      variables: { userId, pageNo: page },
+      skip: !userId,
+    });
 
-  const containerClasses = 'w-full flex justify-center items-center';
+    const containerClasses = 'w-full flex justify-center items-center';
 
-  if (loading)
-    return (
-      <div className={containerClasses + ' p-2'}>
-        <p className="text-xs sm:text-sm">Loading...</p>
-      </div>
-    );
+    if (loading)
+      return (
+        <div className={containerClasses + ' p-2'}>
+          <p className="text-xs sm:text-sm">Loading...</p>
+        </div>
+      );
 
-  if (error)
-    return (
-      <div className={containerClasses + ' p-2'}>
-        <p className="text-xs sm:text-sm text-red-500">{error.message}</p>
-      </div>
-    );
-
+    if (error)
+      return (
+        <div className={containerClasses + ' p-2'}>
+          <p className="text-xs sm:text-sm text-red-500">{error.message}</p>
+        </div>
+      );
+      const projectHandler = (projectId) => {
+        navigate(`/projects/settings/${projectId}`);
+      };
+      
   const projects = data?.findAllProject || [];
 
   const handlePrev = () => {
@@ -84,8 +88,8 @@ function AllProject() {
                   </button>
                   {openActionMenu === project.projectId && (
                     <div className="absolute right-5 top-10 bg-white border rounded shadow-md z-10 w-35 text-sm">
-                      <button className="block w-full px-4 py-1 hover:bg-gray-100 text-left">Project Settings</button>
-                      <button className="block w-full px-4 py-1 hover:bg-gray-100 text-left text-red-500">Delete</button>
+                      <button name='setting' onClick={() => projectHandler(project.projectId)} className="block w-full px-4 py-1 hover:bg-gray-100 text-left">Project Settings</button>
+                      <button name='delete' className="block w-full px-4 py-1 hover:bg-gray-100 text-left text-red-500">Delete</button>
                     </div>
                   )}
                 </td>

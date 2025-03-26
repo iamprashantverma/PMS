@@ -1,6 +1,15 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useQuery, useMutation } from '@apollo/client';
+import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
+import { UPDATE_PROJECT_DETAILS } from '@/graphql/Mutation/project-service';
 
 const DetailSettings = () => {
+  const { projectId } = useParams();
+  const [project, setProject] = useState(null);
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -10,39 +19,120 @@ const DetailSettings = () => {
     image: null,
   });
 
+  const [initialFormData, setInitialFormData] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
+  const [editableFields, setEditableFields] = useState({});
+  const [isChanged, setIsChanged] = useState(false);
+
+  const enableField = (fieldName) => {
+    setEditableFields((prev) => ({ ...prev, [fieldName]: true }));
+  };
+
+  const { data, loading, error } = useQuery(FIND_PROJECT_BY_ID, {
+    variables: { projectId },
+    skip: !projectId,
+  });
+
+  const [updateProjectDetails, { loading: updating }] = useMutation(UPDATE_PROJECT_DETAILS);
+
+  useEffect(() => {
+    if (data?.getProject) {
+      const proj = data.getProject;
+      const initial = {
+        title: proj.title || '',
+        description: proj.description || '',
+        status: proj.status || '',
+        priority: proj.priority || '',
+        clientId: proj.clientId || '',
+        image: null,
+      };
+      setProject(proj);
+      setFormData(initial);
+      setInitialFormData(initial);
+      setImagePreview(proj.imageUrl || null);
+      setIsChanged(false);
+    }
+  }, [data]);
+
+  // Utility to check if changes exist
+  const hasFormChanged = (newFormData, oldFormData) => {
+    for (let key in oldFormData) {
+      if (key !== 'image') {
+        if (newFormData[key] !== oldFormData[key]) return true;
+      }
+    }
+    return !!newFormData.image; // check if image is newly uploaded
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const updatedForm = { ...formData, [name]: value };
+    setFormData(updatedForm);
+    setIsChanged(hasFormChanged(updatedForm, initialFormData));
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, image: file });
+      const updatedForm = { ...formData, image: file };
+      setFormData(updatedForm);
       setImagePreview(URL.createObjectURL(file));
+      setIsChanged(true);
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form Data:', formData);
-    // Handle form submit here
   };
 
   const triggerImageUpload = () => {
     fileInputRef.current.click();
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateProjectDetails({
+        variables: {
+          project: {
+            projectId,
+            title: formData.title || null,
+            description: formData.description || null,
+            status: formData.status || null,
+            priority: formData.priority || null,
+            clientId: formData.clientId || null,
+          },
+        },
+      });
+
+      toast.success('Project updated successfully!');
+      setInitialFormData({ ...formData, image: null });
+      setEditableFields({});
+      setIsChanged(false);
+    } catch (err) {
+      toast.error('Update failed: ' + err.message);
+    }
+  };
+
+  const handleCancel = () => {
+    if (initialFormData) {
+      setFormData(initialFormData);
+      setEditableFields({});
+      setIsChanged(false);
+      if (project?.imageUrl) {
+        setImagePreview(project.imageUrl);
+      } else {
+        setImagePreview(null);
+      }
+    }
+  };
+
+  if (loading) return <p className="text-center mt-6">Loading...</p>;
+  if (error) return <p className="text-center mt-6 text-red-500">{error.message}</p>;
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-xl">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6 md:p-8 bg-white shadow-md sm:shadow-lg rounded-xl">
       {/* Image Preview */}
       <div className="flex justify-center mb-6">
         <div
           onClick={triggerImageUpload}
-          className="cursor-pointer w-32 h-32 rounded-full overflow-hidden shadow-lg border border-gray-300 hover:shadow-xl transition"
+          className="cursor-pointer w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md border border-gray-300 hover:shadow-lg transition"
           title="Click to change image"
         >
           <img
@@ -60,97 +150,91 @@ const DetailSettings = () => {
         />
       </div>
 
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 text-center">Project Details</h2>
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-6 text-center">
+        Project Details
+      </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
-        <div>
-          <label className="block text-gray-700 font-semibold">Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter project title"
-            required
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-gray-700 font-semibold">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter project description"
-            rows="3"
-            required
-          ></textarea>
-        </div>
-
-        {/* Status Dropdown */}
-        <div>
-          <label className="block text-gray-700 font-semibold">Status</label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          >
-            <option value="">Select status</option>
-            <option value="ONGOING">Ongoing</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="PENDING">Pending</option>
-          </select>
-        </div>
-
-        {/* Priority Dropdown */}
-        <div>
-          <label className="block text-gray-700 font-semibold">Priority</label>
-          <select
-            name="priority"
-            value={formData.priority}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          >
-            <option value="">Select priority</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
-          </select>
-        </div>
-
-        {/* Client ID */}
-        <div>
-          <label className="block text-gray-700 font-semibold">Client ID</label>
-          <input
-            type="text"
-            name="clientId"
-            value={formData.clientId}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter client ID"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Fields */}
+        {[
+          { label: 'Title', name: 'title', type: 'text' },
+          { label: 'Description', name: 'description', type: 'textarea' },
+          { label: 'Status', name: 'status', type: 'select', options: ['INITIATED', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'DELIVERED', 'ARCHIVED'] },
+          { label: 'Priority', name: 'priority', type: 'select', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+          { label: 'Client ID', name: 'clientId', type: 'text' },
+        ].map(({ label, name, type, options }) => (
+          <div key={name}>
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1">{label}</label>
+            {type === 'textarea' ? (
+              <textarea
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                readOnly={!editableFields[name]}
+                onFocus={() => enableField(name)}
+                className={`w-full px-3 py-2 border rounded-md text-sm sm:text-base focus:ring-2 focus:ring-blue-400 ${
+                  !editableFields[name] ? 'bg-gray-100 cursor-pointer' : ''
+                }`}
+                rows="3"
+                placeholder={`Enter ${label.toLowerCase()}`}
+              ></textarea>
+            ) : type === 'select' ? (
+              <div
+                onClick={() => enableField(name)}
+                className={`relative w-full border rounded-md text-sm sm:text-base ${
+                  !editableFields[name] ? 'bg-gray-100 cursor-pointer' : ''
+                }`}
+              >
+                <select
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 appearance-none focus:ring-2 focus:ring-blue-400 rounded-md bg-transparent ${
+                    !editableFields[name] ? 'text-gray-500' : 'text-gray-800'
+                  }`}
+                >
+                  <option value="">Select {label.toLowerCase()}</option>
+                  {options.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <input
+                type="text"
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                readOnly={!editableFields[name]}
+                onFocus={() => enableField(name)}
+                className={`w-full px-3 py-2 border rounded-md text-sm sm:text-base focus:ring-2 focus:ring-blue-400 ${
+                  !editableFields[name] ? 'bg-gray-100 cursor-pointer' : ''
+                }`}
+                placeholder={`Enter ${label.toLowerCase()}`}
+              />
+            )}
+          </div>
+        ))}
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3 mt-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
           <button
             type="button"
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+            onClick={handleCancel}
+            className="w-full sm:w-auto px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            disabled={!isChanged || updating}
+            className={`w-full sm:w-auto px-4 py-2 rounded-md transition ${
+              isChanged && !updating
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
-            Save Changes
+            {updating ? 'Updating...' : 'Save Changes'}
           </button>
         </div>
       </form>
