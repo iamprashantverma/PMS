@@ -15,7 +15,7 @@ export const UPDATE_PROJECT_DETAILS = gql`
 `;
 
 export const REMOVE_USER_FROM_PROJECT = gql`
-  mutation RemoveUserFromProject($projectId: ID!, $memberId: ID!) {
+  mutation RemoveUserFromProject($projectId: String!, $memberId: String!) {
     removeUserFromProject(projectId: $projectId, memberId: $memberId) {
       memberIds
     }
@@ -23,7 +23,7 @@ export const REMOVE_USER_FROM_PROJECT = gql`
 `;
 
 export const ADD_MEMBERS_TO_PROJECT = gql`
-  mutation AddMembersToProject($projectId: ID!, $members: [ID!]!) {
+  mutation AddMembersToProject($projectId: String!, $members: [String!]!) {
     addMembersToProject(projectId: $projectId, members: $members) {
       memberIds
     }

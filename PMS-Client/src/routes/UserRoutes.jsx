@@ -5,6 +5,7 @@ import ProjectSettings from '@/pages/ProjectSettings';
 import ProfileSettings from '@/pages/ProfileSettings';
 import AllProject from '@/components/Project/AllProject';
 import DetailSettings from '@/components/Project/DetailSettings';
+import TeamsSettings from '@/components/Project/TeamsSettings';
 
 function UserRoutes() {
   return (
@@ -18,6 +19,7 @@ function UserRoutes() {
         {/* Nested project settings route */}
         <Route path="/projects/settings/:projectId"  element={<ProjectSettings />}>
           <Route index element={<DetailSettings />} />
+          <Route path='teams' element= {<TeamsSettings/>} />
       </Route>
 
       </Route>

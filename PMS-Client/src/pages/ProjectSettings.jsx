@@ -45,7 +45,7 @@ function ProjectSettings() {
             Notifications
           </Link>
           <Link
-            to={`/project/${projectId}/setting/teams`}
+            to={`teams`}
             className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-blue-100"
           >
             Teams

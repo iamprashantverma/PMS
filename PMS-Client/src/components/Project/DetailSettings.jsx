@@ -54,14 +54,13 @@ const DetailSettings = () => {
     }
   }, [data]);
 
-  // Utility to check if changes exist
   const hasFormChanged = (newFormData, oldFormData) => {
     for (let key in oldFormData) {
       if (key !== 'image') {
         if (newFormData[key] !== oldFormData[key]) return true;
       }
     }
-    return !!newFormData.image; // check if image is newly uploaded
+    return !!newFormData.image; 
   };
 
   const handleChange = (e) => {
