@@ -20,7 +20,6 @@ import java.util.Arrays;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @RefreshScope
-@CrossOrigin
 public class AuthController {
 
     private final AuthService authService;
@@ -41,11 +40,11 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok(responseDTO);
     }
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) throws InvalidCredentialsException {
-
+        System.out.println(loginRequestDTO.getEmail());
         LoginResponseDTO loginResponse = authService.login(loginRequestDTO);
-
         // Create a cookie for the refresh token
         Cookie refreshTokenCookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);

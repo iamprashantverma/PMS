@@ -23,7 +23,7 @@ public class ProjectDTO {
     private String projectId;
 
     private LocalDate createdAt;
-
+    private String image;
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must not exceed 100 characters")
     private String title;

@@ -1,6 +1,6 @@
 type  Mutation {
     createProject(project: ProjectInput!): ProjectA
-    updateProjectDetails(project: ProjectInput!): ProjectA
+    updateProjectDetails(project: ProjectInput!,image: Upload): ProjectA
     addMembersToProject(projectId: String!, members: [String!]!): ProjectA
     removeUserFromProject(projectId: String!, memberId: String!): ProjectA
     deleteProject(projectId:String!):ProjectA

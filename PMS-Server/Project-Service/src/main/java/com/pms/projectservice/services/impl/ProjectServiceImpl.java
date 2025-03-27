@@ -1,7 +1,9 @@
 package com.pms.projectservice.services.impl;
 
 import com.pms.projectservice.auth.UserContextHolder;
+import com.pms.projectservice.clients.UserFeignClient;
 import com.pms.projectservice.dto.ProjectDTO;
+import com.pms.projectservice.dto.UserDTO;
 import com.pms.projectservice.entities.Project;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
@@ -10,6 +12,7 @@ import com.pms.projectservice.event.ProjectEvent;
 import com.pms.projectservice.exceptions.ResourceNotFound;
 import com.pms.projectservice.producer.ProjectEventProducer;
 import com.pms.projectservice.repositories.ProjectRepository;
+import com.pms.projectservice.services.CloudinaryService;
 import com.pms.projectservice.services.ProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +41,8 @@ public class ProjectServiceImpl implements ProjectService {
     private final ModelMapper modelMapper;
     private final ProjectRepository projectRepository;
     private final ProjectEventProducer producer;
-
+    private  final UserFeignClient userFeignClient;
+    private final CloudinaryService cloudinaryService;
     /* converting projectDTO projectEntity */
     private Project convertToProjectEntity(ProjectDTO projectDTO) {
         return modelMapper.map(projectDTO, Project.class);
@@ -274,20 +279,23 @@ public class ProjectServiceImpl implements ProjectService {
     /* update the priority of the project */
     @Override
     @Transactional
-    public ProjectDTO  updateProjectDetails(ProjectDTO projectDTO) {
+    public ProjectDTO  updateProjectDetails(ProjectDTO projectDTO, MultipartFile file) {
 
         /* get the project */
         Project project = getProjectEntityById(projectDTO.getProjectId());
-
         /* get the old Priority */
         Priority oldPriority = project.getPriority();
-//        /* update the project details */
-        /* update the project priority */
+       /* update the project details */
         project.setPriority(projectDTO.getPriority());
         project.setTitle(projectDTO.getTitle());
         project.setDescription(projectDTO.getDescription());
         project.setStatus(projectDTO.getStatus());
         project.setClientId(projectDTO.getClientId());
+        /* upload the file to the cloudinary and set the url as image of this project*/
+        String url = project.getImage();
+        if(file != null)
+            url = cloudinaryService.uploadImage(file);
+        project.setImage(url);
         /* saved into the DB*/
         Project modifedProject = projectRepository.save(project);
 
@@ -313,6 +321,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         /* add assign the member to the project */
         for (String memberId:member) {
+            try{
+                UserDTO userDTO = userFeignClient.getUserById(memberId);
+            } catch (Exception ex) {
+                throw new ResourceNotFoundException("User not Found UserId:"+member);
+            }
             project.getMemberIds().add(memberId);
         }
 
@@ -345,7 +358,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         /*Create memberRemovedEvent and produce it*/
         ProjectEvent projectEvent = getMemberRemovedEvent(modifiedProject, memberId);
-        producer.sendProjectEvent(projectEvent);
+//        producer.sendProjectEvent(projectEvent);
 
         log.info("Member revoked successfully: {}", memberId);
         return convertToProjectDTO(modifiedProject);
@@ -405,11 +418,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectDTO> findAllProject(String creatorId, int page) {
         Pageable pageable = PageRequest.of(page, 5);
-        Page<Project> projectPage = projectRepository.findByCreatorOrMember(creatorId, pageable);
-        log.info("size,{}",projectPage.getContent().size());
+        Page<Project> projectPage = projectRepository.findByCreatorOrMemberAndStatusNotCompleted(creatorId, pageable);
+        log.info("size,{}", projectPage.getContent().size());
         return projectPage.getContent().stream()
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
                 .toList();
     }
+
 
 }

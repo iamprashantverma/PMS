@@ -7,10 +7,12 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Component
+
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
     private final JwtService jwtService;
@@ -22,7 +24,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(AuthenticationFilter.Config config) {
         return (exchange, chain) -> {
-            log.info("login request is here");
             final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
             if(tokenHeader == null || !tokenHeader.startsWith(("Bearer "))){
@@ -30,7 +31,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
-
+            System.out.println(tokenHeader);
             final String token = tokenHeader.split("Bearer ")[1];
 
             try{

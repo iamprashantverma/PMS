@@ -56,6 +56,8 @@ public class Project {
 
     private String clientId;
 
+    private String image;
+
     @ElementCollection
     private Set<String> memberIds = new HashSet<>();
 

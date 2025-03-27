@@ -11,6 +11,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -55,9 +56,9 @@ public class ProjectResolver {
     }
 
     @MutationMapping
-    public ProjectDTO  updateProjectDetails(@Argument("project") ProjectDTO project) {
-        log.info("Updating project  ID: {}", project);
-        return projectService.updateProjectDetails(project);
+    public ProjectDTO  updateProjectDetails(@Argument("project") ProjectDTO project, @Argument("image")MultipartFile file) {
+        log.info("Updating project  ID: {},{}", project,file);
+        return projectService.updateProjectDetails(project,file);
     }
 
     @MutationMapping

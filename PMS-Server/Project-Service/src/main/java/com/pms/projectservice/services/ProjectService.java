@@ -3,6 +3,7 @@ package com.pms.projectservice.services;
 import com.pms.projectservice.dto.ProjectDTO;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -73,7 +74,7 @@ public interface ProjectService {
      * @param projectDTO the ID of the project
      * @return the updated project as a ProjectDTO
      */
-    ProjectDTO  updateProjectDetails(ProjectDTO projectDTO);
+    ProjectDTO  updateProjectDetails(ProjectDTO projectDTO, MultipartFile file);
 
     /**
      * Adds members to an existing project.

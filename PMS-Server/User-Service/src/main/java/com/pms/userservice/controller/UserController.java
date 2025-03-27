@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
 public class UserController {
     private final UserService userService;
 

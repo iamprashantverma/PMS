@@ -1,41 +1,53 @@
-spring.application.name: api-gateway
-
-server.port: 8080
-
-jwt.secretKey: ads9f6askj3h4k1hf86asdfiahkjh34a789s6df89ayshkjh3jkh786adsf78ay
-
-#service registration
+server:
+  port: 8080
 
 spring:
+  application:
+    name: api-gateway
+
   cloud:
     gateway:
       routes:
+        - id: User-Service-Public
+          uri: lb://User-Service
+          predicates:
+            - Path=/api/v1/users/auth/**
+          filters:
+            - StripPrefix=2
+
         - id: User-Service
           uri: lb://User-Service
           predicates:
             - Path=/api/v1/users/**
+            - Method=GET,POST,PUT,DELETE
           filters:
             - StripPrefix=2
-
+            - AuthenticationFilter
 
         - id: Project-Service
-#          uri: http://localhost:9020
           uri: lb://Project-Service
           predicates:
-            - Path=/api/v2/project/**
+            - Path=/api/v1/projects/**
           filters:
             - StripPrefix=2
+            - AuthenticationFilter
 
         - id: Task-Service
           uri: lb://Task-Service
           predicates:
-            - Path=/api/v3/task/**
+            - Path=/api/v3/tasks/**
           filters:
             - StripPrefix=2
+            - AuthenticationFilter
 
+jwt:
+  secretKey: ads9f6askj3h4k1hf86asdfiahkjh34a789s6df89ayshkjh3jkh786adsf78ay
 
-#eureka register
-eureka.client.service-url.defaultZone: http://localhost:8761/eureka/
-eureka.instance.hostname: localhost
-eureka.client.register-with-eureka: true
-eureka.client.fetch.registry: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
