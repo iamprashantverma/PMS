@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDetails, updateUserDetails } from '@/services/UserService';
-import { AuthContext } from '@/context/AuthContext';
+import { AuthContext, useAuth } from '@/context/AuthContext';
 import { Pencil, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 function ProfileSettings() {
   const navigate = useNavigate();
-  const { user, accessToken } = useContext(AuthContext);
+  const { user, accessToken } = useAuth();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editableField, setEditableField] = useState(null);

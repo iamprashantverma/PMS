@@ -1,43 +1,48 @@
 import React, { useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { FIND_ALL_PROJECT_BY_USER } from '../../graphql/Queries/project-service';
-import { useAuth } from '@/context/AuthContext';
-import { useAppContext } from '@/context/AppContext';
-import { MoreVertical } from 'lucide-react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
+import { MoreVertical } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { FIND_ALL_PROJECT_BY_USER } from '@/graphql/Queries/project-service';
+import { DELETE_PROJECT } from '@/graphql/Mutation/project-service';
+import { toast } from 'react-toastify';
 
 function AllProject() {
-    const { user } = useAuth();
-    const userId = user?.id;
-    const  navigate = useNavigate();
+  const { user } = useAuth();
+  const userId = user?.id;
+  const navigate = useNavigate();
 
-    const [page, setPage] = useState(0);
-    const [openActionMenu, setOpenActionMenu] = useState(null);
+  const [page, setPage] = useState(0);
+  const [openActionMenu, setOpenActionMenu] = useState(null);
 
-    const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
-      variables: { userId, pageNo: page },
-      skip: !userId,
-    });
+  const { data, loading, error, refetch } = useQuery(FIND_ALL_PROJECT_BY_USER, {
+    variables: { userId, pageNo: page },
+    skip: !userId,
+  });
 
-    const containerClasses = 'w-full flex justify-center items-center';
+  const [deleteProject] = useMutation(DELETE_PROJECT, {
+    onCompleted: () => refetch(),
+    onError: (err) => {
+      alert('Error deleting project: ' + err.message);
+    },
+  });
 
-    if (loading)
-      return (
-        <div className={containerClasses + ' p-2'}>
-          <p className="text-xs sm:text-sm">Loading...</p>
-        </div>
-      );
+  const handleDelete = async (projectId) => {
+    const confirm = window.confirm('Are you sure you want to delete this project?');
+    if (confirm) {
+      await deleteProject({ variables: { projectId } });
+    }
+    toast.success("Project Delete Successfully");
+  };
 
-    if (error)
-      return (
-        <div className={containerClasses + ' p-2'}>
-          <p className="text-xs sm:text-sm text-red-500">{error.message}</p>
-        </div>
-      );
-      const projectHandler = (projectId) => {
-        navigate(`/projects/settings/${projectId}`);
-      };
-      
+  const projectHandler = (projectId) => {
+    navigate(`/projects/settings/${projectId}`);
+  };
+
+  const toggleActionMenu = (id) => {
+    setOpenActionMenu(openActionMenu === id ? null : id);
+  };
+
   const projects = data?.findAllProject || [];
 
   const handlePrev = () => {
@@ -46,9 +51,6 @@ function AllProject() {
 
   const handleNext = () => {
     setPage(page + 1);
-  };
-  const toggleActionMenu = (id) => {
-    setOpenActionMenu(openActionMenu === id ? null : id);
   };
 
   return (
@@ -87,9 +89,19 @@ function AllProject() {
                     <MoreVertical size={20} className="text-gray-600 hover:text-gray-900" />
                   </button>
                   {openActionMenu === project.projectId && (
-                    <div className="absolute right-5 top-10 bg-white border rounded shadow-md z-10 w-35 text-sm">
-                      <button name='setting' onClick={() => projectHandler(project.projectId)} className="block w-full px-4 py-1 hover:bg-gray-100 text-left">Project Settings</button>
-                      <button name='delete' className="block w-full px-4 py-1 hover:bg-gray-100 text-left text-red-500">Delete</button>
+                    <div className="absolute right-5 top-10 bg-white border rounded shadow-md z-10 w-36 text-sm">
+                      <button
+                        onClick={() => projectHandler(project.projectId)}
+                        className="block w-full px-4 py-1 hover:bg-gray-100 text-left"
+                      >
+                        Project Settings
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.projectId)}
+                        className="block w-full px-4 py-1 hover:bg-gray-100 text-left text-red-500"
+                      >
+                        Delete
+                      </button>
                     </div>
                   )}
                 </td>
@@ -105,23 +117,25 @@ function AllProject() {
           onClick={handlePrev}
           disabled={page === 0}
           className={`px-4 py-2 rounded-xl text-sm sm:text-base transition ${
-            page === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            page === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
           ← Prev
         </button>
         <span className="text-sm sm:text-base text-gray-600 self-center">Page: {page + 1}</span>
         <button
-            disabled={!loading && projects.length === 0}
-            onClick={handleNext}
-            className={`px-4 py-2 rounded-xl text-sm sm:text-base transition ${
-              !loading && projects.length === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
-          >
-            Next →
-          </button>
+          onClick={handleNext}
+          disabled={!loading && projects.length !== 5}
+          className={`px-4 py-2 rounded-xl text-sm sm:text-base transition ${
+            !loading && projects.length !== 5
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          Next →
+        </button>
       </div>
     </div>
   );

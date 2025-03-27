@@ -70,13 +70,14 @@ function ProjectDropDown() {
           className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
           View All Projects
         </Link>
-        <button
+        <Link
+          to="/create"
           onClick={() => {
             setOpen(false);
           }}
           className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
           Create Project
-        </button>
+        </Link>
       </div>
     </div>
   );

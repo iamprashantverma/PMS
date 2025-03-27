@@ -9,6 +9,7 @@ export const FIND_ALL_PROJECT_BY_USER = gql`
       status
       priority
       projectCreator
+      image
     }
   }
 `;
@@ -25,6 +26,7 @@ export const FIND_PROJECT_BY_ID = gql`
       createdAt
       extendedDate
       status
+      image
       priority
       projectCreator
       clientId

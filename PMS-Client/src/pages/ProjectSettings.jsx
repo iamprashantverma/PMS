@@ -7,7 +7,7 @@ function ProjectSettings() {
   const [project, setProject] = useState({});
   const { projectId } = useParams();
 
-  const { data, loading, error } = useQuery(FIND_PROJECT_BY_ID, {
+  const { data, loading, error ,refetch} = useQuery(FIND_PROJECT_BY_ID, {
     variables: { projectId },
     skip: !projectId, 
   });
@@ -55,7 +55,7 @@ function ProjectSettings() {
 
       {/* Content */}
       <div className="w-full sm:w-3/4 h-full overflow-y-auto p-4">
-        <Outlet />
+        <Outlet context={{ refetchProject: refetch }} />
       </div>
     </div>
   );

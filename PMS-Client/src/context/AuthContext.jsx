@@ -20,7 +20,7 @@ function AuthProvider({children}) {
         return;
       }
 
-      //  seting up user Context
+      setAccessToken(token);
       setUser({
         email: decoded.email,
         role: decoded.role,

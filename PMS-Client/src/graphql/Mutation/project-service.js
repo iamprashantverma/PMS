@@ -2,8 +2,8 @@
 import { gql } from '@apollo/client';
 
 export const UPDATE_PROJECT_DETAILS = gql`
-  mutation UpdateProjectDetails($project: ProjectInput!) {
-    updateProjectDetails(project: $project) {
+  mutation UpdateProjectDetails($project: ProjectInput!, $image: Upload) {
+    updateProjectDetails(project: $project, image: $image) {
       title
       startDate
       description
@@ -13,6 +13,7 @@ export const UPDATE_PROJECT_DETAILS = gql`
     }
   }
 `;
+
 
 export const REMOVE_USER_FROM_PROJECT = gql`
   mutation RemoveUserFromProject($projectId: String!, $memberId: String!) {
@@ -45,6 +46,15 @@ export const CREATE_PROJECT = gql`
       priority
       projectCreator
       clientId
+    }
+  }
+`;
+
+
+export const DELETE_PROJECT = gql`
+  mutation DeleteProject($projectId: String!) {
+    deleteProject(projectId: $projectId) {
+      projectId
     }
   }
 `;

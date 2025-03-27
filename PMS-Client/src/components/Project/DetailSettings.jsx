@@ -4,11 +4,12 @@ import { toast } from 'react-toastify';
 import { useQuery, useMutation } from '@apollo/client';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { UPDATE_PROJECT_DETAILS } from '@/graphql/Mutation/project-service';
-
+import { useOutletContext } from 'react-router-dom';
 const DetailSettings = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState(null);
   const fileInputRef = useRef(null);
+  const { refetchProject } = useOutletContext();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -44,12 +45,12 @@ const DetailSettings = () => {
         status: proj.status || '',
         priority: proj.priority || '',
         clientId: proj.clientId || '',
-        image: null,
+        image: proj.image,
       };
       setProject(proj);
       setFormData(initial);
       setInitialFormData(initial);
-      setImagePreview(proj.imageUrl || null);
+      setImagePreview(proj.image || null);
       setIsChanged(false);
     }
   }, [data]);
@@ -60,7 +61,7 @@ const DetailSettings = () => {
         if (newFormData[key] !== oldFormData[key]) return true;
       }
     }
-    return !!newFormData.image; 
+    return !!newFormData.image;
   };
 
   const handleChange = (e) => {
@@ -86,29 +87,38 @@ const DetailSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      await updateProjectDetails({
-        variables: {
-          project: {
-            projectId,
-            title: formData.title || null,
-            description: formData.description || null,
-            status: formData.status || null,
-            priority: formData.priority || null,
-            clientId: formData.clientId || null,
-          },
+      const variables = {
+        project: {
+          projectId,
+          title: formData.title || null,
+          description: formData.description || null,
+          status: formData.status || null,
+          priority: formData.priority || null,
+          clientId: formData.clientId || null,
         },
-      });
-
+      };
+  
+      // Only attach the image if it's a new file
+      if (formData.image instanceof File) {
+        variables.image = formData.image;
+      }
+  
+      await updateProjectDetails({ variables });
+  
       toast.success('Project updated successfully!');
       setInitialFormData({ ...formData, image: null });
       setEditableFields({});
+      await refetchProject();
       setIsChanged(false);
     } catch (err) {
+      console.error(err);
       toast.error('Update failed: ' + err.message);
     }
   };
-
+  
+  
   const handleCancel = () => {
     if (initialFormData) {
       setFormData(initialFormData);

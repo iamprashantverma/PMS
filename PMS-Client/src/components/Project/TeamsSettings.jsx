@@ -4,11 +4,14 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { ADD_MEMBERS_TO_PROJECT, REMOVE_USER_FROM_PROJECT } from '@/graphql/Mutation/project-service';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/context/AuthContext';
+import { getUserDetails } from '@/services/UserService';
 
 function TeamsSettings() {
   const { projectId } = useParams();
   const [newMemberId, setNewMemberId] = useState('');
   const [members, setMembers] = useState([]);
+  const {accessToken} = useAuth();
 
   const { data, refetch } = useQuery(FIND_PROJECT_BY_ID, {
     variables: { projectId },
@@ -19,11 +22,22 @@ function TeamsSettings() {
   const [removeUserFromProject] = useMutation(REMOVE_USER_FROM_PROJECT);
 
   useEffect(() => {
-    console.log('Fetched Members:', data?.getProject?.membersIds);
-    if (data?.getProject?.memberIds) {
-      setMembers(data.getProject.memberIds);
-    }
-  }, [data]);
+    const fetchMemberDetails = async () => {
+      if (data?.getProject?.memberIds) {
+        const results = await Promise.allSettled(
+          data.getProject.memberIds.map((id) => getUserDetails(id, accessToken))
+        );
+  
+        const successfulMembers = results
+          .filter(result => result.status === 'fulfilled')
+          .map(result => result.value.data); 
+        setMembers(successfulMembers);
+      }
+    };
+  
+    fetchMemberDetails();
+  }, [data, accessToken]);
+  
 
   const handleAddMember = async () => {
     if (!newMemberId) return toast.warning('Please enter a Member ID');
@@ -39,13 +53,13 @@ function TeamsSettings() {
       setNewMemberId('');
       refetch();
     } catch (err) {
+      console.log(err);
       toast.error(err.message);
     }
   };
 
   const handleRemoveMember = async (memberId) => {
     try {
-      console.log(memberId);
       await removeUserFromProject({
         variables: { projectId, memberId },
       });
@@ -89,7 +103,7 @@ function TeamsSettings() {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={member.avatarUrl || 'https://via.placeholder.com/40'}
+                  src={member.image || 'https://via.placeholder.com/40'}
                   alt={member.name}
                   className="w-12 h-12 rounded-full object-cover border"
                 />
