@@ -6,20 +6,22 @@ import { ADD_MEMBERS_TO_PROJECT, REMOVE_USER_FROM_PROJECT } from '@/graphql/Muta
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
 import { getUserDetails } from '@/services/UserService';
+import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 
 function TeamsSettings() {
   const { projectId } = useParams();
   const [newMemberId, setNewMemberId] = useState('');
   const [members, setMembers] = useState([]);
   const {accessToken} = useAuth();
-
+  const { projectClient, taskClient } = useApolloClients();
   const { data, refetch } = useQuery(FIND_PROJECT_BY_ID, {
+    client:projectClient,
     variables: { projectId },
     skip: !projectId,
   });
 
-  const [addMembersToProject] = useMutation(ADD_MEMBERS_TO_PROJECT);
-  const [removeUserFromProject] = useMutation(REMOVE_USER_FROM_PROJECT);
+  const [addMembersToProject] = useMutation(ADD_MEMBERS_TO_PROJECT,{client:projectClient});
+  const [removeUserFromProject] = useMutation(REMOVE_USER_FROM_PROJECT,{client:projectClient});
 
   useEffect(() => {
     const fetchMemberDetails = async () => {
@@ -60,6 +62,7 @@ function TeamsSettings() {
 
   const handleRemoveMember = async (memberId) => {
     try {
+      console.log(memberId);
       await removeUserFromProject({
         variables: { projectId, memberId },
       });
@@ -113,7 +116,7 @@ function TeamsSettings() {
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveMember(member.userId)}
+                onClick={() => handleRemoveMember(member)}
                 className="text-xs bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
               >
                 Remove

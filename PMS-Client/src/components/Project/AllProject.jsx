@@ -6,24 +6,32 @@ import { useAuth } from '@/context/AuthContext';
 import { FIND_ALL_PROJECT_BY_USER } from '@/graphql/Queries/project-service';
 import { DELETE_PROJECT } from '@/graphql/Mutation/project-service';
 import { toast } from 'react-toastify';
+import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 
 function AllProject() {
   const { user } = useAuth();
   const userId = user?.id;
   const navigate = useNavigate();
-
+  const { projectClient } = useApolloClients(); // Only using projectClient here
   const [page, setPage] = useState(0);
   const [openActionMenu, setOpenActionMenu] = useState(null);
 
+  // ✅ Use correct client for query
   const { data, loading, error, refetch } = useQuery(FIND_ALL_PROJECT_BY_USER, {
+    client: projectClient,
     variables: { userId, pageNo: page },
     skip: !userId,
   });
 
+  // ✅ Use correct client for mutation
   const [deleteProject] = useMutation(DELETE_PROJECT, {
-    onCompleted: () => refetch(),
+    client: projectClient,
+    onCompleted: () => {
+      toast.success('Project deleted successfully');
+      refetch();
+    },
     onError: (err) => {
-      alert('Error deleting project: ' + err.message);
+      toast.error('Error deleting project: ' + err.message);
     },
   });
 
@@ -32,7 +40,6 @@ function AllProject() {
     if (confirm) {
       await deleteProject({ variables: { projectId } });
     }
-    toast.success("Project Delete Successfully");
   };
 
   const projectHandler = (projectId) => {

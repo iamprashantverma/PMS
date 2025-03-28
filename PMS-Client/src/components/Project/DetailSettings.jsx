@@ -2,10 +2,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useQuery, useMutation } from '@apollo/client';
+import { useApolloClients } from "@/graphql/Clients/ApolloClientContext";
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { UPDATE_PROJECT_DETAILS } from '@/graphql/Mutation/project-service';
 import { useOutletContext } from 'react-router-dom';
 const DetailSettings = () => {
+  const { projectClient } = useApolloClients();
   const { projectId } = useParams();
   const [project, setProject] = useState(null);
   const fileInputRef = useRef(null);
@@ -30,11 +32,12 @@ const DetailSettings = () => {
   };
 
   const { data, loading, error } = useQuery(FIND_PROJECT_BY_ID, {
+    client:projectClient,
     variables: { projectId },
     skip: !projectId,
   });
 
-  const [updateProjectDetails, { loading: updating }] = useMutation(UPDATE_PROJECT_DETAILS);
+  const [updateProjectDetails, { loading: updating }] = useMutation(UPDATE_PROJECT_DETAILS,{client:projectClient});
 
   useEffect(() => {
     if (data?.getProject) {

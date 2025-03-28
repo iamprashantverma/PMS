@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { GET_ALL_EPICS } from '@/graphql/Queries/task-service';
+import { useQuery } from '@apollo/client';
+import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import {
   ChevronRight,
   LayoutPanelTop,
   CalendarDays,
   ClipboardList,
   FileText,
+  LayoutDashboard,
   ListOrdered,
   Plus,
   Code2,
@@ -14,18 +18,24 @@ import {
   Settings,
   Archive,
   Menu,
-  X,
-  LayoutDashboard
+  X
 } from 'lucide-react';
 
 function Home() {
+  const { projectClient, taskClient } = useApolloClients();
   const [planning, setPlanning] = useState(true);
   const [development, setDevelopment] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(256); // 64 * 4 px
+  const [sidebarWidth, setSidebarWidth] = useState(256); 
   const isResizing = useRef(false);
   const sidebarRef = useRef();
-
+  const { loading, error, data } = useQuery(GET_ALL_EPICS, {
+    client: taskClient,
+  });
+  
+  if(!loading)
+      console.log(data.getAllEpics);
+  
   const sideBarHandler = (section) => {
     if (section === 'planning') setPlanning(!planning);
     else if (section === 'development') setDevelopment(!development);
@@ -50,7 +60,7 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-full w-full overflow-hidden ">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -63,6 +73,18 @@ function Home() {
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
+
+        {/* Project Info */}
+        {sidebarOpen && (
+          <div className="flex items-center gap-3 mb-6">
+            <img
+              src="https://via.placeholder.com/32"
+              alt="Project Logo"
+              className="w-8 h-8 rounded"
+            />
+            <span className="font-bold text-lg">Dummy Project</span>
+          </div>
+        )}
 
         {/* Planning Section */}
         <div className="mb-4">
@@ -82,7 +104,7 @@ function Home() {
             <div className="ml-6 mt-2 space-y-1 text-gray-700">
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><FileText size={16} /> Summary</div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><CalendarDays size={16} /> Timeline</div>
-              <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><LayoutDashboard size={16}  /> Board</div>
+              <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><LayoutDashboard size={16} /> Board</div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><CalendarDays size={16} /> Calendar</div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><ListOrdered size={16} /> List</div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500"><ClipboardList size={16} /> Forms</div>

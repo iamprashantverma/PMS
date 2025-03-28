@@ -21,3 +21,22 @@ export const createProjectClient = (accessToken) => {
     cache: new InMemoryCache(),
   });
 };
+
+export const createTaskClient = (accessToken) => {
+  const authLink = setContext((_, { headers }) => ({
+    headers: {
+      ...headers,
+      Authorization: accessToken ? `Bearer ${accessToken}` : '',
+    },
+  }));
+
+  const uploadLink = createUploadLink({
+    uri: 'http://localhost:8080/api/v1/tasks/graphql',
+  });
+
+  return new ApolloClient({
+    link: authLink.concat(uploadLink),
+    cache: new InMemoryCache(),
+  });
+};
+

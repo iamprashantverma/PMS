@@ -3,14 +3,17 @@ import { useQuery } from '@apollo/client';
 import { FIND_ALL_PROJECT_BY_USER } from '../../graphql/Queries/project-service';
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
+import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { Link } from 'react-router-dom';
 
 function ProjectDropDown() {
+  const { projectClient, taskClient } = useApolloClients();
   const { user } = useAuth();
   const userId = user?.id;
   const { dropDown, open ,setOpen} = useAppContext();
   const page = 0;
   const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
+    client:projectClient,
     variables: { userId,pageNo:page },
     skip: !userId, 
   });

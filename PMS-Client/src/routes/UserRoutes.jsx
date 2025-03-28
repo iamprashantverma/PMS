@@ -7,7 +7,7 @@ import ProfileSettings from '@/pages/ProfileSettings';
 import AllProject from '@/components/Project/AllProject';
 import DetailSettings from '@/components/Project/DetailSettings';
 import TeamsSettings from '@/components/Project/TeamsSettings';
-import CreateProjectForm from '@/components/Project/CreateProjectForn';
+import CreateProjectForm from '@/components/Project/CreateProjectForm';
 import Home from '@/components/Common/Home';
 
 function UserRoutes() {

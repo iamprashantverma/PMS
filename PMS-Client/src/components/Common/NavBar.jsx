@@ -13,13 +13,11 @@ import { Link } from 'react-router-dom';
 import ProjectDropDown from '../Project/ProjectDropDown';
 
 function NavBar() {
-
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
   const [notificationCount, setNotificationCount] = useState(6);
   const { setDropDown, dropDown, setOpen, open } = useAppContext();
   const dropdownRef = useRef(null);
-
 
   const handleDropDownToggle = (menu) => {
     if (dropDown === menu && open) {
@@ -30,33 +28,33 @@ function NavBar() {
       setOpen(true);
     }
   };
-  
+
   return (
     <nav
-      className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 shadow-sm px-4 sm:px-8 fixed"
+      className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 text-gray-800 shadow-md px-4 sm:px-8 fixed"
       ref={dropdownRef}
     >
       {/* Left Side */}
       <div className="flex items-center flex-1 gap-4">
-        <h1 className="text-xl sm:text-2xl font-semibold">PSM</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-blue-600">PSM</h1>
 
         {/* Full Menu for Desktop */}
         <div className="ml-[40px] hidden md:flex gap-9 text-md">
           {['Project', 'Your Work', 'Dashboards'].map((item) => (
             <div
               key={item}
-              className="flex items-center gap-1 cursor-pointer hover:text-blue-500"
+              className="flex items-center gap-1 cursor-pointer hover:text-blue-600"
               onClick={() => handleDropDownToggle(item.toLowerCase())}
             >
               <p>{item}</p>
               <ChevronDown className="w-4 h-4" />
             </div>
           ))}
-            <button
-              className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600 transition"
-            >
-              Create
-            </button>
+          <button
+            className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition"
+          >
+            Create
+          </button>
         </div>
       </div>
 
@@ -96,13 +94,13 @@ function NavBar() {
           )}
         </Link>
         <Link to="/support">
-          <HelpCircle className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500" />
+          <HelpCircle className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
         </Link>
         <Link to="/setting">
-          <Settings className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500" />
+          <Settings className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
         </Link>
         <Link to="/profile">
-          <User className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500" />
+          <User className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
         </Link>
       </div>
 
