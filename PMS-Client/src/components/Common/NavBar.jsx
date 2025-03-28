@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '@/context/AppContext';
+import { useNavigate } from 'react-router-dom';
 import {
   User,
   ChevronDown,
@@ -9,9 +10,11 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ProjectDropDown from './Project/ProjectDropDown';
+import ProjectDropDown from '../Project/ProjectDropDown';
 
 function NavBar() {
+
+  const navigate  = useNavigate();
   const [showMore, setShowMore] = useState(false);
   const [notificationCount, setNotificationCount] = useState(6);
   const { setDropDown, dropDown, setOpen, open } = useAppContext();
@@ -27,7 +30,7 @@ function NavBar() {
       setOpen(true);
     }
   };
-
+  
   return (
     <nav
       className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 shadow-sm px-4 sm:px-8 fixed"
@@ -49,7 +52,11 @@ function NavBar() {
               <ChevronDown className="w-4 h-4" />
             </div>
           ))}
-          <div className="cursor-pointer hover:text-blue-500">Create</div>
+            <button
+              className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600 transition"
+            >
+              Create
+            </button>
         </div>
       </div>
 

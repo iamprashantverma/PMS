@@ -35,6 +35,7 @@ export const FIND_PROJECT_BY_ID = gql`
       epicIds
       taskIds
       bugIds
+      notification
     }
   }
 `;

@@ -58,3 +58,14 @@ export const DELETE_PROJECT = gql`
     }
   }
 `;
+
+
+export const UPDATE_NOTIFICATION = gql`
+  mutation UpdateNotification($projectId: String!, $flag: Boolean!) {
+    updateNotification(projectId: $projectId, flag: $flag) {
+      message
+    }
+  }
+`;
+
+

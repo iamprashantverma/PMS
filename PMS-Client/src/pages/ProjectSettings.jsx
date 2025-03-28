@@ -39,7 +39,7 @@ function ProjectSettings() {
             Details
           </Link>
           <Link
-            to={`/project/${projectId}/setting/notifications`}
+            to={`notification`}
             className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-blue-100"
           >
             Notifications
