@@ -1,4 +1,3 @@
-// src/graphql/ApolloProvider/MultiApolloProvider.jsx
 import React, { useMemo } from 'react';
 import { ApolloClientsContext } from '../Clients/ApolloClientContext';
 import { createProjectClient, createTaskClient } from '../Clients/apolloClients';

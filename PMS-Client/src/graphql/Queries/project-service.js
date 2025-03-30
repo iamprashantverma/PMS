@@ -39,3 +39,30 @@ export const FIND_PROJECT_BY_ID = gql`
     }
   }
 `;
+
+export const FIND_ALL_PROJECT = gql`
+  query FindAllProject {
+    findAllProject {
+      projectId
+      title
+      description
+      startDate
+      deadline
+      endDate
+      createdAt
+      extendedDate
+      status
+      image
+      priority
+      projectCreator
+      clientId
+      memberIds
+      chatRoomIds
+      epicIds
+      taskIds
+      bugIds
+      notification
+    }
+  }
+`;
+

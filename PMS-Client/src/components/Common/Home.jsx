@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { GET_ALL_EPICS } from '@/graphql/Queries/task-service';
+import { GET_ALL_EPICS,GET_ALL_TASKS_BY_PROJECT_ID,GET_ALL_STORIES_BY_PROJECT_ID } from '@/graphql/Queries/task-service';
 import { useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import {
@@ -20,6 +20,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import Create from './Create';
 
 function Home() {
   const { projectClient, taskClient } = useApolloClients();
@@ -28,14 +29,8 @@ function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(256); 
   const isResizing = useRef(false);
-  const sidebarRef = useRef();
-  const { loading, error, data } = useQuery(GET_ALL_EPICS, {
-    client: taskClient,
-  });
-  
-  if(!loading)
-      console.log(data.getAllEpics);
-  
+  const sidebarRef = useRef();  
+
   const sideBarHandler = (section) => {
     if (section === 'planning') setPlanning(!planning);
     else if (section === 'development') setDevelopment(!development);
@@ -156,10 +151,11 @@ function Home() {
         onMouseDown={() => (isResizing.current = true)}
         className="w-1 cursor-col-resize bg-gray-300 hover:bg-gray-400"
       ></div>
-
+  
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 p-4 overflow-hidden">
+      <div className="flex-1 bg-gray-50 p-4 overflow-y-scroll">
         <Outlet />
+        <Create/>
       </div>
     </div>
   );
