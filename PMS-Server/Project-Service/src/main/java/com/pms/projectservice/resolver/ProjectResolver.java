@@ -1,6 +1,7 @@
 package com.pms.projectservice.resolver;
 
 import com.pms.projectservice.dto.ProjectDTO;
+import com.pms.projectservice.dto.ResponseDTO;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
 import com.pms.projectservice.services.ProjectService;
@@ -87,5 +88,11 @@ public class ProjectResolver {
     public List<ProjectDTO> findAllProject(@Argument("userId") String userId , @Argument("pageNo") int page){
         log.info("Finding All Project for the User ID,{}",userId);
         return projectService.findAllProject(userId,page);
+    }
+
+    @MutationMapping
+    public ResponseDTO updateNotification(@Argument("flag") boolean flag,@Argument("projectId") String projectId) {
+            log.info(" Update Project notification settings:{}",flag);
+            return projectService.updateNotification(projectId,flag);
     }
 }

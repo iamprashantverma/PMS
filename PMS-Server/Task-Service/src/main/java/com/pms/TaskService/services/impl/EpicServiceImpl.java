@@ -97,9 +97,7 @@ public class EpicServiceImpl implements EpicService {
         // call the project Service to ensure that given ProjectId is Valid
         ProjectDTO projectDTO = projectFeignClient.getProject(projectId);
         Epic epic = convertToEpicEntity(epicDTO);
-        epic.setStatus(Status.TODO);
         epic.setCreatedDate(LocalDate.now());
-
         Epic savedEpic = epicRepository.save(epic);
         // add the epic within the current project
         projectFeignClient.addEpicToProject(savedEpic.getProjectId(),savedEpic.getId());

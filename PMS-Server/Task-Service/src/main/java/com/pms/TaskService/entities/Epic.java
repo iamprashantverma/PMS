@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@DiscriminatorValue("EPIC") // Discriminator value stored in the "issue_type" column
+@DiscriminatorValue("EPIC")
 public class Epic extends Issue {
 
     /**

@@ -52,6 +52,7 @@ public abstract class Issue {
     private LocalDate createdDate;
     private LocalDate updatedDate;
     private LocalDate deadLine;
+    private String reporter;
 
     /**
      * Current status of the issue (TODO, IN_PROGRESS, DONE, etc.)

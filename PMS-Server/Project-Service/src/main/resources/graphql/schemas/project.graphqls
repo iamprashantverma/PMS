@@ -42,6 +42,11 @@ type ProjectA {
     epicIds:[String]
     taskIds:[String]
     bugIds:[String]
+    notification:Boolean
+}
+
+type ResponseDTO{
+    message:String
 }
 
 input ProjectInput {

@@ -8,7 +8,7 @@ type TaskDTO {
     updatedDate: String
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
+    label:String
     isBlocking : Boolean
     memberId : [String]
     deadline: Date!
@@ -22,7 +22,7 @@ input TaskInputDTO {
     description: String!
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
+    label:String
     isBlocking : Boolean
     deadline: Date!
     epicId:String

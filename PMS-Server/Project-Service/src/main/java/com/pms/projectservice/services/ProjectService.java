@@ -1,6 +1,7 @@
 package com.pms.projectservice.services;
 
 import com.pms.projectservice.dto.ProjectDTO;
+import com.pms.projectservice.dto.ResponseDTO;
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
 import org.springframework.web.multipart.MultipartFile;
@@ -143,4 +144,6 @@ public interface ProjectService {
      * */
     List<ProjectDTO> findAllProject(String creatorId,int page) ;
 
+
+    ResponseDTO updateNotification(String projectId, Boolean flag);
 }

@@ -10,8 +10,7 @@ type StoryDTO {
     deadline:Date
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
-
+    label:String
     acceptanceCriteria : String
     epic : EpicDTO
 }
@@ -25,4 +24,5 @@ input StoryInputDTO{
     priority: Priority
     tag: IssueTag
     deadline:Date
+    label:String
 }

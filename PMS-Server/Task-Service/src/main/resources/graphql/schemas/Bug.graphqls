@@ -11,6 +11,7 @@ input BugInput {
     expectedOutcome: String!
     actualOutcome: String!
     projectId:String
+    label:String
 }
 
 type BugDTO {
@@ -28,5 +29,6 @@ type BugDTO {
     deadline:Date
     projectId:String
     assignees:[String]
+    label:String
 
 }

@@ -109,4 +109,8 @@ public class BugDTO {
      * Percentage of completion of the bug fix.
      */
     private Integer completionPercent;
+    /**
+     * Label of the BUG
+     */
+    private String label;
 }

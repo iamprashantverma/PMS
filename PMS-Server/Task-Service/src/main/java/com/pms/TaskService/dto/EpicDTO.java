@@ -46,4 +46,5 @@ public class EpicDTO  {
     private Priority priority;
     private Long completionPercent;
     private LocalDate deadline;
+    private String reporter;
 }

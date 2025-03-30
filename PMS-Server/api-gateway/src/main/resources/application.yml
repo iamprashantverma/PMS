@@ -35,7 +35,7 @@ spring:
         - id: Task-Service
           uri: lb://Task-Service
           predicates:
-            - Path=/api/v3/tasks/**
+            - Path=/api/v1/tasks/**
           filters:
             - StripPrefix=2
             - AuthenticationFilter

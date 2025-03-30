@@ -3,6 +3,7 @@ package com.pms.projectservice.services.impl;
 import com.pms.projectservice.auth.UserContextHolder;
 import com.pms.projectservice.clients.UserFeignClient;
 import com.pms.projectservice.dto.ProjectDTO;
+import com.pms.projectservice.dto.ResponseDTO;
 import com.pms.projectservice.dto.UserDTO;
 import com.pms.projectservice.entities.Project;
 import com.pms.projectservice.entities.enums.Priority;
@@ -39,10 +40,18 @@ import static com.pms.projectservice.event.EventType.PROJECT_DEADLINE_EXTENDED;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ModelMapper modelMapper;
+
+
+
     private final ProjectRepository projectRepository;
     private final ProjectEventProducer producer;
     private  final UserFeignClient userFeignClient;
     private final CloudinaryService cloudinaryService;
+
+    private String getUserIdFromContext(){
+        return  UserContextHolder.getCurrentUserId();
+    }
+
     /* converting projectDTO projectEntity */
     private Project convertToProjectEntity(ProjectDTO projectDTO) {
         return modelMapper.map(projectDTO, Project.class);
@@ -146,6 +155,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public ProjectDTO createProject(ProjectDTO projectDTO) {
 
+        String userId = getUserIdFromContext();
         /* convert the projectDTO into the project Entity */
         Project newProject = convertToProjectEntity(projectDTO) ;
 
@@ -153,6 +163,7 @@ public class ProjectServiceImpl implements ProjectService {
         newProject.setStatus(Status.INITIATED);
         newProject.setProjectCreator(getCurrentUserId());
         log.info("project DTO:{}",newProject.getDeadline());
+        newProject.setProjectCreator(userId);
         /* persist the current project in to the DB*/
         Project savedProject = projectRepository.save(newProject);
 
@@ -296,14 +307,16 @@ public class ProjectServiceImpl implements ProjectService {
         if(file != null)
             url = cloudinaryService.uploadImage(file);
         project.setImage(url);
+
         /* saved into the DB*/
         Project modifedProject = projectRepository.save(project);
-
         log.info("project priority changed:{}",modifedProject);
+
         /* create the projectEvent */
         ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,oldPriority);
-
-//        producer.sendProjectEvent(projectEvent);
+        /* if notification allowed then only send  produce the notification event */
+        if (project.getNotification())
+            producer.sendProjectEvent(projectEvent);
 
         /* convert into the DTO and return it*/
         return  convertToProjectDTO(modifedProject);
@@ -423,6 +436,16 @@ public class ProjectServiceImpl implements ProjectService {
         return projectPage.getContent().stream()
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
                 .toList();
+    }
+
+    @Override
+    public ResponseDTO updateNotification(String projectId, Boolean flag) {
+        Project project = getProjectEntityById(projectId);
+        project.setNotification(flag);
+        projectRepository.save(project);
+        return ResponseDTO.builder()
+                .message("Notification setting updated  to :"+flag)
+                .build();
     }
 
 

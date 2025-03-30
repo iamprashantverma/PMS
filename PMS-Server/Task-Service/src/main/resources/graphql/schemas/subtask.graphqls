@@ -8,8 +8,8 @@ type SubTaskDTO {
     updatedDate: Date
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
     parentTask : TaskDTO
+    label:String
 }
 
 input SubTaskInputDTO{
@@ -18,6 +18,6 @@ input SubTaskInputDTO{
     taskId:String!
     status: IssueStatus!
     priority: Priority!
-    tag: IssueTag
+    label:String
     deadline: Date!
 }

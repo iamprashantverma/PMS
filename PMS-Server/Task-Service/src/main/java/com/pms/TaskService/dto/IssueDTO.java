@@ -23,10 +23,12 @@ public class IssueDTO {
     private String projectId;
     private List<String> assignees;
     private String creator;
+    private String reporter;
     private LocalDate createdDate;
     private LocalDate updatedDate;
     private Status status;
     private Priority priority;
     private Long completionPercent;
+    private String label;
     
 }

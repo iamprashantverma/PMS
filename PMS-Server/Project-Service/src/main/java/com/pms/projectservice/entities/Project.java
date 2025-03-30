@@ -2,7 +2,6 @@ package com.pms.projectservice.entities;
 
 import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -57,6 +56,8 @@ public class Project {
     private String clientId;
 
     private String image;
+
+    private Boolean notification;
 
     @ElementCollection
     private Set<String> memberIds = new HashSet<>();

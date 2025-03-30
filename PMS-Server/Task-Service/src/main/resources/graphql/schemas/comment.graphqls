@@ -6,5 +6,6 @@ type CommentDTO {
 input CommentInput{
     taskId:String
     userId:String
+
     message:String
 }

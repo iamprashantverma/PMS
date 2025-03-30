@@ -16,6 +16,7 @@ type EpicDTO {
     epicGoal : String
     stories : [StoryDTO]
     tasks : [TaskDTO]
+    label:String
 }
 
 input EpicInputDTO{
@@ -24,8 +25,8 @@ input EpicInputDTO{
     status: IssueStatus!
     projectId:String!
     priority: Priority!
-    tag: IssueTag
+    label:String!
     epicGoal : String
     deadline:Date!
-
+    reporter:String!
 }

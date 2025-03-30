@@ -35,5 +35,7 @@ public class TaskDTO {
     private boolean isBlocking;
     private String epicId;
     private String storyId;
+    private String label;
+    private String reporter;
     private List<String> subTaskIds = new ArrayList<>();
 }

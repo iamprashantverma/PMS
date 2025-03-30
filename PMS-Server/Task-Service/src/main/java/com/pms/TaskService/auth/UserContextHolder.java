@@ -1,4 +1,4 @@
-package com.pms.projectservice.auth;
+package com.pms.TaskService.auth;
 
 public class UserContextHolder {
     private static final ThreadLocal<String> currentUserId = new  ThreadLocal<>();

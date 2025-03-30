@@ -12,7 +12,7 @@ type IssueDTO{
     deadline:Date
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
+    label:String
 }
 
 type ResponseDTO{
