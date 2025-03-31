@@ -39,7 +39,7 @@ public class ProjectDTO {
     private LocalDate deadline;
 
     private LocalDate extendedDate;
-
+    private String projectCreator;
 //  @NotNull(message = "Project status is required")
     private Status status;
 

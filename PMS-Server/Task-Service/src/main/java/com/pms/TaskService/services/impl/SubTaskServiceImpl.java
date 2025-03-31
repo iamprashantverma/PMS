@@ -67,7 +67,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .title(subTask.getTitle())
                 .eventType(EventType.SUBTASK)
                 .deadline(subTask.getDeadLine())
-                .createdDate(subTask.getCreatedDate())
+                .createdDate(subTask.getCreatedAt())
                 .newStatus(subTask.getStatus())
                 .assignees(subTask.getAssignees())
                 .build();

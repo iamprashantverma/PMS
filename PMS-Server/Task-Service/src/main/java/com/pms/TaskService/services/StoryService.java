@@ -3,6 +3,7 @@ package com.pms.TaskService.services;
 import com.pms.TaskService.dto.*;
 import com.pms.TaskService.entities.Story;
 import com.pms.TaskService.entities.enums.Status;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface StoryService {
      * @param storyDTO The Story data transfer object containing story details.
      * @return The created Story as a StoryDTO.
      */
-    StoryDTO createStory(StoryDTO storyDTO);
+    StoryDTO createStory(StoryDTO storyDTO, MultipartFile file);
 
     /**
      * Updates an existing Story.

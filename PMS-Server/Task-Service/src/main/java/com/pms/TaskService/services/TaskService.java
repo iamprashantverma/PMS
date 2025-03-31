@@ -5,6 +5,7 @@ import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.Task;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.exceptions.ResourceNotFound;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface TaskService {
      * @param taskDTO The data transfer object containing the task details.
      * @return The created task as a TaskDTO.
      */
-    public TaskDTO createTask(TaskDTO taskDTO);
+    public TaskDTO createTask(TaskDTO taskDTO, MultipartFile file);
 
     /**
      * Retrieves a task by its unique identifier.

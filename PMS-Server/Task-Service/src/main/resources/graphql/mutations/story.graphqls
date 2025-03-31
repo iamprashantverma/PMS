@@ -1,8 +1,8 @@
- extend type Mutation {
-     createStory(story:StoryInputDTO) : StoryDTO
-     deleteStory(storyId:String!): StoryDTO
-     updateStory(storyDTO:StoryInputDTO!):StoryDTO
-     assignUserToStory(userId:String!,storyId:String!):StoryDTO
-     unassignUserFromStory(storyId:String!,userId:String!):StoryDTO
-     changeStoryStatus(storyId:String!,status:IssueStatus):StoryDTO
-}
+      extend type Mutation {
+          createStory(story:StoryInput,image:Upload) : StoryDTO
+          deleteStory(storyId:String!): StoryDTO
+          updateStory(storyDTO:StoryInput!):StoryDTO
+          assignUserToStory(userId:String!,storyId:String!):StoryDTO
+          unassignUserFromStory(storyId:String!,userId:String!):StoryDTO
+          changeStoryStatus(storyId:String!,status:IssueStatus):StoryDTO
+     }

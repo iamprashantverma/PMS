@@ -13,12 +13,14 @@ import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.StoryRepository;
+import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.StoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,43 +37,21 @@ public class StoryServiceImpl implements StoryService {
     private final EpicRepository epicRepository;
     private final TaskEventProducer taskEventProducer;
     private final CalendarEventProducer calendarEventProducer;
+    private final CloudinaryService cloudinaryService;
 
-    /**
-     * Converts a StoryDTO to a Story entity.
-     *
-     * @param storyDTO The StoryDTO object.
-     * @return The corresponding Story entity.
-     */
+
     private Story convertToEntity(StoryDTO storyDTO) {
         return modelMapper.map(storyDTO, Story.class);
     }
 
-    /**
-     * Converts a Story entity to a StoryDTO.
-     *
-     * @param storyId The Story entity.
-     * @return The corresponding StoryDTO object.
-     */
     private StoryDTO convertToDTO(Story storyId) {
         return modelMapper.map(storyId, StoryDTO.class);
     }
 
-    /**
-     * find the Story Entity by storyId
-     * @param storyId story id to find
-     * @return Story
-     */
     private Story getStoryEntity(String  storyId) {
         return storyRepository.findById(storyId)
                 .orElseThrow(() -> new ResourceNotFound("Story not found: " + storyId));
     }
-
-    /**
-     * Generates a TaskEvent for Kafka messaging.
-     *
-     * @param story  The Story entity.
-     * @return The generated TaskEvent.
-     */
 
     private TaskEvent generateTaskEvent(Story story) {
         return TaskEvent.builder()
@@ -81,7 +61,7 @@ public class StoryServiceImpl implements StoryService {
                 .eventType(EventType.STORY)
                 .assignees(story.getAssignees())
                 .deadline(story.getDeadLine())
-                .createdDate(story.getCreatedDate())
+                .createdDate(story.getCreatedAt())
                 .description(story.getDescription())
                 .priority(story.getPriority())
                 .build();
@@ -89,13 +69,14 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     @Transactional
-    public StoryDTO createStory(StoryDTO storyDTO) {
+    public StoryDTO createStory(StoryDTO storyDTO, MultipartFile file) {
+
         // convert into the story entity
         Story story = convertToEntity(storyDTO);
-        story.setCreatedDate(LocalDate.now());
+        String imageUrl = cloudinaryService.uploadImage(file);
+        story.setImage(imageUrl);
         // saved the new story into the DB
         Story savedStory = storyRepository.save(story);
-
         // add story into the epic
         String epicId = storyDTO.getEpicId();
         if (epicId ==null)
@@ -118,11 +99,11 @@ public class StoryServiceImpl implements StoryService {
         Story story = getStoryEntity(storyDTO.getId());
         if (story.getStatus() == Status.COMPLETED)
             throw  new ResourceNotFound("Story is Already Completed , Can't Modified");
-        story.setUpdatedDate(LocalDate.now());
+        story.setUpdatedAt(LocalDate.now());
 
         Story modifiedStory = modelMapper.map(storyDTO, Story.class);
         // persist into the db
-        modifiedStory.setUpdatedDate(LocalDate.now());
+        modifiedStory.setUpdatedAt(LocalDate.now());
         modifiedStory.setAssignees(story.getAssignees());
         modifiedStory.setTasks(story.getTasks());
         modifiedStory.setEpic(story.getEpic());
@@ -244,7 +225,7 @@ public class StoryServiceImpl implements StoryService {
     public StoryDTO changeStoryStatus(String storyId, Status status) {
 
             Story story = getStoryEntity(storyId);
-            story.setUpdatedDate(LocalDate.now());
+            story.setUpdatedAt(LocalDate.now());
             Status oldStatus = story.getStatus();
             story.setStatus(status);
             storyRepository.save(story);

@@ -55,8 +55,7 @@ public class EpicServiceImpl implements EpicService {
                 .priority(epic.getPriority())
                 .deadline(epic.getDeadLine())
                 .description(epic.getDescription())
-                .createdDate(epic.getCreatedDate())
-                .assignees(epic.getAssignees())
+                .createdDate(epic.getCreatedAt())
                 .build();
     }
 
@@ -97,7 +96,7 @@ public class EpicServiceImpl implements EpicService {
         // call the project Service to ensure that given ProjectId is Valid
         ProjectDTO projectDTO = projectFeignClient.getProject(projectId);
         Epic epic = convertToEpicEntity(epicDTO);
-        epic.setCreatedDate(LocalDate.now());
+        epic.setCreatedAt(LocalDate.now());
         Epic savedEpic = epicRepository.save(epic);
         // add the epic within the current project
         projectFeignClient.addEpicToProject(savedEpic.getProjectId(),savedEpic.getId());
@@ -119,7 +118,7 @@ public class EpicServiceImpl implements EpicService {
         Status oldStatus = existingEpic.getStatus();
 
         existingEpic.setStatus(newStatus);
-        existingEpic.setUpdatedDate(LocalDate.now());
+        existingEpic.setUpdatedAt(LocalDate.now());
         Epic savedEpic = epicRepository.save(existingEpic);
 
         if (!oldStatus.equals(newStatus)) {

@@ -9,6 +9,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,9 +27,9 @@ public class StoryResolver {
      * @return the created StoryDTO
      */
     @MutationMapping
-    public StoryDTO createStory(@Argument("story") StoryDTO story) {
-        log.info("Creating story: {}", story);
-        return storyService.createStory(story);
+    public StoryDTO createStory(@Argument("story") StoryDTO story, @Argument("image")MultipartFile file) {
+        log.info("Creating story: {},{}", story,file);
+        return storyService.createStory(story,file);
     }
 
     /**

@@ -177,6 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
     /* fetching the project by their ID */
     @Override
     public ProjectDTO getProjectById(String projectId) {
+        System.out.println(projectId);
         /* fetching the project from the DB */
         Project project = getProjectEntityById(projectId);
         /* converting the project into the projectDto and return it*/
@@ -429,9 +430,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectDTO> findAllProject(String creatorId, int page) {
+    public List<ProjectDTO> findAllProject( int page) {
         Pageable pageable = PageRequest.of(page, 5);
-        Page<Project> projectPage = projectRepository.findByCreatorOrMemberAndStatusNotCompleted(creatorId, pageable);
+        Page<Project> projectPage = projectRepository.findAll(pageable);
         log.info("size,{}", projectPage.getContent().size());
         return projectPage.getContent().stream()
                 .map(project -> modelMapper.map(project, ProjectDTO.class))

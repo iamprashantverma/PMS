@@ -17,6 +17,7 @@ import com.pms.TaskService.producer.TaskEventProducer;
 import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.StoryRepository;
 import com.pms.TaskService.repository.TaskRepository;
+import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.TaskService;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +45,7 @@ public class TaskServiceImpl implements TaskService {
     private final CalendarEventProducer calendarEventProducer;
     private final ProjectFeignClient projectFeignClient;
     private final StoryRepository storyRepository;
+    private final CloudinaryService cloudinaryService;
 
     /**
      * convert the Task entity into the TaskDTO
@@ -74,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
                .assignees(taskDTO.getAssignees())
                .projectId(taskDTO.getProjectId())
                .eventType(EventType.TASK)
-               .createdDate(taskDTO.getCreatedDate())
+               .createdDate(taskDTO.getCreatedAt())
                .priority(taskDTO.getPriority())
                .deadline(taskDTO.getDeadLine())
                .description(taskDTO.getDescription())
@@ -93,12 +96,16 @@ public class TaskServiceImpl implements TaskService {
 
    @Override
    @Transactional
-    public TaskDTO createTask(TaskDTO taskDTO) {
+    public TaskDTO createTask(TaskDTO taskDTO, MultipartFile file) {
 
         Task task = convertToEntity(taskDTO) ;
-        task.setStatus(Status.TODO);
-        task.setCreatedDate(LocalDate.now());
 
+        if (taskDTO.getEpicId() != null) {
+            Epic epic = epicRepository.findById(taskDTO.getEpicId()).orElseThrow(()->new ResourceNotFound("Invalid Epic ID"));
+        }
+
+        String imageUrl = cloudinaryService.uploadImage(file);
+        task.setImage(imageUrl);
         Task savedTask = taskRepository.save(task);
 
         // add the task into the epic if epic id present
@@ -139,7 +146,6 @@ public class TaskServiceImpl implements TaskService {
 
         //  Retrieve the Task entity by its taskId
         Task task = getTaskEntity(taskId); // Assuming a method that retrieves Task by ID
-
         // Check if all subtasks are completed
         boolean allSubtasksCompleted = task.getSubTasks().stream()
                 .allMatch(subTask -> subTask.getCompletionPercent() == 100 || subTask.getStatus() == Status.COMPLETED);
@@ -181,8 +187,8 @@ public class TaskServiceImpl implements TaskService {
         toBeModifiedTask.setProjectId(existingTask.getProjectId());
         toBeModifiedTask.setSubTasks(existingTask.getSubTasks());
 
-        toBeModifiedTask.setUpdatedDate(LocalDate.now());
-        toBeModifiedTask.setCreatedDate(existingTask.getCreatedDate());
+        toBeModifiedTask.setUpdatedAt(LocalDate.now());
+        toBeModifiedTask.setCreatedAt(existingTask.getCreatedAt());
 
         Task modifiedTask =  taskRepository.save(toBeModifiedTask);
 

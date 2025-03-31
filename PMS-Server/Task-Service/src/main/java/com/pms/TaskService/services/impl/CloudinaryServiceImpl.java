@@ -1,8 +1,8 @@
-package com.pms.projectservice.services.impl;
+package com.pms.TaskService.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.pms.projectservice.services.CloudinaryService;
+import com.pms.TaskService.services.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

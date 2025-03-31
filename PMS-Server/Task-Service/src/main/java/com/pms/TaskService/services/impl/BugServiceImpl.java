@@ -80,7 +80,7 @@ public class BugServiceImpl implements BugService {
                 .priority(bug.getPriority())
                 .eventType(EventType.BUG)
                 .deadline(bug.getDeadLine())
-                .createdDate(bug.getCreatedDate())
+                .createdDate(bug.getCreatedAt())
                 .description(bug.getDescription())
                 .build();
     }
@@ -109,7 +109,7 @@ public class BugServiceImpl implements BugService {
             Task task1 = taskRepository.findById(taskId).orElseThrow(()->
                     new ResourceNotFound("Invalid Task iD "));
         }
-        bug.setCreatedDate(LocalDate.now());
+        bug.setCreatedAt(LocalDate.now());
         // Save the Bug
         Bug savedBug = bugRepository.save(bug);
 
@@ -172,11 +172,11 @@ public class BugServiceImpl implements BugService {
         Status oldStatus = existingBug.getStatus();
         Priority oldPriority = existingBug.getPriority() ;
 
-        toBeModified.setUpdatedDate(LocalDate.now());
-        toBeModified.setCreatedDate(existingBug.getCreatedDate());
+        toBeModified.setUpdatedAt(LocalDate.now());
+        toBeModified.setCreatedAt(existingBug.getCreatedAt());
         toBeModified.setId(id);
-        toBeModified.setCreatedDate(existingBug.getCreatedDate());
-        toBeModified.setUpdatedDate(LocalDate.now());
+        toBeModified.setCreatedAt(existingBug.getCreatedAt());
+        toBeModified.setUpdatedAt(LocalDate.now());
         toBeModified.setAssignees(existingBug.getAssignees());
         toBeModified.setStory(existingBug.getStory());
         toBeModified.setEpic(existingBug.getEpic());
@@ -184,7 +184,7 @@ public class BugServiceImpl implements BugService {
         Bug savedBug =  bugRepository.save(toBeModified);
 
         TaskEvent taskEvent = generateTaskEvent(toBeModified);
-        taskEvent.setCreatedDate(savedBug.getCreatedDate());
+        taskEvent.setCreatedDate(savedBug.getCreatedAt());
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(bugDTO.getStatus());
         taskEvent.setDeadline(bugDTO.getDeadline());

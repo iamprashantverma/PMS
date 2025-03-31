@@ -5,18 +5,17 @@ type TaskDTO {
     description: String
     project: String
     assignees: [String]
-    updatedDate: String
+    updatedAt: String
     status: IssueStatus
     priority: Priority
     label:String
-    isBlocking : Boolean
     memberId : [String]
     deadline: Date!
     epic : EpicDTO
     subTasks : [SubTaskDTO]
 }
 
-input TaskInputDTO {
+input TaskInput{
     id:String
     title: String!
     description: String!
@@ -27,6 +26,9 @@ input TaskInputDTO {
     deadline: Date!
     epicId:String
     storyId:String
+    projectId:String,
+    reporter:String
+    createdAt:String
 
 }
 

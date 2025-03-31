@@ -6,12 +6,14 @@ input BugInput {
     storyId: String
     taskId: String
     status: IssueStatus!
+    deadline:Date
+    reporter:String
     priority: Priority!
-    tag: IssueTag
     expectedOutcome: String!
     actualOutcome: String!
     projectId:String
     label:String
+    createdAt:Date
 }
 
 type BugDTO {

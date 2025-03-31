@@ -5,24 +5,26 @@ type StoryDTO {
     project: String
     assignees: [String]
     creator: String
-    createdDate: Date
-    updatedDate: Date
+    createdAt: Date
     deadline:Date
     status: IssueStatus
     priority: Priority
     label:String
-    acceptanceCriteria : String
     epic : EpicDTO
+    projectId:String
+    reporter:String
 }
 
-input StoryInputDTO{
+input StoryInput{
     id:String
     title: String
-    epicId:String!
+    epicId:String
     description: String
     status: IssueStatus
     priority: Priority
-    tag: IssueTag
+    createdAt:Date
     deadline:Date
     label:String
+    projectId:String
+    reporter:String
 }

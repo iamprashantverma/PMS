@@ -15,7 +15,7 @@ public class Controller {
     private final ProjectService projectService;
 
     @GetMapping
-    public ProjectDTO getProjectDetails(@RequestParam(name = "projectId")String projectId) {
+    public ProjectDTO getProjectDetails(@RequestParam("projectId")String projectId) {
         return  projectService.getProjectById(projectId);
     }
 

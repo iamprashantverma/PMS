@@ -11,6 +11,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class BugResolver {
      * @return the created BugDTO
      */
     @MutationMapping
-    public BugDTO createBug(@Argument("bugInput") BugDTO bugInput) {
-        log.info("Creating bug with input: {}", bugInput);
+    public BugDTO createBug(@Argument("bugInput") BugDTO bugInput, @Argument("image")MultipartFile file) {
+        log.info("Creating bug with input: {} and file{}", bugInput,file);
         return bugService.createBug(bugInput);
     }
 

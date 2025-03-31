@@ -139,10 +139,10 @@ public interface ProjectService {
     ProjectDTO addBugInToTheProject(String projectId, String bugId);
 
     /**
-     * @param  creatorId the to find all their project
+     * @param  the to find all their project
      * @return List<ProjectDTO> all their project created by them or int which assigned by
      * */
-    List<ProjectDTO> findAllProject(String creatorId,int page) ;
+    List<ProjectDTO> findAllProject(int page) ;
 
 
     ResponseDTO updateNotification(String projectId, Boolean flag);

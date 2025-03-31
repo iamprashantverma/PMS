@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class TaskResolver {
      * @return  TaskDTO
      */
     @MutationMapping
-    public TaskDTO createTask(@Argument("task") TaskDTO taskDTO){
-        TaskDTO task = taskService.createTask(taskDTO);
+    public TaskDTO createTask(@Argument("task") TaskDTO taskDTO, @Argument("image")MultipartFile file){
+        TaskDTO task = taskService.createTask(taskDTO,file);
         log.info(task.getTitle());
         return task;
     }

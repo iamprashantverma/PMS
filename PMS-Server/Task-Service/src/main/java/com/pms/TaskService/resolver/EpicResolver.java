@@ -10,6 +10,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,8 +31,8 @@ public class EpicResolver {
      * @return The created EpicDTO.
      */
     @MutationMapping
-    public EpicDTO createEpic(@Argument("epic") EpicDTO epicDTO) {
-        log.info("Creating Epic: {}", epicDTO);
+    public EpicDTO createEpic(@Argument("epic") EpicDTO epicDTO,@Argument("image") MultipartFile file) {
+        log.info("Creating Epic: {},{}", epicDTO,file );
         return epicService.createEpic(epicDTO);
     }
 

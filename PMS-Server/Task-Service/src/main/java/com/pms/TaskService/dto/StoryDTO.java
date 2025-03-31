@@ -32,8 +32,8 @@ public class StoryDTO extends IssueDTO {
     private String projectId;
     private List<String> assignees;
     private String creator;
-    private LocalDate createdDate;
-    private LocalDate updatedDate;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
     private Status status;
     private Priority priority;
     private Long completionPercent;

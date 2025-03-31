@@ -1,5 +1,5 @@
 type Mutation{
-    createEpic(epic:EpicInputDTO) : EpicDTO
+    createEpic(epic:EpicInput,image:Upload) : EpicDTO
     deleteEpic(epicId:String): EpicDTO
     updateEpicStatus(epicId:String!,status:IssueStatus!):EpicDTO
     assignMemberToEpic(epicId:String!, memberId:String!):EpicDTO

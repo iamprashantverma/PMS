@@ -85,9 +85,9 @@ public class ProjectResolver {
         return projectService.deleteProject(projectId);
     }
     @QueryMapping
-    public List<ProjectDTO> findAllProject(@Argument("userId") String userId , @Argument("pageNo") int page){
-        log.info("Finding All Project for the User ID,{}",userId);
-        return projectService.findAllProject(userId,page);
+    public List<ProjectDTO> findAllProject( @Argument("pageNo") int page){
+        log.info("Finding All Project for the User ID,{}");
+        return projectService.findAllProject(page);
     }
 
     @MutationMapping

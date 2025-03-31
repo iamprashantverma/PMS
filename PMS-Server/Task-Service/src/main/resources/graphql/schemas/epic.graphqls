@@ -17,9 +17,10 @@ type EpicDTO {
     stories : [StoryDTO]
     tasks : [TaskDTO]
     label:String
+
 }
 
-input EpicInputDTO{
+input EpicInput{
     title: String!
     description: String!
     status: IssueStatus!
@@ -29,4 +30,5 @@ input EpicInputDTO{
     epicGoal : String
     deadline:Date!
     reporter:String!
+    createdAt:Date
 }

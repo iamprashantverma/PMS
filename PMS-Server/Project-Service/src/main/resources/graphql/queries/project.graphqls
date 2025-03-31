@@ -3,6 +3,6 @@
     getGreet(msg:String!):String
     getProjectsByStatus(status:Status):[ProjectA]
     searchProjectsByTitle(title:String):[ProjectA]
-    findAllProject(userId:String,pageNo:Int=0):[ProjectA]
+    findAllProject(pageNo:Int=0):[ProjectA]
 
 }
