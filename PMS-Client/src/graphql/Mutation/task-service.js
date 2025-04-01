@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client';
+
 export const CREATE_EPIC = gql`
-  mutation CreateEpic($epic: EpicInput!) {
-    createEpic(epic: $epic) {
+  mutation CreateEpic($epic: EpicInput!, $image: Upload) {
+    createEpic(epic: $epic, image: $image) {
       id
       title
       description
@@ -15,14 +16,14 @@ export const CREATE_EPIC = gql`
       priority
       tag
       epicGoal
+      label
     }
   }
 `;
 
 
-
 export const CREATE_BUG = gql`
-  mutation CreateBug($bugInput: BugInput!) {
+  mutation CreateBug($bugInput: BugInput) {
     createBug(bugInput: $bugInput) {
       id
       title
@@ -33,8 +34,6 @@ export const CREATE_BUG = gql`
       status
       priority
       tag
-      createdDate
-      updatedDate
       deadline
       projectId
       assignees
@@ -46,21 +45,16 @@ export const CREATE_BUG = gql`
 
 
 export const CREATE_STORY = gql`
-  mutation CreateStory($story: StoryInput!) {
-    createStory(story: $story) {
-      id
+  mutation CreateStory($story: StoryInput!, $image: Upload) {
+    createStory(story: $story, image: $image) {
       title
-      description
-      project
-      assignees
-      creator
-      createdDate
-      updatedDate
-      deadline
       status
       priority
+      deadline
       label
-      acceptanceCriteria
+      projectId
+      reporter
+      createdAt
     }
   }
 `;
@@ -68,19 +62,18 @@ export const CREATE_STORY = gql`
 
 
 
-export const CREATE_TASK = gql`
-  mutation CreateTask($task: TaskInput!) {
-    createTask(task: $task) {
+
+ export const CREATE_TASK = gql`
+  mutation CreateTask($task: TaskInput!, $image:Upload) {
+    createTask(task: $task, image: $image) {
       id
       title
       description
       project
       assignees
-      updatedDate
       status
       priority
       label
-      isBlocking
       memberId
       deadline
     }

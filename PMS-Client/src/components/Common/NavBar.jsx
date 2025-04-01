@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProjectDropDown from '../Project/ProjectDropDown';
+import CreateTaskForm from './CreateTaskForm';
 
 function NavBar() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function NavBar() {
   const [notificationCount, setNotificationCount] = useState(6);
   const { setDropDown, dropDown, setOpen, open } = useAppContext();
   const dropdownRef = useRef(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const handleDropDownToggle = (menu) => {
     if (dropDown === menu && open) {
@@ -29,6 +31,9 @@ function NavBar() {
     }
   };
 
+  console.log(createOpen);
+
+
   return (
     <nav
       className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 text-gray-800 shadow-md px-4 sm:px-8 fixed"
@@ -36,8 +41,10 @@ function NavBar() {
     >
       {/* Left Side */}
       <div className="flex items-center flex-1 gap-4">
-        <h1 className="text-xl sm:text-2xl font-semibold text-blue-600">PSM</h1>
-
+        <Link to="/" className="text-xl sm:text-2xl font-semibold text-blue-600">
+          PSM
+        </Link>
+        {createOpen && <CreateTaskForm setCreateOpen={setCreateOpen} />}
         {/* Full Menu for Desktop */}
         <div className="ml-[40px] hidden md:flex gap-9 text-md">
           {['Project', 'Your Work', 'Dashboards'].map((item) => (
@@ -51,6 +58,7 @@ function NavBar() {
             </div>
           ))}
           <button
+            onClick={()=>setCreateOpen(true)}
             className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition"
           >
             Create

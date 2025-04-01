@@ -5,8 +5,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function ProjectDropDown() {
+  const navigate = useNavigate();
   const { projectClient, taskClient } = useApolloClients();
   const { user } = useAuth();
   const userId = user?.id;
@@ -48,7 +50,7 @@ function ProjectDropDown() {
       {/* Scrollable project list */}
       <div className="max-h-[35vh] overflow-y-auto p-2 space-y-1">
         {projects.map((project) => (
-          <div
+          <div onClick={()=>{setOpen(false),navigate(`/project/${project.projectId}`)}}
             key={project.projectId}
             className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded transition"
           >

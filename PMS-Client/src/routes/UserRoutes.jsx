@@ -16,7 +16,7 @@ function UserRoutes() {
       {/* Wrap all user routes with PrivateRoutes */}
       <Route element={<PrivateRoutes />}>
         <Route path="/profile" element={<ProfileSettings />} />
-        <Route path='/'element={<Home/>} />
+        <Route path='/project/:projectId'element={<Home/>} />
         <Route path="/projects" element={<AllProject />} />
         <Route path='/create'  element={<CreateProjectForm/>} />
 

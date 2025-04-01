@@ -57,7 +57,7 @@ export const GET_ALL_SUBTASKS = gql`
 `;
 
 export const GET_ALL_STORIES_BY_PROJECT_ID = gql`
-  query GetAllStoriesByProjectId($projectId: ID!) {
+  query GetAllStoriesByProjectId($projectId: String!) {
     getAllStoriesByProjectId(projectId: $projectId) {
       id
       title
@@ -65,13 +65,11 @@ export const GET_ALL_STORIES_BY_PROJECT_ID = gql`
       project
       assignees
       creator
-      createdDate
-      updatedDate
+      createdAt
       deadline
       status
       priority
       label
-      acceptanceCriteria
     }
   }
 `;
@@ -147,6 +145,25 @@ export const GET_TASKS_BY_STATUS = gql`
       isBlocking
       memberId
       deadline
+    }
+  }
+`;
+
+export const GET_ALL_EPICS_BY_PROJECT_ID = gql`
+  query GetAllEpicsByProjectId($projectId: String!) {
+    getAllEpicsByProjectId(projectId: $projectId) {
+      id
+      title
+      description
+      project
+      assignees
+      createdDate
+      creator
+      updatedDate
+      deadline
+      status
+      priority
+      epicGoal
     }
   }
 `;

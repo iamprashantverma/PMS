@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const FIND_ALL_PROJECT_BY_USER = gql`
-    query FindAllProject($userId: String!, $pageNo: Int) {
-      findAllProject(userId: $userId, pageNo: $pageNo) {
+    query FindAllProject($pageNo: Int) {
+      findAllProject(pageNo: $pageNo) {
       projectId
       title
       description

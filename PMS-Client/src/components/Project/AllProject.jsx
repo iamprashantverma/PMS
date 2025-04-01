@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Link } from 'react-router-dom';
 import { FIND_ALL_PROJECT_BY_USER } from '@/graphql/Queries/project-service';
 import { DELETE_PROJECT } from '@/graphql/Mutation/project-service';
 import { toast } from 'react-toastify';
@@ -10,20 +11,22 @@ import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 
 function AllProject() {
   const { user } = useAuth();
+
   const userId = user?.id;
   const navigate = useNavigate();
-  const { projectClient } = useApolloClients(); // Only using projectClient here
+  const { projectClient } = useApolloClients(); 
   const [page, setPage] = useState(0);
   const [openActionMenu, setOpenActionMenu] = useState(null);
 
-  // ✅ Use correct client for query
+
   const { data, loading, error, refetch } = useQuery(FIND_ALL_PROJECT_BY_USER, {
     client: projectClient,
-    variables: { userId, pageNo: page },
+    variables: { pageNo: page },
     skip: !userId,
   });
 
-  // ✅ Use correct client for mutation
+
+
   const [deleteProject] = useMutation(DELETE_PROJECT, {
     client: projectClient,
     onCompleted: () => {
@@ -73,7 +76,7 @@ function AllProject() {
         <table className="min-w-full text-left text-sm sm:text-base">
           <thead className="bg-blue-50 text-blue-800 font-semibold">
             <tr>
-              <th className="p-3">Project ID</th>
+              <th  className="p-3">Project ID</th>
               <th className="p-3">Title</th>
               <th className="p-3">Description</th>
               <th className="p-3">Status</th>
@@ -85,16 +88,16 @@ function AllProject() {
           <tbody className="text-gray-700">
             {projects.map((project) => (
               <tr key={project.projectId} className="border-t hover:bg-gray-50 relative">
-                <td className="p-3">{project.projectId}</td>
+                <td onClick={()=>navigate(`/project/${project.projectId}`)} className="p-3">{project.projectId}</td>
                 <td className="p-3">{project.title}</td>
                 <td className="p-3">{project.description}</td>
-                <td className="p-3">{project.status}</td>
+                <Link className="p-3">{project.status}</Link>
                 <td className="p-3">{project.priority}</td>
                 <td className="p-3">{project.projectCreator}</td>
                 <td className="p-3 text-center relative">
-                  <button onClick={() => toggleActionMenu(project.projectId)}>
+                 { project.projectCreator === user.id && <button onClick={() => toggleActionMenu(project.projectId)}>
                     <MoreVertical size={20} className="text-gray-600 hover:text-gray-900" />
-                  </button>
+                  </button>}
                   {openActionMenu === project.projectId && (
                     <div className="absolute right-5 top-10 bg-white border rounded shadow-md z-10 w-36 text-sm">
                       <button

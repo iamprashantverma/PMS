@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { GET_ALL_EPICS,GET_ALL_TASKS_BY_PROJECT_ID,GET_ALL_STORIES_BY_PROJECT_ID } from '@/graphql/Queries/task-service';
+import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { useQuery } from '@apollo/client';
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import {
   ChevronRight,
@@ -20,10 +23,13 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import Create from './Create';
+import KanbanBoard from './Board';
 
 function Home() {
-  const { projectClient, taskClient } = useApolloClients();
+  const navigate = useNavigate();
+  const {user} = useAuth();
+  const { projectId } = useParams();
+  const { projectClient } = useApolloClients();
   const [planning, setPlanning] = useState(true);
   const [development, setDevelopment] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -31,31 +37,23 @@ function Home() {
   const isResizing = useRef(false);
   const sidebarRef = useRef();  
 
+  // Fetch project data
+  const { data, loading, error } = useQuery(FIND_PROJECT_BY_ID, {
+    client: projectClient,
+    variables: { projectId },
+    skip: !projectId, 
+  });
+  
+  const project = data?.getProject || {};
+  console.log(user,project)
+
   const sideBarHandler = (section) => {
     if (section === 'planning') setPlanning(!planning);
     else if (section === 'development') setDevelopment(!development);
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (isResizing.current) {
-        const newWidth = Math.max(64, Math.min(320, e.clientX));
-        setSidebarWidth(newWidth);
-      }
-    };
-    const handleMouseUp = () => {
-      isResizing.current = false;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, []);
-
   return (
-    <div className="flex h-full w-full overflow-hidden ">
+    <div className="flex h-full w-full overflow-hidden">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -72,12 +70,20 @@ function Home() {
         {/* Project Info */}
         {sidebarOpen && (
           <div className="flex items-center gap-3 mb-6">
-            <img
-              src="https://via.placeholder.com/32"
-              alt="Project Logo"
-              className="w-8 h-8 rounded"
-            />
-            <span className="font-bold text-lg">Dummy Project</span>
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p className="text-red-500">Error fetching project</p>
+            ) : (
+              <>
+                <img
+                  src={project.image || 'https://via.placeholder.com/32'}
+                  alt="Project Logo"
+                  className="w-8 h-8 rounded"
+                />
+                <span className="font-bold text-sm">{project.title || 'Unnamed Project'}</span>
+              </>
+            )}
           </div>
         )}
 
@@ -140,7 +146,7 @@ function Home() {
           <div className="ml-6 space-y-2 text-gray-700">
             <div className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><FileCog size={16} /> Project Pages</div>
             <div className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><PlusCircle size={16} /> Add Shortcut</div>
-            <div className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><Settings size={16} /> Project Settings</div>
+            {user.userId === project.projectCreator &&  <div onClick={()=>{navigate(`/project/${project.projectId}`)}} className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><Settings size={16} /> Project Settings</div>}
             <div className="flex items-center gap-2 text-red-500 cursor-pointer hover:text-red-400"><Archive size={16} /> Archived Issues</div>
           </div>
         )}
@@ -151,11 +157,11 @@ function Home() {
         onMouseDown={() => (isResizing.current = true)}
         className="w-1 cursor-col-resize bg-gray-300 hover:bg-gray-400"
       ></div>
-  
+
       {/* Main Content */}
       <div className="flex-1 bg-gray-50 p-4 overflow-y-scroll">
         <Outlet />
-        <Create/>
+        <KanbanBoard projectId={projectId} />
       </div>
     </div>
   );
