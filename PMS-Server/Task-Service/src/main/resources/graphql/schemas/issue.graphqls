@@ -45,6 +45,7 @@ enum IssueTag {
 }
 
 type UserDTO{
+    userId:String!
     name:String!
     email:String
     image:String

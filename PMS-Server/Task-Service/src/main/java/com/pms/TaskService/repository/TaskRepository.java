@@ -11,9 +11,9 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, String> {
     List<Task> findAllByProjectId(String project);
 
-    List<Task> findAllByStatus(Status status);
-
     List<Task> findByAssigneesContains(String userId);
 
     List<Task> findByProjectId(String projectId);
+
+    List<Task> findAllByStatusAndEpic_Id(Status status, String epicId);
 }

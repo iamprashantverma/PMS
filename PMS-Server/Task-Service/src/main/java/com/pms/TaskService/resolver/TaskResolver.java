@@ -92,8 +92,8 @@ public class TaskResolver {
      */
 
     @QueryMapping
-    public List<TaskDTO> getTasksByStatus(@Argument("status")Status status) {
-        return taskService.getTasksByStatus(status);
+    public List<TaskDTO> getTasksByStatusAndEpic(@Argument("status")Status status,@Argument("epicId")String epicId) {
+        return taskService.getTasksByStatus(status,epicId);
     }
     /**
      * Assigns a member to the specified task using GraphQL mutation.

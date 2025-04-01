@@ -51,7 +51,7 @@ public interface EpicService {
      * get list of all epicsDTO
      * @return get all epicsDTO
      */
-    List<EpicDTO> getAllActiveEpics();
+    List<EpicDTO> getAllEpicsByProjectId(String projectId);
     /**
      * Assigns a member to an Epic.
      *

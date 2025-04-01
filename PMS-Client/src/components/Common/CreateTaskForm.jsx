@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_ALL_EPICS,
   GET_ALL_STORIES_BY_PROJECT_ID,
-  GET_ALL_TASKS_BY_PROJECT_ID
+  GET_ALL_EPICS_BY_PROJECT_ID
 } from "@/graphql/Queries/task-service";
 import {
   CREATE_TASK,
@@ -49,10 +49,14 @@ function CreateTaskForm({setCreateOpen}) {
     fetchPolicy: "network-only",
   });
 
-  const { data: epicData } = useQuery(GET_ALL_EPICS, {
+  const { data: epicData } = useQuery(GET_ALL_EPICS_BY_PROJECT_ID, {
     client: taskClient,
+    variables: { projectId: selectedProject },
+    skip: !selectedProject,
     fetchPolicy: "network-only",
   });
+  
+  
 
   const { data: storyData } = useQuery(GET_ALL_STORIES_BY_PROJECT_ID, {
     client: taskClient,
@@ -79,8 +83,14 @@ function CreateTaskForm({setCreateOpen}) {
       setStories(storyData.getAllStoriesByProjectId);
     }
   }, [storyData]);
+  useEffect(() => {
+    if (epicData?.getAllEpicsByProjectId) {
+      setEpics(epicData.getAllEpicsByProjectId);
+    }
+  }, [epicData]);
+  
 
-  // Reset parent selections when issueType changes
+
   useEffect(() => {
     setEpicId("");
     setStoryId("");
@@ -136,7 +146,7 @@ function CreateTaskForm({setCreateOpen}) {
           },
         });
       } else if (issueType === "Bug") {
-        console.log(basePayload,expectedOutcome,actualOutcome,epicId,storyId)
+
         response = await createBug({
           variables: {
             bugInput: {
@@ -159,7 +169,7 @@ function CreateTaskForm({setCreateOpen}) {
       toast.error(`Failed to create ${issueType}`);
     }
   };
-  console.log("Sgrgf");
+
   return (
     <div className=" fixed inset-0 z-50 flex items-center justify-center bg-black/20 pt-[20px]">
       <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl font-sans text-[14px]">

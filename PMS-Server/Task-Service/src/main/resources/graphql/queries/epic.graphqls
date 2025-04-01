@@ -1,5 +1,5 @@
 type Query{
     getEpicById(epicId:String): EpicDTO
-    getAllEpics:[EpicDTO]
+    getAllEpicsByProjectId(projectId:String!):[EpicDTO]
     getAssignedMembers(epicId:String!):[UserDTO]
 }

@@ -130,21 +130,20 @@ export const GET_TASK_BY_ID = gql`
   }
 `;
 
-export const GET_TASKS_BY_STATUS = gql`
-  query GetTasksByStatus($status: String!) {
-    getTasksByStatus(status: $status) {
+export const GET_TASKS_BY_STATUS_AND_EPIC = gql`
+  query GetTasksByStatusAndEpic($status: IssueStatus, $epicId: String!) {
+    getTasksByStatusAndEpic(status: $status, epicId: $epicId) {
       id
       title
       description
       project
       assignees
-      updatedDate
-      status
+      updatedAt
       priority
-      label
-      isBlocking
+      status
       memberId
       deadline
+      label
     }
   }
 `;
@@ -167,4 +166,35 @@ export const GET_ALL_EPICS_BY_PROJECT_ID = gql`
     }
   }
 `;
+
+export const ASSIGN_MEMBER_TO_TASK = gql`
+    mutation AssignMemberToTask($taskId: String!, $memberId: String!) {
+        assignMemberToTask(taskId: $taskId, memberId: $memberId) {
+            id
+            title
+            description
+            project
+            assignees
+            updatedAt
+            status
+            priority
+            label
+            memberId
+            deadline
+        }
+    }
+`;
+
+export const GET_ASSIGNED_MEMBERS = gql`
+    query GetAssignedMembers($epicId: String!) {
+        getAssignedMembers(epicId: $epicId) {
+            name
+            email
+            image
+            userId
+        }
+    }
+`;
+
+
 

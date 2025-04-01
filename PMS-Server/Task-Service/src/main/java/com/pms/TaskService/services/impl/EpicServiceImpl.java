@@ -184,8 +184,8 @@ public class EpicServiceImpl implements EpicService {
     }
 
     @Override
-    public List<EpicDTO> getAllActiveEpics() {
-        List<Epic> epics = epicRepository.findAll();
+    public List<EpicDTO> getAllEpicsByProjectId(String projectId) {
+        List<Epic> epics = epicRepository.findAllByProjectId(projectId);
         return epics.stream()
                 .filter(epic -> epic.getStatus() != Status.COMPLETED)
                 .map(this::convertToEpicDTo)

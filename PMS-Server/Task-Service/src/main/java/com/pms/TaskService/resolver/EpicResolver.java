@@ -64,8 +64,8 @@ public class EpicResolver {
      * @return List of all active EpicDTOs.
      */
     @QueryMapping
-    public List<EpicDTO> getAllEpics() {
-        return epicService.getAllActiveEpics();
+    public List<EpicDTO> getAllEpicsByProjectId(@Argument("projectId")String  projectId) {
+        return epicService.getAllEpicsByProjectId(projectId);
     }
 
     /**

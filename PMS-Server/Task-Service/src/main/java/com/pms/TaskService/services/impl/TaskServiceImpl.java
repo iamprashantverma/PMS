@@ -271,8 +271,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDTO> getTasksByStatus(Status status) {
-        List<Task> tasks = taskRepository.findAllByStatus(status);
+    public List<TaskDTO> getTasksByStatus(Status status,String epicId) {
+        List<Task> tasks = taskRepository.findAllByStatusAndEpic_Id(status,epicId);
         return tasks.stream()
                 .map(this::convertToDTO)
                 .toList();

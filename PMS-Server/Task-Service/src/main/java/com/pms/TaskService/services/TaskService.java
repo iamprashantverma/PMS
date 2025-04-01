@@ -89,7 +89,7 @@ public interface TaskService {
      * @param status The status of the tasks to retrieve.
      * @return A list of TaskDTOs filtered by the given status.
      */
-    List<TaskDTO> getTasksByStatus(Status status);
+    List<TaskDTO> getTasksByStatus(Status status,String epicId);
 
     /**
      * Assigns a member to the specified task.
