@@ -80,6 +80,8 @@ public class TaskServiceImpl implements TaskService {
                .createdDate(taskDTO.getCreatedAt())
                .priority(taskDTO.getPriority())
                .deadline(taskDTO.getDeadLine())
+               .event(EventType.TASK)
+               .createdDate(taskDTO.getCreatedAt())
                .description(taskDTO.getDescription())
                .build();
    }
@@ -106,6 +108,7 @@ public class TaskServiceImpl implements TaskService {
 
         String imageUrl = cloudinaryService.uploadImage(file);
         task.setImage(imageUrl);
+        task.setCreatedAt(LocalDate.now());
         Task savedTask = taskRepository.save(task);
 
         // add the task into the epic if epic id present
@@ -125,14 +128,12 @@ public class TaskServiceImpl implements TaskService {
         TaskEvent taskEvent = generateTaskEvent(savedTask);
         // set the necessary details
         taskEvent.setAction(Actions.CREATED);
-        taskEvent.setNewStatus(Status.TODO);
+        taskEvent.setNewStatus(savedTask.getStatus());
         taskEvent.setEventType(EventType.CALENDER);
-
-       calendarEventProducer.sendTaskEvent(taskEvent);
-
+        taskEvent.setEvent(EventType.TASK);
+        calendarEventProducer.sendTaskEvent(taskEvent);
         return convertToDTO(savedTask);
     }
-
 
 
     @Override
@@ -158,6 +159,7 @@ public class TaskServiceImpl implements TaskService {
             // If not all subtasks are completed, return an error response
             throw  new ResourceAlreadyExist("Task cannot be Deleted. Not all subtasks are completed.");
         }
+
         TaskEvent taskEvent = generateTaskEvent(task);
         taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.DELETED);

@@ -39,6 +39,13 @@ spring:
           filters:
             - StripPrefix=2
             - AuthenticationFilter
+        - id: Activity-Service
+          uri: lb://Activity-Tracker
+          predicates:
+            - Path=/api/v1/activity/**
+          filters:
+            - StripPrefix=3
+            - AuthenticationFilter
 
 jwt:
   secretKey: ads9f6askj3h4k1hf86asdfiahkjh34a789s6df89ayshkjh3jkh786adsf78ay

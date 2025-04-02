@@ -9,6 +9,8 @@ import DetailSettings from '@/components/Project/DetailSettings';
 import TeamsSettings from '@/components/Project/TeamsSettings';
 import CreateProjectForm from '@/components/Project/CreateProjectForm';
 import Home from '@/components/Common/Home';
+import TaskCalendar from '@/components/Common/TaskCalendar';
+import Board from '@/components/Common/Board';
 
 function UserRoutes() {
   return (
@@ -16,7 +18,10 @@ function UserRoutes() {
       {/* Wrap all user routes with PrivateRoutes */}
       <Route element={<PrivateRoutes />}>
         <Route path="/profile" element={<ProfileSettings />} />
-        <Route path='/project/:projectId'element={<Home/>} />
+        <Route path='/project/:projectId'element={<Home/>} >
+          <Route path='calendar'element={<TaskCalendar/>} />
+          <Route path='board' element ={<Board/>} />
+        </Route>
         <Route path="/projects" element={<AllProject />} />
         <Route path='/create'  element={<CreateProjectForm/>} />
 

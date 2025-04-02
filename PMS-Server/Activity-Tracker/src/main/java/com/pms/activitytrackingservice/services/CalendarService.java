@@ -64,4 +64,5 @@ public interface CalendarService {
      */
     void deleteEvent(Long eventId);
 
+    List<CalendarDTO> findAllEventsByProjectId(String projectId);
 }

@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Users } from 'lucide-react';
+import { ChevronDown, UserRoundPlus, Users, Search, Plus, Filter } from 'lucide-react';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { GET_ALL_EPICS_BY_PROJECT_ID, GET_TASKS_BY_STATUS_AND_EPIC } from '@/graphql/Queries/task-service';
 import IssueCard from './IssueCard';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { getUserDetails } from '@/services/UserService';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-function Board({ projectId }) {
-  
-  const{accessToken} = useAuth();
+function Board() {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { accessToken } = useAuth();
   const { taskClient, projectClient } = useApolloClients();
   const [showEpics, setShowEpics] = useState(false);
   const [epicId, setEpicId] = useState('');
   const [toDoTasks, setToDoTasks] = useState([]);
   const [inProgressTasks, setInProgressTasks] = useState([]);
   const [completeTasks, setCompleteTasks] = useState([]);
-  const [members,setMembers] = useState([]);
+  const [members, setMembers] = useState([]);
   
   // Fetch project data
   const { data: project } = useQuery(FIND_PROJECT_BY_ID, {
@@ -27,13 +29,14 @@ function Board({ projectId }) {
     fetchPolicy: "network-only",
     skip: !projectId,
   });
+  
   useEffect(() => {
     if (project?.getProject?.memberIds) {
       setMembers(project.getProject.memberIds);
     }
   }, [project]);
 
-  // Fetch epics using useQuery (changed from useLazyQuery)
+  // Fetch epics using useQuery
   const { data: epicData } = useQuery(GET_ALL_EPICS_BY_PROJECT_ID, {
     client: taskClient,
     variables: { projectId },
@@ -73,8 +76,6 @@ function Board({ projectId }) {
     }
   }, [epicData, projectId]); 
   
-
-
   useEffect(() => {
     if (todoData) setToDoTasks(todoData.getTasksByStatusAndEpic);
   }, [todoData]);
@@ -98,55 +99,143 @@ function Board({ projectId }) {
     fetchCompleteTasks({ variables: { epicId: id, status: 'COMPLETED' } });
   };
 
-  return (
-    <div className="h-screen flex flex-col">
-      {/* Fixed Top Section */}
-      <div className="h-[25vh] w-full flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-100 text-xs sm:text-sm md:text-base">
-        <div className="flex flex-col w-full sm:w-[50%]">
-          <div className="flex items-center space-x-2 text-sm text-gray-700">
-            <Link to="/projects" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-300">Projects</Link>
-            <span className="text-gray-500">/</span>
-            <Link to={`/project/${projectId}`} className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-300">{project?.getProject?.title}</Link>
-          </div>
+  // Get current epic title
+  const currentEpic = epicData?.getAllEpicsByProjectId?.find(epic => epic.id === epicId);
 
-          <h3 className="text-base sm:text-lg md:text-xl font-bold">CSS Board</h3>
-          <div className="flex flex-row items-center justify-between p-2">
-            <input placeholder="Search" className="p-2 border rounded h-[30px] w-[50%] sm:w-[30%]" />
-            <Users className="w-6 sm:w-8" size={20} />
-            <div className="relative w-[50%]">
-              <button onClick={toggleEpicsVisibility} className="flex flex-row items-center space-x-1 w-full p-2">
-                <span className="text-xs sm:text-sm">Epic</span>
-                <ChevronDown size={16} />
+  return (
+    <div className="h-full flex flex-col bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="p-4 md:p-6">
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center space-x-2 text-sm mb-2">
+            <Link to="/projects" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Projects
+            </Link>
+            <span className="text-gray-400">/</span>
+            <Link to={`/project/${projectId}/board`} className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              {project?.getProject?.title || "Loading..."}
+            </Link>
+            <span className="text-gray-400">/</span>
+            <span className="text-gray-600 font-medium">Board</span>
+          </div>
+          
+          {/* Title and Controls */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h1 className="text-2xl font-bold text-gray-700">
+              Board {currentEpic ? `- ${currentEpic.title}` : ''}
+            </h1>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => {/* Add task implementation */}}
+                className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                <Plus size={16} />
+                Add Task
               </button>
-              {showEpics && (
-                <div className="absolute left-0 w-[200px] sm:w-[250px] bg-white p-2 shadow-lg rounded-lg overflow-y-auto mt-1 border" style={{ maxHeight: '200px', zIndex: 10 }}>
-                  {epicData?.getAllEpicsByProjectId?.map((epic) => (
-                    <div key={epic.id} onClick={() => handleEpicChange(epic.id)} className="border-b py-1 text-xs sm:text-sm text-gray-800 cursor-pointer hover:bg-gray-100">
-                      {epic.title}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
+          </div>
+        </div>
+        
+        {/* Toolbar */}
+        <div className="px-4 py-3 border-t border-gray-100 flex flex-wrap items-center gap-3 bg-gray-50">
+          {/* Search */}
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input 
+              placeholder="Search tasks..." 
+              className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors w-48 md:w-64"
+            />
+          </div>
+          
+          {/* Epic Selector */}
+          <div className="relative">
+            <button 
+              onClick={toggleEpicsVisibility} 
+              className={`flex items-center gap-2 px-3 py-1.5 border ${showEpics ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'} rounded-md text-sm transition-colors`}
+            >
+              <span className="font-medium text-gray-700">Epic</span>
+              <ChevronDown size={14} className={`text-gray-500 transition-transform ${showEpics ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showEpics && (
+              <div className="absolute left-0 top-full mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-20 overflow-hidden">
+                <div className="p-1 max-h-64 overflow-y-auto">
+                  {epicData?.getAllEpicsByProjectId?.length > 0 ? (
+                    epicData.getAllEpicsByProjectId.map((epic) => (
+                      <div 
+                        key={epic.id} 
+                        onClick={() => {handleEpicChange(epic.id); setShowEpics(false);}} 
+                        className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors ${epic.id === epicId ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
+                      >
+                        {epic.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-gray-500">No epics found</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Filter Button */}
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 transition-colors">
+            <Filter size={14} className="text-gray-500" />
+            <span className="font-medium text-gray-700">Filter</span>
+          </button>
+          
+          {/* Team Management */}
+          <div className="ml-auto flex items-center gap-3">
+            <button className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+              <Users size={16} className="text-gray-700" />
+            </button>
+            <button 
+              onClick={() => navigate(`/projects/settings/${projectId}/teams`)}
+              className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors"
+              title="Add team members"
+            >
+              <UserRoundPlus size={16} className="text-gray-700" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* Task Columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2 sm:p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 flex-1">
         {[
-          { title: 'To Do', tasks: toDoTasks },
-          { title: 'In Progress', tasks: inProgressTasks },
-          { title: 'Complete', tasks: completeTasks }
-        ].map(({ title, tasks }, index) => (
-          <div key={index} className="flex flex-col w-full">
-            <h3 className="text-sm sm:text-md md:text-lg font-bold bg-slate-100 text-slate-800 p-2 rounded-lg text-center">
-              {title}
-            </h3>
-            <div className="flex-1 bg-white max-h-[70vh] overflow-y-auto p-2">
-              {tasks.map((task) => (
-                <IssueCard key={task.id} task={task} />
-              ))}
+          { title: 'To Do', tasks: toDoTasks, color: 'blue' },
+          { title: 'In Progress', tasks: inProgressTasks, color: 'amber' },
+          { title: 'Complete', tasks: completeTasks, color: 'green' }
+        ].map(({ title, tasks, color }, index) => (
+          <div key={index} className="flex flex-col bg-gray-100 rounded-lg shadow-sm overflow-hidden">
+            {/* Column Header */}
+            <div className={`bg-${color}-50 border-b border-${color}-100 px-4 py-3 flex items-center justify-between`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full bg-${color}-500`}></div>
+                <h3 className={`font-semibold text-${color}-900`}>{title} <span className="text-gray-500 font-normal">({tasks.length})</span></h3>
+              </div>
+              <button className="p-1 rounded-full hover:bg-white transition-colors">
+                <Plus size={16} className="text-gray-500" />
+              </button>
+            </div>
+            
+            {/* Tasks */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ maxHeight: 'calc(100vh - 240px)' }}>
+              {tasks.length > 0 ? (
+                tasks.map((task) => (
+                  <IssueCard key={task.id} task={task} />
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center h-32 text-center">
+                  <p className="text-gray-500 text-sm mb-2">No tasks in this column</p>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                    <Plus size={14} />
+                    Add a task
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}

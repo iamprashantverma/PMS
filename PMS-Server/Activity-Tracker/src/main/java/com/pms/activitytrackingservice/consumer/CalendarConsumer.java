@@ -18,6 +18,7 @@ public class CalendarConsumer {
 
     @KafkaListener(topics = "calendar-topic", groupId = "calendar-group")
     public void handleCalendarEvent(TaskEvent taskEvent) {
+
         log.info("Calendar event successfully received: {}", taskEvent);
 
         // Create a custom CalendarDTO from TaskEvent
@@ -26,10 +27,14 @@ public class CalendarConsumer {
                 .projectId(taskEvent.getProjectId())
                 .createDate(taskEvent.getCreatedDate())
                 .deadLine(taskEvent.getDeadline())
-                .completionPercent(0L)
+                .createDate(taskEvent.getCreatedDate())
+                .completionPercent(taskEvent.getCompletionPercent())
                 .assignees(taskEvent.getAssignees())
                 .oldStatus(taskEvent.getOldStatus())
                 .newStatus(taskEvent.getNewStatus())
+                .title(taskEvent.getTitle())
+                .event(taskEvent.getEvent())
+                .priority(taskEvent.getPriority())
                 .build();
 
         // Handle different event actions

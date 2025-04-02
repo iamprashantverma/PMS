@@ -24,4 +24,6 @@ public interface CalendarRepository  extends JpaRepository<Calendar,Long> {
     Long findByEntityId(String entityId);
 
     List<Calendar> findAllByNewStatus(Status status);
+
+    List<Calendar> findAllByProjectId(String projectId);
 }

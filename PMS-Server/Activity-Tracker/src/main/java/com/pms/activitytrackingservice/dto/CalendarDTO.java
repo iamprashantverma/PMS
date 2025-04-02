@@ -1,5 +1,6 @@
 package com.pms.activitytrackingservice.dto;
 
+import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.event.enums.Priority;
 import com.pms.TaskService.event.enums.Status;
 import jakarta.persistence.ElementCollection;
@@ -24,6 +25,7 @@ public class CalendarDTO {
     private LocalDate deadLine;
     private Long completionPercent;
     private String title;
+    private EventType eventType;
 
     @ElementCollection
     private Set<String> assignees;
@@ -36,4 +38,5 @@ public class CalendarDTO {
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
+    private EventType event;
 }

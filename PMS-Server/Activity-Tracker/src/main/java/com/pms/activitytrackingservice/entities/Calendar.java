@@ -1,5 +1,6 @@
 package com.pms.activitytrackingservice.entities;
 
+import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.event.enums.Priority;
 import com.pms.TaskService.event.enums.Status;
 
@@ -32,5 +33,7 @@ public class Calendar {
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
+    private  String title;
+    private EventType event;
 
 }

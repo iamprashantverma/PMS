@@ -43,10 +43,15 @@ public class CalendarController {
     }
 
 
-
     @DeleteMapping("/delete/{eventId}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
         calendarService.deleteEvent(eventId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("project/{projectId}")
+    public ResponseEntity<List<CalendarDTO>> getAllEventsByProjectId(@PathVariable String projectId) {
+        List<CalendarDTO> cds = calendarService.findAllEventsByProjectId(projectId);
+        return ResponseEntity.ok(cds);
     }
 }

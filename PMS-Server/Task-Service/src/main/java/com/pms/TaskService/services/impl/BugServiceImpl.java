@@ -81,6 +81,7 @@ public class BugServiceImpl implements BugService {
                 .eventType(EventType.BUG)
                 .deadline(bug.getDeadLine())
                 .createdDate(bug.getCreatedAt())
+                .event(EventType.BUG)
                 .description(bug.getDescription())
                 .build();
     }
@@ -122,6 +123,7 @@ public class BugServiceImpl implements BugService {
         TaskEvent taskEvent =  generateTaskEvent(savedBug);
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setEventType(EventType.CALENDER);
+
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedBug);

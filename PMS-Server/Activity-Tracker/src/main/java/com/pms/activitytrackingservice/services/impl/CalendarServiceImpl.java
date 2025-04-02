@@ -36,7 +36,6 @@ public class CalendarServiceImpl implements CalendarService {
                 .collect(Collectors.toList());
 
     }
-
     @Override
     public List<CalendarDTO> getEventsByUser(String userId) {
         log.info("Fetching events for user: {}", userId);
@@ -46,7 +45,6 @@ public class CalendarServiceImpl implements CalendarService {
                 .map(event -> modelMapper.map(event, CalendarDTO.class))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public List<CalendarDTO> getEventsByStatus(Status status) {
@@ -58,7 +56,6 @@ public class CalendarServiceImpl implements CalendarService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<CalendarDTO> getEventsByPriority(Priority priority) {
         log.info("Fetching events with priority: {}", priority);
@@ -69,16 +66,16 @@ public class CalendarServiceImpl implements CalendarService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public void createEvent(CalendarDTO calendarDTO) {
         log.info("Creating new event...");
         Calendar calendar = modelMapper.map(calendarDTO,Calendar.class);
-
+        log.info("{}",calendarDTO.getEvent());
+        log.info("{}",calendar);
+        calendar.setEvent(calendarDTO.getEvent());
         Calendar savedCalendar = calendarRepository.save(calendar);
         modelMapper.map(savedCalendar, CalendarDTO.class);
     }
-
 
     @Override
     public void updateEvent(CalendarDTO taskEvent) {
@@ -98,12 +95,19 @@ public class CalendarServiceImpl implements CalendarService {
 
     }
 
-
     @Override
     public void deleteEvent(Long eventId) {
         log.info("Deleting event with ID: {}", eventId);
         calendarRepository.deleteById(eventId);
 
+    }
+
+    @Override
+    public List<CalendarDTO> findAllEventsByProjectId(String projectId) {
+        List<Calendar> cds = calendarRepository.findAllByProjectId(projectId);
+        return cds.stream()
+                .map(calendar -> modelMapper.map(calendar,CalendarDTO.class))
+                .toList();
     }
 
 }

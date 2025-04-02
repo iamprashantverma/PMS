@@ -12,16 +12,18 @@ function ProjectDropDown() {
   const { projectClient, taskClient } = useApolloClients();
   const { user } = useAuth();
   const userId = user?.id;
-  const { dropDown, open ,setOpen} = useAppContext();
+  const { dropDown, open, setOpen } = useAppContext();
   const page = 0;
   const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
-    client:projectClient,
-    variables: { userId,pageNo:page },
+    client: projectClient,
+    variables: { userId, pageNo: page },
     skip: !userId, 
   });
+  
   if (dropDown !== 'project' || !open) return null;
+  
   const containerClasses = `
-    absolute z-50 bg-white border border-gray-200 rounded-md shadow-md 
+    absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg 
     top-[110%] left-[10%] 
     sm:left-[20%] sm:top-[115%] 
     md:left-[25%] 
@@ -31,57 +33,64 @@ function ProjectDropDown() {
 
   if (loading)
     return (
-      <div className={containerClasses + ' p-2'}>
-        <p className="text-xs sm:text-sm">Loading...</p>
+      <div className={containerClasses + ' p-3'}>
+        <p className="text-sm font-medium text-gray-600">Loading...</p>
       </div>
     );
 
   if (error)
     return (
-      <div className={containerClasses + ' p-2'}>
-        <p className="text-xs sm:text-sm text-red-500">{error.message}</p>
+      <div className={containerClasses + ' p-3'}>
+        <p className="text-sm font-medium text-red-600">{error.message}</p>
       </div>
     );
 
   const projects = data?.findAllProject || [];
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses}> 
       {/* Scrollable project list */}
-      <div className="max-h-[35vh] overflow-y-auto p-2 space-y-1">
-        {projects.map((project) => (
-          <div onClick={()=>{setOpen(false),navigate(`/project/${project.projectId}`)}}
-            key={project.projectId}
-            className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded transition"
-          >
-            <img
-              src={project.image || '/placeholder.png'}
-              alt={project.title}
-              className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 object-cover rounded-full"
-            />
-            <span className="text-sm sm:text-[18px] font-medium text-gray-800 truncate hover:text-blue-600 transition-colors duration-150">
-              {project.title}
-            </span>
-
-          </div>
-        ))}
+      <div className="max-h-[35vh] overflow-y-auto py-2 space-y-1">
+        {projects.length > 0 ? (
+          projects.map((project) => (
+            <div 
+              onClick={() => {
+                setOpen(false);
+                navigate(`/project/${project.projectId}/board`);
+              }}
+              key={project.projectId}
+              className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50 rounded transition cursor-pointer"
+            >
+              <img
+                src={project.image || '/placeholder.png'}
+                alt={project.title}
+                className="w-8 h-8 sm:w-9 sm:h-9 object-cover rounded-full border border-gray-200"
+              />
+              <span className="text-sm font-medium text-gray-800 truncate group-hover:text-blue-700">
+                {project.title}
+              </span>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500 px-3 py-2">No projects found</p>
+        )}
       </div>
 
       {/* Fixed bottom action buttons */}
-      <div className="border-t border-gray-200 px-3 py-2 flex flex-col gap-2 bg-white">
+      <div className="border-t border-gray-200 px-4 py-3 flex justify-between bg-gray-50 rounded-b-lg">
         <Link
           to="/projects"
           onClick={() => setOpen(false)}
-          className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
-          View All Projects
+          className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          View All
         </Link>
         <Link
           to="/create"
           onClick={() => {
             setOpen(false);
           }}
-          className="text-xs sm:text-sm text-blue-600 hover:underline text-left">
-          Create Project
+          className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          Create New
         </Link>
       </div>
     </div>

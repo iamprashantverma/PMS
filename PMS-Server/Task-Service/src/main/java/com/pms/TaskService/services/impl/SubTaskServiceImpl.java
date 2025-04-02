@@ -70,6 +70,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .createdDate(subTask.getCreatedAt())
                 .newStatus(subTask.getStatus())
                 .assignees(subTask.getAssignees())
+                .event(EventType.SUBTASK)
                 .build();
     }
 

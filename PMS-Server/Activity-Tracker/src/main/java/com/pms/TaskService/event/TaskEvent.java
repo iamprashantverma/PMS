@@ -41,6 +41,8 @@ public class TaskEvent {
     private String updatedBy;
     private EventType eventType;
     private Actions action;
+    private Long completionPercent;
+    private EventType event;
 
 //    /* Extra Fields */
 //    private Set<String> tags;
