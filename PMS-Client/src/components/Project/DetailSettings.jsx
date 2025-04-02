@@ -266,7 +266,7 @@ const DetailSettings = () => {
             { label: 'Client ID', name: 'clientId', type: 'text', icon: <Edit2 className="w-4 h-4" /> },
           ].map(({ label, name, type, options, renderOption, icon }) => (
             <div key={name} className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label className=" text-sm font-semibold text-gray-700 mb-2 flex items-center">
                 {icon}
                 <span className="ml-2">{label}</span>
               </label>
