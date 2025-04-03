@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, UserRoundPlus, Users, Search, Plus, Filter } from 'lucide-react';
+import { ChevronDown, UserRoundPlus, Users, Search, Plus, Filter, X } from 'lucide-react';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { GET_ALL_EPICS_BY_PROJECT_ID, GET_TASKS_BY_STATUS_AND_EPIC } from '@/graphql/Queries/task-service';
@@ -9,6 +9,7 @@ import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { getUserDetails } from '@/services/UserService';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import TaskDetails from '../Task/TaskDetails';
 
 function Board() {
   const { projectId } = useParams();
@@ -21,6 +22,8 @@ function Board() {
   const [inProgressTasks, setInProgressTasks] = useState([]);
   const [completeTasks, setCompleteTasks] = useState([]);
   const [members, setMembers] = useState([]);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   
   // Fetch project data
   const { data: project } = useQuery(FIND_PROJECT_BY_ID, {
@@ -99,11 +102,83 @@ function Board() {
     fetchCompleteTasks({ variables: { epicId: id, status: 'COMPLETED' } });
   };
 
+  // Function to handle task click
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setShowDetails(true);
+  };
+  
+  // Function to close task details
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setSelectedTask(null);
+  };
+
   // Get current epic title
   const currentEpic = epicData?.getAllEpicsByProjectId?.find(epic => epic.id === epicId);
 
+  // Modified TaskCard component with click handler
+  const TaskCard = ({ task }) => (
+    <div 
+      className="bg-white rounded-md shadow-sm border border-gray-200 p-3 cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => handleTaskClick(task)}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-gray-500">{task.id}</span>
+        <div className="flex items-center gap-1">
+          {task.priority && (
+            <span className={`px-1.5 py-0.5 text-xs rounded ${
+              task.priority === 'HIGH' ? 'bg-red-100 text-red-700' : 
+              task.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' : 
+              'bg-blue-100 text-blue-700'
+            }`}>
+              {task.priority}
+            </span>
+          )}
+        </div>
+      </div>
+      <h4 className="font-medium text-gray-800 mb-2">{task.title}</h4>
+      <p className="text-xs text-gray-500 line-clamp-2 mb-3">{task.description}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex -space-x-2">
+          {task.assigneeId ? (
+            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">
+              {task.assigneeId.substring(0, 2).toUpperCase()}
+            </div>
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+              ?
+            </div>
+          )}
+        </div>
+        {task.dueDate && (
+          <span className="text-xs text-gray-500">
+            {new Date(task.dueDate).toLocaleDateString()}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-gray-50 relative">
+      {/* Task Details Panel (Appears in the center) */}
+      {showDetails && (
+        <div className="fixed inset-0 mt-[50px] bg-opacity-30 z-40 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-xl w-4/5 max-w-5xl max-h-[80vh] overflow-auto relative">
+            {/* Close button in top-right corner */}
+            <button 
+              onClick={handleCloseDetails}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <X size={20} className="text-gray-500" />
+            </button>
+            
+            <TaskDetails task={selectedTask} onClose={handleCloseDetails} />
+          </div>
+        </div>
+      )}
+      
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="p-4 md:p-6">
@@ -225,7 +300,7 @@ function Board() {
             <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ maxHeight: 'calc(100vh - 240px)' }}>
               {tasks.length > 0 ? (
                 tasks.map((task) => (
-                  <IssueCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} />
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center h-32 text-center">

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import TaskDetails from '../Task/TaskDetails';
 
 function IssueCard({ task }) {
+
     if (!task) return null;
+    
+   
 
     // Priority color mapping
     const priorityColors = {
@@ -10,6 +14,7 @@ function IssueCard({ task }) {
         low: 'text-emerald-600',
         default: 'text-gray-600'
     };
+    
 
     const priorityColor = priorityColors[task.priority?.toLowerCase()] || priorityColors.default;
 
@@ -89,7 +94,7 @@ function IssueCard({ task }) {
                         </span>
                     </div>
                 )}
-            </div>
+            </div>  
         </div>
     );
 }

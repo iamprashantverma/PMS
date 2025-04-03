@@ -119,11 +119,9 @@ export const GET_TASK_BY_ID = gql`
       description
       project
       assignees
-      updatedDate
       status
       priority
       label
-      isBlocking
       memberId
       deadline
     }

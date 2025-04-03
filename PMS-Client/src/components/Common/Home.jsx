@@ -24,6 +24,7 @@ import {
   X,
   ChevronLeft
 } from 'lucide-react';
+import TaskDetails from '../Task/TaskDetails';
 
 
 function Home() {

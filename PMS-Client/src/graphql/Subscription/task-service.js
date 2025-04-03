@@ -6,6 +6,7 @@ export const SUBSCRIBE_TO_COMMENT_UPDATES = gql`
       taskId
       userId
       message
+      commentId
     }
   }
 `;

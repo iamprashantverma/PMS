@@ -21,10 +21,10 @@ function UserRoutes() {
         <Route path='/project/:projectId'element={<Home/>} >
           <Route path='calendar'element={<TaskCalendar/>} />
           <Route path='board' element ={<Board/>} />
+          
         </Route>
         <Route path="/projects" element={<AllProject />} />
         <Route path='/create'  element={<CreateProjectForm/>} />
-
         {/* Nested project settings route */}
         <Route path="/projects/settings/:projectId"  element={<ProjectSettings />}>
           <Route index element={<DetailSettings />} />

@@ -5,9 +5,8 @@ import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createUploadLink } from 'apollo-upload-client';
 
-// Function to create Project Apollo Client
 export const createProjectClient = (accessToken) => {
-  // Use createUploadLink instead of HttpLink for file upload support
+
   const httpLink = createUploadLink({
     uri: 'http://localhost:8080/api/v1/projects/graphql',
     headers: {
@@ -22,7 +21,6 @@ export const createProjectClient = (accessToken) => {
 };
 
 export const createTaskClient = (accessToken) => {
-  // HTTP link with upload support
   const httpLink = createUploadLink({
     uri: 'http://localhost:8080/api/v1/tasks/graphql',
     headers: {
@@ -30,26 +28,41 @@ export const createTaskClient = (accessToken) => {
     },
   });
 
-  // WebSocket link for subscriptions (remains unchanged)
+
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: 'ws://localhost:8080/api/v1/tasks/graphql',
-      connectionParams: {
+      url: `ws://localhost:8080/api/v1/tasks/graphql?Bearer=${accessToken}`,
+      connectionParams: async () => ({
         headers: {
           Authorization: accessToken ? `Bearer ${accessToken}` : '',
-        },
+        }
+      }),
+      lazy: true,
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
+      retryWait: async (retryCount) => {
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+        await new Promise(resolve => setTimeout(resolve, delay));
       },
+      keepAlive: 30000,
+      connectionAckTimeout: 10000,
+      on: {
+        connected: () => console.log("WebSocket connected!"),
+        closed: () => console.log("WebSocket closed. Will automatically reconnect..."),
+        error: (err) => console.error("WebSocket error:", err),
+      }
     })
   );
+  
 
-  // Split HTTP and WebSocket requests
+
   const splitLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
     wsLink,
-    httpLink // No need for authLink.concat() since we're using createUploadLink
+    httpLink 
   );
 
   return new ApolloClient({
