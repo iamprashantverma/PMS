@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { useAuth } from '@/context/AuthContext';
+
 import { 
   GET_ALL_EPICS_BY_PROJECT_ID,
   GET_ALL_STORIES_BY_PROJECT_ID,
@@ -348,7 +349,7 @@ function AllIssues() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Link to={`/issue/${issue.id}`} className="text-blue-600 hover:text-blue-900">
+                    <Link to={`/project/${projectId}/${issue.type}/${issue.id}`} className="text-blue-600 hover:text-blue-900">
                       {issue.id.substring(0, 8)}
                     </Link>
                   </td>

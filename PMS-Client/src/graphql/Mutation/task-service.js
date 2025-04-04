@@ -74,7 +74,7 @@ export const CREATE_STORY = gql`
 `;
 
 export const ASSIGN_MEMBER_TO_TASK = gql`
-  mutation AssignMemberToTask($taskId: ID!, $memberId: ID!) {
+  mutation AssignMemberToTask($taskId: String!, $memberId: String!) {
     assignMemberToTask(taskId: $taskId, memberId: $memberId) {
       id
       title
@@ -108,7 +108,7 @@ mutation AssignMemberToSubTask($taskId: ID!, $memberId: ID!) {
 `;
 
 export const UNASSIGN_MEMBER_TO_TASK = gql`
-mutation UnAssignMemberToTask($taskId: ID!, $memberId: ID!) {
+mutation UnAssignMemberToTask($taskId: String!, $memberId: String!) {
   unAssignMemberToTask(taskId: $taskId, memberId: $memberId) {
     id
     title
@@ -157,7 +157,6 @@ export const DELETE_BUG = gql`
   }
 `;
 
-
 export const ADD_COMMENT = gql`
   mutation AddComment($taskId: String!, $userId: String!, $message: String!) {
     addComment(commentDTO: { taskId: $taskId, message: $message, userId: $userId }) {
@@ -167,7 +166,6 @@ export const ADD_COMMENT = gql`
     }
   }
 `;
-
 
 export const DELETE_COMMENT = gql`
   mutation DeleteComment($commentId: Int!) {
@@ -201,7 +199,7 @@ export const CHANGE_STATUS = gql`
 `;
 
 export const CHANGE_TASK_STATUS = gql`
-  mutation ChangeTaskStatus($taskId: ID!, $status: String!) {
+  mutation ChangeTaskStatus($taskId: String!, $status: IssueStatus!) {
     changeTaskStatus(taskId: $taskId, status: $status) {
       id
       title
@@ -217,3 +215,5 @@ export const CHANGE_TASK_STATUS = gql`
     }
   }
 `;
+
+

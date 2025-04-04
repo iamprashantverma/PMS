@@ -2,22 +2,34 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Plus, GitBranch, GitCommit, Settings, ChevronDown, Delete, Trash } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import { GET_TASK_BY_ID } from '@/graphql/Queries/task-service';
+
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { SUBSCRIBE_TO_COMMENT_UPDATES } from '@/graphql/Subscription/task-service';
-import { ADD_COMMENT, DELETE_COMMENT, ASSIGN_MEMBER_TO_TASK, UNASSIGN_MEMBER_TO_TASK } from '@/graphql/Mutation/task-service';
+import { GET_TASK_BY_ID,GET_EPIC_BY_ID,GET_STORY_BY_ID   } from '@/graphql/Queries/task-service';
+import { ADD_COMMENT,DELETE_COMMENT,CHANGE_TASK_STATUS,ASSIGN_MEMBER_TO_TASK, UNASSIGN_MEMBER_TO_TASK  } from '@/graphql/Mutation/task-service';
 import { useAuth } from '@/context/AuthContext';
 import { getUserDetails } from '@/services/UserService';
-import { GET_EPIC_BY_ID, GET_STORY_BY_ID } from '@/graphql/Queries/task-service';
+
+import { toast } from 'react-toastify';
 
 function TaskDetails({ task = {}, onClose }) {
-  const taskId = task?.id;
-  const { taskClient } = useApolloClients();
+  
+  const { taskId: paramTaskId } = useParams();
+  const taskId = task?.id || paramTaskId;
+
+  const { taskClient,projectClient } = useApolloClients();
   const { user } = useAuth();
   const userId = user.userId;
   const commentsContainerRef = useRef(null);
   const { accessToken } = useAuth();
 
+  const { data: fetchedTaskData, loading, error } = useQuery(GET_TASK_BY_ID, {
+    variables: { taskId },
+    client: taskClient,
+    skip: !taskId, 
+  });
+  
+  task = fetchedTaskData?.getTaskById || task;
   const [taskData, setTaskData] = useState(task || {
     id: 'sample-123',
     title: '(Sample) Develop Frontend Interface',
@@ -37,15 +49,79 @@ function TaskDetails({ task = {}, onClose }) {
   const [activeTab, setActiveTab] = useState('All');
   const [showDetails, setShowDetails] = useState(true);
   const [showActivity, setShowActivity] = useState(true);
+  const [newAssignee, setNewAssignee] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
-  
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+    
+  const STATUS_OPTIONS = [
+    "TODO",
+    "IN_PLANNED",
+    "IN_PROGRESS",
+    "COMPLETED",
+    "IN_QA",
+    "DELIVERED",
+   
+  ];
+
+  const [changeTaskStatus] = useMutation(CHANGE_TASK_STATUS, {
+    client: taskClient,
+    onCompleted: (data) => {
+      if (data?.changeTaskStatus) {
+        setTaskData(prev => ({
+          ...prev,
+          status: data.changeTaskStatus.status
+        }));
+        toast.success("Task status updated successfully!");
+      }
+    },
+    onError: (error) => {
+      console.error("Error changing task status:", error);
+      toast.error("Failed to update task status");
+    }
+  });
+
+  const handleStatusChange = (newStatus) => {
+    changeTaskStatus({
+      variables: {
+        taskId,
+        status: newStatus
+      }
+    });
+    setStatusDropdownOpen(false);
+  };
+
+  const getStatusColor = (status) => {
+    switch(status?.toUpperCase()) {
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800';
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800';
+      case 'DELIVERED':
+        return 'bg-purple-100 text-purple-800';
+      case 'IN_QA':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'ON_HOLD':
+        return 'bg-orange-100 text-orange-800';
+      case 'CANCELED':
+        return 'bg-red-100 text-red-800';
+      case 'ARCHIVED':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusDisplayName = (status) => {
+    return status?.replace(/_/g, ' ') || 'To Do';
+  };
+
   const { loading: taskLoading, error: taskError, data: taskQueryData } = useQuery(GET_TASK_BY_ID, {
     variables: { taskId },
     client: taskClient,
     skip: !taskId,
     fetchPolicy: 'network-only'
   });
-
+  
   // Epic query if epicId exists
   const { loading: epicLoading, data: epicQueryData } = useQuery(GET_EPIC_BY_ID, {
     variables: { epicId: taskData?.epicId },
@@ -69,7 +145,7 @@ function TaskDetails({ task = {}, onClose }) {
       }
     }
   });
-
+  
   // Fetch reporter data if reporterId exists
   useEffect(() => {
     const fetchReporterData = async () => {
@@ -94,7 +170,7 @@ function TaskDetails({ task = {}, onClose }) {
           const assigneePromises = taskData.assignees.map(assigneeId => 
             getUserDetails(assigneeId, accessToken)
           );
-       
+
           const assigneeData = await Promise.all(assigneePromises);
           // Extract only the `data` from each response
           const extractedData = assigneeData.map(response => response.data);
@@ -150,29 +226,27 @@ function TaskDetails({ task = {}, onClose }) {
   const [assignMemberToTask] = useMutation(ASSIGN_MEMBER_TO_TASK, {
     client: taskClient,
     onCompleted: (data) => {
-      // Update local state with the new assignee
-      const updatedAssignees = Array.isArray(taskData.assignees) 
-        ? [...taskData.assignees, userId]
-        : taskData.assignees 
-          ? [taskData.assignees, userId] 
-          : [userId];
-      
-      setTaskData(prev => ({
-        ...prev,
-        assignees: updatedAssignees
-      }));
+      if (data && data.assignMemberToTask) {
+        
+        setTaskData(prev => ({
+          ...prev,
+          assignees: data.assignMemberToTask.assignees 
+        }));
+      } else {
+        console.error("No assignees data found in response:", data);
+      }
     },
     onError: (error) => {
       console.error("Error assigning member:", error);
     }
   });
+  
 
   const [unassignMemberFromTask] = useMutation(UNASSIGN_MEMBER_TO_TASK, {
     client: taskClient,
     onCompleted: (data) => {
-      // Remove the unassigned member from local state
       const updatedAssignees = Array.isArray(taskData.assignees)
-        ? taskData.assignees.filter(id => id !== data.unassignMemberFromTask)
+        ? taskData.assignees.filter(id => id !== data.id)
         : null;
       
       setTaskData(prev => ({
@@ -190,14 +264,24 @@ function TaskDetails({ task = {}, onClose }) {
     client: taskClient,
     skip: !taskId,
     onSubscriptionData: ({ subscriptionData }) => {
+      const handleNewComment = async (comment) => {
+        if (comment.taskId !== taskId) return;
+  
+        try {
+          const {data} = await getUserDetails(comment.userId, accessToken);
+          console.log(data);
+          setTaskData(prev => ({
+            ...prev,
+            comments: [...(prev.comments || []), { ...comment, name: data.name }]
+          }));
+        } catch (error) {
+          // console.error("Error fetching user details:", error);
+        }
+      };
+  
       if (subscriptionData.data?.subscribeToCommentUpdates) {
         const comment = subscriptionData.data.subscribeToCommentUpdates;
-        if (comment.taskId !== taskId) return;
-        
-        setTaskData(prev => ({
-          ...prev,
-          comments: [...(prev.comments || []), comment]
-        }));
+        handleNewComment(comment);
       }
     }
   });
@@ -252,19 +336,30 @@ function TaskDetails({ task = {}, onClose }) {
   };
 
   const handleAssignToMe = () => {
+    const trimmedAssignee = newAssignee.trim();
+    if (!trimmedAssignee) {
+      toast.error("Assignee name cannot be empty!");
+      return; 
+    }
     assignMemberToTask({
       variables: {
         taskId,
-        memberId: userId
+        memberId: trimmedAssignee
       }
-    });
+    })
+    setNewAssignee("");
   };
+  
+  
 
   const handleUnassign = (memberId) => {
     unassignMemberFromTask({
       variables: {
         taskId,
-        memberId: memberId || userId
+        memberId: memberId.userId 
+      },
+      onCompleted:(d)=>{
+        console.log(d);
       }
     });
   };
@@ -296,7 +391,7 @@ function TaskDetails({ task = {}, onClose }) {
   };
 
   const parentInfo = getParentInfo();
-
+  
   return (
     <div className="task-details-container flex flex-col h-full bg-gray-50">
       {/* Header */}
@@ -329,9 +424,9 @@ function TaskDetails({ task = {}, onClose }) {
           <button className="icon-btn hover:bg-gray-100 p-1 rounded">
             <Settings size={16} />
           </button>
-          <button className="icon-btn p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={onClose}>
+          {!paramTaskId && <button className="icon-btn p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={onClose}>
             <X size={18} />
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -434,9 +529,9 @@ function TaskDetails({ task = {}, onClose }) {
                           <div className="comment-header flex items-center justify-between mb-2">
                             <div className="flex items-center">
                               <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs mr-2">
-                                {getInitials(comment.author?.name || "User")}
+                                {getInitials(comment?.name|| "User")}
                               </div>
-                              <span className="font-medium text-sm">{comment.author?.name || "User"}</span>
+                              <span className="font-medium text-sm">{comment?.name || "User"}</span>
                               <span className="text-xs text-gray-500 ml-2">
                                 {new Date(comment.createdAt).toLocaleString()}
                               </span>
@@ -483,139 +578,166 @@ function TaskDetails({ task = {}, onClose }) {
             </div>
             
             {showDetails && (
-              <>
-                <div className="status-section mb-4">
-                  <div className="status-dropdown flex items-center justify-between px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer transition-colors">
-                    <div className="flex items-center">
-                      <span className={`w-2 h-2 rounded-full ${
-                        taskData.status === 'To Do' ? 'bg-gray-500' : 
-                        taskData.status === 'In Progress' ? 'bg-blue-500' : 
-                        taskData.status === 'Done' ? 'bg-green-500' : 'bg-purple-500'
-                      } mr-2`}></span>
-                      <span className="text-sm">{taskData.status || 'To Do'}</span>
+                <>
+                  <div className="mb-4 relative status-dropdown-container">
+                    <div className="text-sm text-gray-500 mb-1">
+                      Status
                     </div>
-                    <ChevronDown size={14} />
-                  </div>
-                </div>
-                
-                <div className="assignee-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">
-                    Assignee{assigneeDetails.length > 1 ? 's' : ''}
-                  </label>
-                  {assigneeDetails.length > 0 ? (
-                    <div className="flex flex-col space-y-2">
-                      {assigneeDetails.map((assignee, index) => (
-                        <div key={assignee.id || index} className="flex items-center justify-between group">
-                          <div className="flex items-center">
-                            <div className="w-6 h-6 rounded-full bg-blue-500 mr-2 flex items-center justify-center text-white text-xs">
-                              {getInitials(assignee.name || "User")}
-                            </div>
-                            <span className="text-sm">{assignee.name || 'Assigned User'}</span>
-                          </div>
-                          <button 
-                            onClick={() => handleUnassign(assignee.id)}
-                            className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                    <button 
+                      onClick={() => setStatusDropdownOpen(!statusDropdownOpen)} 
+                      className={`flex items-center justify-between w-full px-3 py-2 rounded ${getStatusColor(taskData.status)}`}
+                    >
+                      <span>{getStatusDisplayName(taskData.status)}</span>
+                      <ChevronDown size={16} />
+                    </button>
+                    
+                    {statusDropdownOpen && (
+                      <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                        {STATUS_OPTIONS.map((status) => (
+                          <div 
+                            key={status}
+                            className={`px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm ${taskData.status === status ? 'bg-blue-50' : ''}`}
+                            onClick={() => handleStatusChange(status)}
                           >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full bg-gray-200 mr-2 flex items-center justify-center">
-                        <span role="img" aria-label="unassigned" className="text-xs">?</span>
+                            <div className={`px-2 py-1 rounded inline-block ${getStatusColor(status)}`}>
+                              {getStatusDisplayName(status)}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-sm text-gray-500">Unassigned</span>
-                    </div>
-                  )}
-                  <button 
-                    className="text-blue-500 text-sm mt-2 hover:underline"
-                    onClick={handleAssignToMe}
-                  >
-                    Assign to me
-                  </button>
-                </div>
-                
-                <div className="labels-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Label</label>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-500">{taskData.label || "NA"}</span>
-                  </div>
-                </div>
-                
-                <div className="parent-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Parent</label>
-                  {parentInfo ? (
-                    <div className="flex items-center bg-gray-50 p-2 rounded">
-                      <span className="badge bg-purple-600 text-white px-2 py-0.5 rounded text-xs mr-2">
-                        {parentInfo.id}
-                      </span>
-                      <span className="text-sm truncate">{parentInfo.title}</span>
-                      <span
-                          className={`text-sm ml-[20px] truncate ${
-                            taskData?.storyId ? "text-blue-500" : taskData?.epicId ? "text-green-500" : ""
-                          }`}
-                        >
-                          {taskData?.storyId ? "Story" : taskData?.epicId ? "Epic" : ""}
-                        </span>
-
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">None</span>
-                  )}
-                </div>
-                
-                <div className="team-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Reporter</label>
-                  <div className="flex items-center">
-                    {reporterData ? (
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 rounded-full bg-green-500 mr-2 flex items-center justify-center text-white text-xs">
-                          {getInitials(reporterData.data.name || "Reporter")}
-                        </div>
-                        <span className="text-sm">{reporterData?.data?.name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">
-                        {taskData?.reporter || "Not assigned"}
-                      </span>
                     )}
                   </div>
-                </div>
-                
-                <div className="development-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Development</label>
-                  <div className="dev-actions space-y-2">
-                    <button className="text-blue-500 flex items-center justify-between p-2 bg-blue-50 hover:bg-blue-100 rounded transition-colors w-full">
-                      <div className="flex items-center">
-                        <GitBranch size={14} className="mr-2" />
-                        <span className="text-sm">Create branch</span>
+                  
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">
+                      Assignee{assigneeDetails.length > 1 ? "s" : ""}
+                    </div>
+
+                    {assigneeDetails.length > 0 ? (
+                      <div className="space-y-2">
+                        {assigneeDetails.map((assignee) => (
+                          <div key={assignee.userId} className="flex items-center justify-between group">
+                            <div className="flex items-center">
+                              <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium mr-2">
+                                {getInitials(assignee.name)}
+                              </div>
+                              <span className="text-sm">{assignee.name}</span>
+                            </div>
+                            <button 
+                              onClick={() => handleUnassign(assignee)}
+                              className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                      <ChevronDown size={14} />
-                    </button>
-                    <button className="text-blue-500 flex items-center justify-between p-2 bg-blue-50 hover:bg-blue-100 rounded transition-colors w-full">
-                      <div className="flex items-center">
-                        <GitCommit size={14} className="mr-2" />
-                        <span className="text-sm">Create commit</span>
+                    ) : (
+                      <div className="flex items-center text-sm text-gray-500">
+                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                          ?
+                        </div>
+                        Unassigned
                       </div>
-                      <ChevronDown size={14} />
+                    )}
+
+                    {/* Input to add new user */}
+                    <div className="mt-2 flex space-x-2">
+                      <input
+                      value={newAssignee}
+                      onChange={(e) => setNewAssignee(e.target.value)}
+                      className="border rounded px-2 py-0.5 text-sm w-full h-8"
+                      placeholder="Enter assignee id"
+                    />
+                      <button 
+                        onClick={handleAssignToMe}
+                        className="bg-blue-600 text-white px-2 py-1 rounded text-sm hover:bg-blue-700"
+                      >
+                        Add 
+                      </button>
+                    </div>
+
+                    {/* Assign to me button */}
+                    <button 
+                      onClick={() => setNewAssignee(userId)}
+                      className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm"
+                    >
+                      Assign to me
                     </button>
                   </div>
-                </div>
-                
-                <div className="actions-section mb-4">
-                  <div className="actions-dropdown flex items-center justify-between px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer transition-colors">
-                    <span className="text-sm">Actions</span>
-                    <ChevronDown size={14} />
+
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">Label</div>
+                    <div className="text-sm">
+                      {taskData.label || "NA"}
+                    </div>
                   </div>
-                  <button className="improve-issue-btn px-3 py-2 w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 border rounded mt-2 transition-colors">
-                    <Settings size={14} className="mr-2" />
-                    <span className="text-sm">Improve issue</span>
-                  </button>
-                </div>
-              </>
-            )}
+                  
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">Parent</div>
+                    {parentInfo ? (
+                      <div className="flex items-center text-sm">
+                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mr-2">
+                          {parentInfo.id}
+                        </span>
+                        <span>{parentInfo.title}</span>
+                        <span className="ml-1 text-xs text-gray-500">
+                          {taskData?.storyId ? "Story" : taskData?.epicId ? "Epic" : ""}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm">None</span>
+                    )}
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">Reporter</div>
+                    <div className="flex items-center">
+                      {reporterData ? (
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-medium mr-2">
+                            {getInitials(reporterData.data.name || "Reporter")}
+                          </div>
+                          <span className="text-sm">{reporterData?.data?.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm">
+                          {taskData?.reporter || "Not assigned"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">Development</div>
+                    <div className="space-y-2 mt-1">
+                      <button className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                        <div className="mr-1">
+                          <GitBranch size={14} />
+                        </div>
+                        Create branch
+                      </button>
+                      <button className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                        <div className="mr-1">
+                          <GitCommit size={14} />
+                        </div>
+                        Create commit
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg shadow-sm">
+                    <button className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                      <Settings size={14} className="mr-2" />
+                      {task?.createdAt ? (
+                        <span>Created on: {new  Date(task?.createdAt).toLocaleDateString()}</span>
+                      ) : (
+                        <span className="text-gray-400 italic">Creation date not available</span>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
           </div>
         </div>
       </div>

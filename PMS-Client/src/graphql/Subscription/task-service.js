@@ -7,6 +7,7 @@ export const SUBSCRIBE_TO_COMMENT_UPDATES = gql`
       userId
       message
       commentId
+      createdAt
     }
   }
 `;

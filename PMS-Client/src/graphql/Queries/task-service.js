@@ -131,6 +131,7 @@ export const GET_TASK_BY_ID = gql`
       epicId
       storyId
       reporter
+      createdAt
     }
   }
 `;
@@ -149,6 +150,7 @@ export const GET_TASKS_BY_STATUS_AND_EPIC = gql`
       memberId
       deadline
       label
+      createdAt
     }
   }
 `;
