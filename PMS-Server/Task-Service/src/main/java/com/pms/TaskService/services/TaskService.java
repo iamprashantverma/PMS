@@ -108,5 +108,5 @@ public interface TaskService {
      * @return the updated TaskDTO after unassigning the member
      */
     TaskDTO unAssignedMemberFromTask(String taskId, String memberId);
-
+    TaskDTO changeTaskStatus(String taskId,Status status);
 }

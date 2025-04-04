@@ -37,7 +37,7 @@ public interface CommentService {
      *
      * @param commentId The unique ID of the comment to delete.
      */
-    ResponseDTO deleteComment(Long commentId);
+    Long deleteComment(Long commentId);
 
     /**
      * Retrieves all comments for a given post/task.

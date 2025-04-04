@@ -96,7 +96,16 @@ public class TaskServiceImpl implements TaskService {
                new ResourceNotFound("Task not found :"+taskId));
    }
 
-   @Override
+    @Override
+    @Transactional
+    public TaskDTO changeTaskStatus(String taskId, Status status) {
+        Task task = getTaskEntity(taskId);
+        task.setStatus(status);
+        Task savedTask = taskRepository.save(task);
+        return convertToDTO(task);
+    }
+
+    @Override
    @Transactional
     public TaskDTO createTask(TaskDTO taskDTO, MultipartFile file) {
 

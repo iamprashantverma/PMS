@@ -3,6 +3,7 @@ package com.pms.TaskService.resolver;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.SubTaskDTO;
 import com.pms.TaskService.dto.TaskDTO;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.SubTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,4 +115,8 @@ public class SubTaskResolver {
         return subTaskService.unAssignedMemberFromTask(taskId,memberId);
     }
 
+    @MutationMapping
+    public SubTaskDTO changeStatus(@Argument("subTaskId")String subTaskId, @Argument("status")Status status) {
+        return subTaskService.changeSubTaskStatus(subTaskId,status);
+    }
 }

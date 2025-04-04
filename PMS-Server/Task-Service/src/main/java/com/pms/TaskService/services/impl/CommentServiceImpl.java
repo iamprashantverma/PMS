@@ -1,7 +1,6 @@
 package com.pms.TaskService.services.impl;
 
 import com.pms.TaskService.dto.CommentDTO;
-import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.Comment;
 import com.pms.TaskService.event.NotificationEvent;
 import com.pms.TaskService.exceptions.ResourceNotFound;
@@ -12,13 +11,14 @@ import com.pms.TaskService.services.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
 import org.reactivestreams.Publisher;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +32,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
 
-    // Queue for real-time updates
-    private final Queue<Comment> commentQueue = new ConcurrentLinkedQueue<>();
+    // Sinks for emitting updates
+    private final Map<String, Sinks.Many<CommentDTO>> taskCommentSinks = new ConcurrentHashMap<>();
 
     private CommentDTO convertToDTO(Comment comment) {
         return modelMapper.map(comment, CommentDTO.class);
@@ -44,33 +44,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private List<String> extractMentionedUsers(String content) {
-        List<String> mentionedUsers = new ArrayList<>();
-        Pattern pattern = Pattern.compile("@(\\w+)"); // Regex to find mentions (@username)
+        Pattern pattern = Pattern.compile("@(\\w+)");
         Matcher matcher = pattern.matcher(content);
-
-        while (matcher.find()) {
-            mentionedUsers.add(matcher.group(1)); // Extract username
-        }
-
-        return mentionedUsers;
+        return matcher.results().map(m -> m.group(1)).toList();
     }
 
     @Override
     public CommentDTO addComment(CommentDTO commentDto) {
-        // Fetch the task (issueId)
         taskRepository.findById(commentDto.getTaskId()).orElseThrow(() ->
                 new ResourceNotFound("Invalid Task Id"));
-        Comment comment = convertToEntity(commentDto);
 
+        Comment comment = convertToEntity(commentDto);
         Comment savedComment = commentRepository.save(comment);
 
-        // Emit the comment for real-time subscribers
-        commentQueue.offer(savedComment);
+        // Emit the new comment to subscribers
+        sendCommentUpdate(commentDto.getTaskId(), convertToDTO(savedComment));
 
-        // Extract mentioned users from comment content (e.g., @user123)
+        // Extract mentioned users
         List<String> mentionedUserIds = extractMentionedUsers(commentDto.getMessage());
-
-        // Notify them in their app
         if (!mentionedUserIds.isEmpty()) {
             mentionUsersInComment(savedComment, mentionedUserIds);
         }
@@ -86,54 +77,56 @@ public class CommentServiceImpl implements CommentService {
         existingComment.setMessage(commentDto.getMessage());
         Comment updatedComment = commentRepository.save(existingComment);
 
-        commentQueue.offer(updatedComment); // Emit updated comment for real-time updates
+        // Emit the updated comment to subscribers
+        sendCommentUpdate(updatedComment.getTaskId(), convertToDTO(updatedComment));
 
         return convertToDTO(updatedComment);
     }
 
     @Override
-    public ResponseDTO deleteComment(Long commentId) {
+    public Long deleteComment(Long commentId) {
         commentRepository.deleteById(commentId);
-        return ResponseDTO.builder().message("Comment Deleted").build();
+        return commentId;
     }
 
     @Override
     public List<CommentDTO> getCommentsByTaskId(String taskId) {
-        List<Comment> comments = commentRepository.findAllByTaskId(taskId);
-        return comments.stream()
+        return commentRepository.findAllByTaskId(taskId)
+                .stream()
                 .map(this::convertToDTO)
                 .toList();
     }
 
     @Override
     public void mentionUsersInComment(Comment comment, List<String> mentionedUserIds) {
-        for (String userId : mentionedUserIds) {
-            // Create a notification event
+        mentionedUserIds.forEach(userId -> {
             NotificationEvent event = NotificationEvent.builder()
                     .message("You are mentioned in a comment on task " + comment.getTaskId())
                     .userId(userId)
                     .id(comment.getTaskId())
                     .build();
-            // Produce the notification event
             producer.sendNotificationEvent(event);
-        }
+        });
     }
 
     @Override
     public Publisher<CommentDTO> subscribeToCommentUpdates(String taskId) {
-        return subscriber -> {
-            // Send existing comments first
-            List<CommentDTO> existingComments = getCommentsByTaskId(taskId);
-            existingComments.forEach(subscriber::onNext);
+        // Get or create a sink for the task
+        Sinks.Many<CommentDTO> sink = taskCommentSinks.computeIfAbsent(taskId, key ->
+                Sinks.many().multicast().directBestEffort());
 
-            // Continuously send new comments
-            while (!Thread.currentThread().isInterrupted()) {
-                Comment comment = commentQueue.poll();
-                if (comment != null && comment.getTaskId().equals(taskId)) {
-                    subscriber.onNext(convertToDTO(comment));
-                }
-            }
-        };
+        // Send existing comments to the new subscriber
+        return Flux.concat(
+                Flux.fromIterable(getCommentsByTaskId(taskId)), // Send previous comments
+                sink.asFlux() // Subscribe to new comments
+        );
     }
 
+    private void sendCommentUpdate(String taskId, CommentDTO comment) {
+        Sinks.Many<CommentDTO> sink = taskCommentSinks.get(taskId);
+        if (sink != null) {
+            System.out.println(comment);
+            sink.tryEmitNext(comment);
+        }
+    }
 }

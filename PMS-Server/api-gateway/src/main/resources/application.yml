@@ -39,6 +39,7 @@ spring:
           filters:
             - StripPrefix=2
             - AuthenticationFilter
+
         - id: Activity-Service
           uri: lb://Activity-Tracker
           predicates:

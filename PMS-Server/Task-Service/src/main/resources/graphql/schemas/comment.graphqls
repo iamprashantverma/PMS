@@ -1,4 +1,5 @@
 type CommentDTO {
+    commentId:Int!
     taskId: String
     userId: String
     message: String

@@ -251,4 +251,13 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         return convertToDTO(savedSubTask);
     }
+
+    @Override
+    @Transactional
+    public SubTaskDTO changeSubTaskStatus(String subTaskId, Status status) {
+            SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(()->new ResourceNotFound(" Invalid subTask Id:"+ subTaskId));
+            subTask.setStatus(status);
+            SubTask savedTask = subTaskRepository.save(subTask);
+            return convertToDTO(savedTask);
+    }
 }

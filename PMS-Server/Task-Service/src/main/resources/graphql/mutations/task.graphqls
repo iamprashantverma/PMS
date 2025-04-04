@@ -4,4 +4,5 @@
      updateTask(task: TaskInput,) : TaskDTO
      assignMemberToTask(taskId:String!,memberId:String!):TaskDTO
      unAssignMemberToTask(taskId:String!,memberId:String!):TaskDTO
+      changeTaskStatus(taskId:String!,status:IssueStatus!):TaskDTO
  }

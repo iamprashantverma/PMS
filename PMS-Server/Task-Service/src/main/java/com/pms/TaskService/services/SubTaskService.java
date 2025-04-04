@@ -3,6 +3,7 @@ package com.pms.TaskService.services;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.SubTaskDTO;
 import com.pms.TaskService.entities.SubTask;
+import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 
 import java.util.List;
@@ -79,5 +80,5 @@ public interface SubTaskService {
      * @return the updated TaskDTO after unassigning the member
      */
     SubTaskDTO unAssignedMemberFromTask(String taskId, String memberId);
-
+    SubTaskDTO changeSubTaskStatus(String subTaskId, Status status);
 }

@@ -1,4 +1,4 @@
 extend type Mutation {
     addComment(commentDTO: CommentInput!): CommentDTO
-    deleteComment(commentId: Int!): ResponseDTO
+    deleteComment(commentId: Int!): Int!
 }

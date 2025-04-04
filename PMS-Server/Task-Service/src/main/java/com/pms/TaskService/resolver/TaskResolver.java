@@ -119,5 +119,9 @@ public class TaskResolver {
         return taskService.unAssignedMemberFromTask(taskId, memberId);
     }
 
+    @MutationMapping
+    public TaskDTO changeTaskStatus(@Argument("taskId") String taskId, @Argument("status") Status status) {
+        return taskService.changeTaskStatus(taskId,status);
+    }
 
 }

@@ -58,7 +58,7 @@ public class CommentResolver {
      * @return A response indicating success or failure.
      */
     @MutationMapping
-    public ResponseDTO deleteComment(Long commentId) {
+    public Long deleteComment(@Argument("commentId")Long commentId) {
         log.info("Deleting comment with ID: {}", commentId);
         return commentService.deleteComment(commentId);
 
