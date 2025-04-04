@@ -28,13 +28,16 @@ export const GET_ALL_TASKS_BY_PROJECT_ID = gql`
       description
       project
       assignees
-      updatedDate
+      updatedAt
       status
       priority
       label
-      isBlocking
       memberId
       deadline
+      epicId
+      storyId
+      reporter
+      createdAt
     }
   }
 `;
@@ -119,11 +122,15 @@ export const GET_TASK_BY_ID = gql`
       description
       project
       assignees
+      updatedAt
       status
       priority
       label
       memberId
       deadline
+      epicId
+      storyId
+      reporter
     }
   }
 `;
@@ -194,50 +201,6 @@ export const GET_ASSIGNED_MEMBERS = gql`
     }
 `;
 
-export const CHANGE_BUG_STATUS = gql`
-  mutation ChangeBugStatus($bugId: ID!, $status: String!) {
-    changeBugStatus(bugId: $bugId, status: $status) {
-      message
-    }
-  }
-`;
-
-export const CHANGE_STATUS = gql`
-  mutation ChangeStatus($subTaskId: ID!, $status: String!) {
-    changeStatus(subTaskId: $subTaskId, status: $status) {
-      id
-      title
-      description
-      assignees
-      creator
-      createdDate
-      updatedDate
-      status
-      priority
-      label
-    }
-  }
-`;
-
-export const CHANGE_TASK_STATUS = gql`
-  mutation ChangeTaskStatus($taskId: ID!, $status: String!) {
-    changeTaskStatus(taskId: $taskId, status: $status) {
-      id
-      title
-      description
-      project
-      assignees
-      updatedAt
-      status
-      priority
-      label
-      memberId
-      deadline
-    }
-  }
-`;
-
-
 export const GET_BUG_BY_ID = gql`
   query GetBugById($bugId: ID!) {
     getBugById(bugId: $bugId) {
@@ -260,9 +223,8 @@ export const GET_BUG_BY_ID = gql`
   }
 `;
 
-
 export const GET_BUGS_BY_PROJECT_ID = gql`
-  query GetBugsByProjectId($projectId: ID!) {
+  query GetBugsByProjectId($projectId: String!) {
     getBugsByProjectId(projectId: $projectId) {
       id
       title
@@ -282,7 +244,6 @@ export const GET_BUGS_BY_PROJECT_ID = gql`
     }
   }
 `;
-
 
 export const GET_BUGS_BY_USER_ID = gql`
   query GetBugsByUserId($userId: ID!) {
@@ -341,6 +302,26 @@ export const GET_TASKS_BY_USER_ID = gql`
   }
 `;
 
+export const GET_EPIC_BY_ID = gql`
+  query GetEpicById($epicId: String!) {
+    getEpicById(epicId: $epicId) {
+      id
+      title
+      description
+      project
+      creator
+      assignees
+      createdDate
+      updatedDate
+      deadline
+      status
+      priority
+      tag
+      epicGoal
+      label
+    }
+  }
+`;
 
 
 

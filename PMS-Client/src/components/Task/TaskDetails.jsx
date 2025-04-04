@@ -7,6 +7,8 @@ import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { SUBSCRIBE_TO_COMMENT_UPDATES } from '@/graphql/Subscription/task-service';
 import { ADD_COMMENT, DELETE_COMMENT, ASSIGN_MEMBER_TO_TASK, UNASSIGN_MEMBER_TO_TASK } from '@/graphql/Mutation/task-service';
 import { useAuth } from '@/context/AuthContext';
+import { getUserDetails } from '@/services/UserService';
+import { GET_EPIC_BY_ID, GET_STORY_BY_ID } from '@/graphql/Queries/task-service';
 
 function TaskDetails({ task = {}, onClose }) {
   const taskId = task?.id;
@@ -14,6 +16,7 @@ function TaskDetails({ task = {}, onClose }) {
   const { user } = useAuth();
   const userId = user.userId;
   const commentsContainerRef = useRef(null);
+  const { accessToken } = useAuth();
 
   const [taskData, setTaskData] = useState(task || {
     id: 'sample-123',
@@ -26,7 +29,10 @@ function TaskDetails({ task = {}, onClose }) {
     team: null,
     comments: []
   });
-  
+  const [epicData, setEpicData] = useState(null);
+  const [storyData, setStoryData] = useState(null);
+  const [reporterData, setReporterData] = useState(null);
+  const [assigneeDetails, setAssigneeDetails] = useState([]);
   const [commentInput, setCommentInput] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   const [showDetails, setShowDetails] = useState(true);
@@ -40,6 +46,80 @@ function TaskDetails({ task = {}, onClose }) {
     fetchPolicy: 'network-only'
   });
 
+  // Epic query if epicId exists
+  const { loading: epicLoading, data: epicQueryData } = useQuery(GET_EPIC_BY_ID, {
+    variables: { epicId: taskData?.epicId },
+    client: taskClient,
+    skip: !taskData?.epicId,
+    onCompleted: (data) => {
+      if (data?.getEpicById) {
+        setEpicData(data.getEpicById);
+      }
+    }
+  });
+  
+  // Story query if storyId exists
+  const { loading: storyLoading, data: storyQueryData } = useQuery(GET_STORY_BY_ID, {
+    variables: { storyId: taskData?.storyId },
+    client: taskClient,
+    skip: !taskData?.storyId,
+    onCompleted: (data) => {
+      if (data?.getStoryById) {
+        setStoryData(data.getStoryById);
+      }
+    }
+  });
+
+  // Fetch reporter data if reporterId exists
+  useEffect(() => {
+    const fetchReporterData = async () => {
+      if (taskData?.reporter) {
+        try {
+          const reporterDetails = await getUserDetails(taskData.reporter, accessToken);
+          setReporterData(reporterDetails);
+        } catch (error) {
+          console.error("Error fetching reporter details:", error);
+        }
+      }
+    };
+    
+    fetchReporterData();
+  }, [taskData?.reporter, accessToken]);
+
+  // Fetch assignee details
+  useEffect(() => {
+    const fetchAssigneeDetails = async () => {
+      if (taskData.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
+        try {
+          const assigneePromises = taskData.assignees.map(assigneeId => 
+            getUserDetails(assigneeId, accessToken)
+          );
+       
+          const assigneeData = await Promise.all(assigneePromises);
+          // Extract only the `data` from each response
+          const extractedData = assigneeData.map(response => response.data);
+
+          setAssigneeDetails(extractedData);
+
+        } catch (error) {
+          console.error("Error fetching assignee details:", error);
+        }
+      } else if (taskData.assignees && !Array.isArray(taskData.assignees)) {
+        // Handle case where assignees is a single ID instead of an array
+        try {
+          const assigneeData = await getUserDetails(taskData.assignees, accessToken);
+          setAssigneeDetails([assigneeData]);
+        } catch (error) {
+          console.error("Error fetching assignee details:", error);
+        }
+      } else {
+        setAssigneeDetails([]);
+      }
+    };
+    
+    fetchAssigneeDetails();
+  }, [taskData.assignees, accessToken]);
+
   const [addComment] = useMutation(ADD_COMMENT, {
     client: taskClient,
     onCompleted: (data) => {
@@ -51,6 +131,7 @@ function TaskDetails({ task = {}, onClose }) {
       setSubmittingComment(false);
     }
   });
+  
   const [deleteComment] = useMutation(DELETE_COMMENT, {
     client: taskClient,
     onCompleted: (data) => {
@@ -65,15 +146,21 @@ function TaskDetails({ task = {}, onClose }) {
       console.error("Error deleting comment:", error);
     }
   });
-  
-  
-  
 
   const [assignMemberToTask] = useMutation(ASSIGN_MEMBER_TO_TASK, {
     client: taskClient,
     onCompleted: (data) => {
-      const updatedTask = { ...taskData, assignee: { id: userId, initials: getInitials(user.name) } };
-      setTaskData(updatedTask);
+      // Update local state with the new assignee
+      const updatedAssignees = Array.isArray(taskData.assignees) 
+        ? [...taskData.assignees, userId]
+        : taskData.assignees 
+          ? [taskData.assignees, userId] 
+          : [userId];
+      
+      setTaskData(prev => ({
+        ...prev,
+        assignees: updatedAssignees
+      }));
     },
     onError: (error) => {
       console.error("Error assigning member:", error);
@@ -83,8 +170,15 @@ function TaskDetails({ task = {}, onClose }) {
   const [unassignMemberFromTask] = useMutation(UNASSIGN_MEMBER_TO_TASK, {
     client: taskClient,
     onCompleted: (data) => {
-      const updatedTask = { ...taskData, assignee: null };
-      setTaskData(updatedTask);
+      // Remove the unassigned member from local state
+      const updatedAssignees = Array.isArray(taskData.assignees)
+        ? taskData.assignees.filter(id => id !== data.unassignMemberFromTask)
+        : null;
+      
+      setTaskData(prev => ({
+        ...prev,
+        assignees: updatedAssignees
+      }));
     },
     onError: (error) => {
       console.error("Error unassigning member:", error);
@@ -107,7 +201,7 @@ function TaskDetails({ task = {}, onClose }) {
       }
     }
   });
-  console.log(taskData)
+
   useEffect(() => {
     if (taskQueryData?.getTaskById) {
       setTaskData(taskQueryData.getTaskById);
@@ -121,13 +215,7 @@ function TaskDetails({ task = {}, onClose }) {
   }, [taskData.comments]);
 
   const getInitials = (name) => {
-    if (!name) return "?";
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
+    return name ? name.charAt(0).toUpperCase() : '';
   };
 
   const handleCommentChange = (e) => {
@@ -162,7 +250,6 @@ function TaskDetails({ task = {}, onClose }) {
       variables: { commentId: commentIdInt } 
     });
   };
-  
 
   const handleAssignToMe = () => {
     assignMemberToTask({
@@ -173,11 +260,11 @@ function TaskDetails({ task = {}, onClose }) {
     });
   };
 
-  const handleUnassign = () => {
+  const handleUnassign = (memberId) => {
     unassignMemberFromTask({
       variables: {
         taskId,
-        memberId: taskData.assignee?.id || userId
+        memberId: memberId || userId
       }
     });
   };
@@ -190,17 +277,37 @@ function TaskDetails({ task = {}, onClose }) {
     setShowActivity(!showActivity);
   };
 
+  // Get parent information (epic or story)
+  const getParentInfo = () => {
+    if (taskData.epicId && epicData) {
+      return {
+        id: taskData.epicId,
+        title: epicData.title || "Epic"
+      };
+    } else if (taskData.storyId && storyData) {
+      return {
+        id: taskData.storyId,
+        title: storyData.title || "Story"
+      };
+    } else if (taskData.parent) {
+      return taskData.parent;
+    }
+    return null;
+  };
+
+  const parentInfo = getParentInfo();
+
   return (
     <div className="task-details-container flex flex-col h-full bg-gray-50">
       {/* Header */}
-      <div className="task-header flex items-center justify-between p-4 border-b bg-white shadow-sm">
+      <div className="task-header flex items-center justify-between p-4 border-b bg-white shadow-sm sticky top-0 z-10">
         <div className="task-identifiers flex items-center">
           <div className="badge-container flex items-center gap-2">
-            <span className="badge bg-purple-600 text-white px-2 py-1 rounded text-sm font-medium">{taskData.id || 'CCS-7'}</span>
-            {taskData.parent && (
+            <span className="badge bg-purple-600 text-white px-2 py-1 rounded text-sm font-medium">{parentInfo?.id || ' '}</span>
+            {parentInfo && (
               <>
                 <span className="divider text-gray-400">/</span>
-                <span className="badge bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">{taskData.parent.id}</span>
+                <span className="badge bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">{taskData.id }</span>
               </>
             )}
           </div>
@@ -323,7 +430,7 @@ function TaskDetails({ task = {}, onClose }) {
                   {taskData.comments?.length > 0 ? (
                     <div className="comments-list space-y-4">
                       {taskData.comments.map(comment => (
-                        <div key={comment.id} className="comment-item p-3 bg-gray-50 rounded-lg">
+                        <div key={comment.id || comment.commentId} className="comment-item p-3 bg-gray-50 rounded-lg">
                           <div className="comment-header flex items-center justify-between mb-2">
                             <div className="flex items-center">
                               <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs mr-2">
@@ -360,8 +467,8 @@ function TaskDetails({ task = {}, onClose }) {
           </div>
         </div>
         
-        {/* Sidebar */}
-        <div className="task-sidebar w-72 bg-white shadow-sm m-2 ml-0 rounded-lg overflow-y-auto">
+        {/* Sidebar - positioned to stay in place */}
+        <div className="task-sidebar w-72 bg-white shadow-sm m-2 ml-0 rounded-lg overflow-y-auto sticky top-16">
           <div className="sidebar-section p-4">
             <div className="section-header flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-700">Details</h3>
@@ -392,21 +499,27 @@ function TaskDetails({ task = {}, onClose }) {
                 </div>
                 
                 <div className="assignee-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Assignee</label>
-                  {taskData.assignee ? (
-                    <div className="flex items-center justify-between group">
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 rounded-full bg-blue-500 mr-2 flex items-center justify-center text-white text-xs">
-                          {getInitials(taskData.assignee.name || "User")}
+                  <label className="block text-sm text-gray-600 mb-2">
+                    Assignee{assigneeDetails.length > 1 ? 's' : ''}
+                  </label>
+                  {assigneeDetails.length > 0 ? (
+                    <div className="flex flex-col space-y-2">
+                      {assigneeDetails.map((assignee, index) => (
+                        <div key={assignee.id || index} className="flex items-center justify-between group">
+                          <div className="flex items-center">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 mr-2 flex items-center justify-center text-white text-xs">
+                              {getInitials(assignee.name || "User")}
+                            </div>
+                            <span className="text-sm">{assignee.name || 'Assigned User'}</span>
+                          </div>
+                          <button 
+                            onClick={() => handleUnassign(assignee.id)}
+                            className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
-                        <span className="text-sm">{taskData.assignee.name || 'Assigned User'}</span>
-                      </div>
-                      <button 
-                        onClick={handleUnassign}
-                        className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
-                      >
-                        <X size={14} />
-                      </button>
+                      ))}
                     </div>
                   ) : (
                     <div className="flex items-center">
@@ -425,23 +538,28 @@ function TaskDetails({ task = {}, onClose }) {
                 </div>
                 
                 <div className="labels-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Labels</label>
+                  <label className="block text-sm text-gray-600 mb-2">Label</label>
                   <div className="flex items-center">
-                    <span className="text-sm text-gray-500">None</span>
-                    <button className="ml-2 text-gray-400 hover:text-blue-500 transition-colors">
-                      <Plus size={14} />
-                    </button>
+                    <span className="text-sm text-gray-500">{taskData.label || "NA"}</span>
                   </div>
                 </div>
                 
                 <div className="parent-section mb-4">
                   <label className="block text-sm text-gray-600 mb-2">Parent</label>
-                  {taskData.parent ? (
+                  {parentInfo ? (
                     <div className="flex items-center bg-gray-50 p-2 rounded">
                       <span className="badge bg-purple-600 text-white px-2 py-0.5 rounded text-xs mr-2">
-                        {taskData.parent.id}
+                        {parentInfo.id}
                       </span>
-                      <span className="text-sm truncate">{taskData.parent.title}</span>
+                      <span className="text-sm truncate">{parentInfo.title}</span>
+                      <span
+                          className={`text-sm ml-[20px] truncate ${
+                            taskData?.storyId ? "text-blue-500" : taskData?.epicId ? "text-green-500" : ""
+                          }`}
+                        >
+                          {taskData?.storyId ? "Story" : taskData?.epicId ? "Epic" : ""}
+                        </span>
+
                     </div>
                   ) : (
                     <span className="text-sm text-gray-500">None</span>
@@ -449,12 +567,20 @@ function TaskDetails({ task = {}, onClose }) {
                 </div>
                 
                 <div className="team-section mb-4">
-                  <label className="block text-sm text-gray-600 mb-2">Team</label>
+                  <label className="block text-sm text-gray-600 mb-2">Reporter</label>
                   <div className="flex items-center">
-                    <span className="text-sm text-gray-500">None</span>
-                    <button className="ml-2 text-gray-400 hover:text-blue-500 transition-colors">
-                      <Plus size={14} />
-                    </button>
+                    {reporterData ? (
+                      <div className="flex items-center">
+                        <div className="w-6 h-6 rounded-full bg-green-500 mr-2 flex items-center justify-center text-white text-xs">
+                          {getInitials(reporterData.data.name || "Reporter")}
+                        </div>
+                        <span className="text-sm">{reporterData?.data?.name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">
+                        {taskData?.reporter || "Not assigned"}
+                      </span>
+                    )}
                   </div>
                 </div>
                 

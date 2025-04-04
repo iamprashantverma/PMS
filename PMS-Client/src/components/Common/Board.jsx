@@ -3,10 +3,8 @@ import { ChevronDown, UserRoundPlus, Users, Search, Plus, Filter, X } from 'luci
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { GET_ALL_EPICS_BY_PROJECT_ID, GET_TASKS_BY_STATUS_AND_EPIC } from '@/graphql/Queries/task-service';
-import IssueCard from './IssueCard';
 import { Link, useParams } from 'react-router-dom';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
-import { getUserDetails } from '@/services/UserService';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TaskDetails from '../Task/TaskDetails';
@@ -14,7 +12,6 @@ import TaskDetails from '../Task/TaskDetails';
 function Board() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
   const { taskClient, projectClient } = useApolloClients();
   const [showEpics, setShowEpics] = useState(false);
   const [epicId, setEpicId] = useState('');

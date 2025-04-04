@@ -11,6 +11,7 @@ import CreateProjectForm from '@/components/Project/CreateProjectForm';
 import Home from '@/components/Common/Home';
 import TaskCalendar from '@/components/Common/TaskCalendar';
 import Board from '@/components/Common/Board';
+import AllIssues from '@/components/Common/AllIssues';
 
 function UserRoutes() {
   return (
@@ -21,6 +22,7 @@ function UserRoutes() {
         <Route path='/project/:projectId'element={<Home/>} >
           <Route path='calendar'element={<TaskCalendar/>} />
           <Route path='board' element ={<Board/>} />
+          <Route path='issues' element ={<AllIssues/>} />
           
         </Route>
         <Route path="/projects" element={<AllProject />} />

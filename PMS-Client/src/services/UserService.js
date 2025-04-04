@@ -10,6 +10,7 @@ const apiClient = axios.create({
 });
 
 export const getUserDetails = async (userId, token) => {
+
   try {
     const { data } = await apiClient.get(`/details?userId=${userId}`, {
       headers: {

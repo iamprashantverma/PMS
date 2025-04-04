@@ -175,3 +175,45 @@ export const DELETE_COMMENT = gql`
   }
 `;
 
+export const CHANGE_BUG_STATUS = gql`
+  mutation ChangeBugStatus($bugId: ID!, $status: String!) {
+    changeBugStatus(bugId: $bugId, status: $status) {
+      message
+    }
+  }
+`;
+
+export const CHANGE_STATUS = gql`
+  mutation ChangeStatus($subTaskId: ID!, $status: String!) {
+    changeStatus(subTaskId: $subTaskId, status: $status) {
+      id
+      title
+      description
+      assignees
+      creator
+      createdDate
+      updatedDate
+      status
+      priority
+      label
+    }
+  }
+`;
+
+export const CHANGE_TASK_STATUS = gql`
+  mutation ChangeTaskStatus($taskId: ID!, $status: String!) {
+    changeTaskStatus(taskId: $taskId, status: $status) {
+      id
+      title
+      description
+      project
+      assignees
+      updatedAt
+      status
+      priority
+      label
+      memberId
+      deadline
+    }
+  }
+`;

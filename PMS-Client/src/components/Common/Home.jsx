@@ -134,7 +134,7 @@ function Home() {
                 <CalendarDays size={16} /> <span className="text-sm">Calendar</span>
               </Link>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-600 py-1 px-2 rounded hover:bg-gray-50">
-                <ListOrdered size={16} /> <span className="text-sm">List</span>
+                <ListOrdered size={16} /> <Link to='issues' className="text-sm">Issues</Link>
               </div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-600 py-1 px-2 rounded hover:bg-gray-50">
                 <ClipboardList size={16} /> <span className="text-sm">Forms</span>
