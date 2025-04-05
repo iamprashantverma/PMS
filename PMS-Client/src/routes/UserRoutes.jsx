@@ -13,6 +13,7 @@ import TaskCalendar from '@/components/Common/TaskCalendar';
 import Board from '@/components/Common/Board';
 import AllIssues from '@/components/Common/AllIssues';
 import TaskDetails from '@/components/Task/TaskDetails';
+import Timeline from '@/components/Task/Timeline';
 
 function UserRoutes() {
   return (
@@ -24,7 +25,7 @@ function UserRoutes() {
           <Route path="calendar" element={<TaskCalendar />} />
           <Route path="board" element={<Board />} />
           <Route path="issues" element={<AllIssues />} />
-          {/* FIXED: Nested correctly under /project/:projectId */}
+          <Route path='timeline' element ={<Timeline/>}/>
           <Route path="task/:taskId" element={<TaskDetails />} />
         </Route>
 

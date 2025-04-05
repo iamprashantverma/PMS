@@ -25,6 +25,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import TaskDetails from '../Task/TaskDetails';
+import Timeline from '../Task/Timeline';
 
 
 function Home() {
@@ -125,7 +126,7 @@ function Home() {
                 <FileText size={16} /> <span className="text-sm">Summary</span>
               </div>
               <div className="flex items-center gap-2 cursor-pointer hover:text-blue-600 py-1 px-2 rounded hover:bg-gray-50">
-                <CalendarDays size={16} /> <span className="text-sm">Timeline</span>
+                <CalendarDays size={16} />  <Link to='timeline' className="text-sm">TimeLine</Link>
               </div>
               <Link to={`board`} className="flex items-center gap-2 cursor-pointer hover:text-blue-600 py-1 px-2 rounded hover:bg-gray-50">
                 <LayoutDashboard size={16} /> <span className="text-sm">Board</span>
@@ -208,6 +209,7 @@ function Home() {
       {/* Main Content */}
       <div className="flex-1 bg-gray-50 p-4 overflow-y-auto">
         <Outlet />
+        
       </div>
     </div>
   );

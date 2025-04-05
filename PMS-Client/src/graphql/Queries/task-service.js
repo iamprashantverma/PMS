@@ -155,25 +155,6 @@ export const GET_TASKS_BY_STATUS_AND_EPIC = gql`
   }
 `;
 
-export const GET_ALL_EPICS_BY_PROJECT_ID = gql`
-  query GetAllEpicsByProjectId($projectId: String!) {
-    getAllEpicsByProjectId(projectId: $projectId) {
-      id
-      title
-      description
-      project
-      assignees
-      createdDate
-      creator
-      updatedDate
-      deadline
-      status
-      priority
-      epicGoal
-    }
-  }
-`;
-
 export const ASSIGN_MEMBER_TO_TASK = gql`
     mutation AssignMemberToTask($taskId: String!, $memberId: String!) {
         assignMemberToTask(taskId: $taskId, memberId: $memberId) {
@@ -203,27 +184,6 @@ export const GET_ASSIGNED_MEMBERS = gql`
     }
 `;
 
-export const GET_BUG_BY_ID = gql`
-  query GetBugById($bugId: ID!) {
-    getBugById(bugId: $bugId) {
-      id
-      title
-      description
-      epicId
-      storyId
-      taskId
-      status
-      priority
-      tag
-      createdDate
-      updatedDate
-      deadline
-      projectId
-      assignees
-      label
-    }
-  }
-`;
 
 export const GET_BUGS_BY_PROJECT_ID = gql`
   query GetBugsByProjectId($projectId: String!) {
@@ -325,5 +285,64 @@ export const GET_EPIC_BY_ID = gql`
   }
 `;
 
+export const GET_ALL_EPICS_BY_PROJECT_ID = gql`
+  query GetAllEpicsByProjectId($projectId: String!) {
+    getAllEpicsByProjectId(projectId: $projectId) {
+      id
+      title
+      description
+      project
+      assignees
+      creator
+      createdDate
+      updatedDate
+      deadline
+      status
+      priority
+      tag
+      epicGoal
+      label
+      tasks {
+        id
+        title
+        description
+        project
+        assignees
+        updatedAt
+        createdAt
+        status
+        priority
+        label
+        memberId
+        deadline
+        epicId
+        storyId
+        reporter
+      }
+    }
+  }
+`;
 
-
+export const GET_BUG_BY_ID = gql`
+  query GetBugById($bugId: String!) {
+    getBugById(bugId: $bugId) {
+      id
+      title
+      description
+      epicId
+      storyId
+      taskId
+      status
+      priority
+      tag
+      createdAt
+      updatedAt
+      deadline
+      projectId
+      assignees
+      label
+      expectedOutcome
+      actualOutcome
+    }
+  }
+`;
