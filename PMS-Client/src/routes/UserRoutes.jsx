@@ -14,6 +14,7 @@ import Board from '@/components/Common/Board';
 import AllIssues from '@/components/Common/AllIssues';
 import TaskDetails from '@/components/Task/TaskDetails';
 import Timeline from '@/components/Task/Timeline';
+import BugDetails from '@/components/Task/BugDetails';
 
 function UserRoutes() {
   return (
@@ -27,6 +28,7 @@ function UserRoutes() {
           <Route path="issues" element={<AllIssues />} />
           <Route path='timeline' element ={<Timeline/>}/>
           <Route path="task/:taskId" element={<TaskDetails />} />
+          <Route path='bug/:bugId' element={<BugDetails/>} />
         </Route>
 
         <Route path="/projects" element={<AllProject />} />

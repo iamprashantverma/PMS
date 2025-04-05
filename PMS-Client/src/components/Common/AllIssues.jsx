@@ -144,6 +144,7 @@ function AllIssues() {
     skip: !projectId
   });
 
+
   // Fetch tasks
   const { data: tasksData, loading: tasksLoading } = useQuery(GET_ALL_TASKS_BY_PROJECT_ID, {
     variables: { projectId },

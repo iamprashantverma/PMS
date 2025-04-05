@@ -197,8 +197,8 @@ export const GET_BUGS_BY_PROJECT_ID = gql`
       status
       priority
       tag
-      createdDate
-      updatedDate
+      createdAt
+      updatedAt
       deadline
       projectId
       assignees
@@ -343,6 +343,8 @@ export const GET_BUG_BY_ID = gql`
       label
       expectedOutcome
       actualOutcome
+      image
     }
   }
 `;
+

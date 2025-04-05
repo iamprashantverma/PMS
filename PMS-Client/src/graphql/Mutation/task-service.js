@@ -22,8 +22,8 @@ export const CREATE_EPIC = gql`
 `;
 
 export const CREATE_BUG = gql`
-  mutation CreateBug($bugInput: BugInput) {
-    createBug(bugInput: $bugInput) {
+  mutation CreateBug($bugInput: BugInput!, $image: Upload) {
+    createBug(bugInput: $bugInput, image: $image) {
       id
       title
       description
@@ -33,10 +33,15 @@ export const CREATE_BUG = gql`
       status
       priority
       tag
+      createdAt
+      updatedAt
       deadline
+      image
       projectId
       assignees
       label
+      expectedOutcome
+      actualOutcome
     }
   }
 `;
@@ -174,7 +179,7 @@ export const DELETE_COMMENT = gql`
 `;
 
 export const CHANGE_BUG_STATUS = gql`
-  mutation ChangeBugStatus($bugId: ID!, $status: String!) {
+  mutation ChangeBugStatus($bugId: String!, $status: IssueStatus!) {
     changeBugStatus(bugId: $bugId, status: $status) {
       message
     }
@@ -216,4 +221,10 @@ export const CHANGE_TASK_STATUS = gql`
   }
 `;
 
-
+export const ASSIGN_BUG_TO_USER = gql`
+  mutation AssignBugToUser($bugId: String!, $userId: String!) {
+    assignBugToUser(bugId: $bugId, userId: $userId) {
+      message
+    }
+  }
+`;
