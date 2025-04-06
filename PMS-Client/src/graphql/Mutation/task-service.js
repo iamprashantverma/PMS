@@ -247,15 +247,15 @@ export const ASSIGN_BUG_TO_USER = gql`
 `;
 
 export const CREATE_SUBTASK = gql`
-  mutation CreateSubTask($subTask: SubTaskInput!) {
+  mutation CreateSubTask($subTask: SubTaskInputDTO!) {
     createSubTask(subTask: $subTask) {
       id
       title
       description
       assignees
       creator
-      createdDate
-      updatedDate
+      createdAt
+      updatedAt
       status
       priority
       label

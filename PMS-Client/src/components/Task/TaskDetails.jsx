@@ -12,6 +12,7 @@ import { getUserDetails } from '@/services/UserService';
 
 import { toast } from 'react-toastify';
 import SubtaskDetails from './SubTaskDetails';
+import CreateSubTask from './CreateSubTask';
 
 function TaskDetails({ task = {}, onClose }) {
   
@@ -25,8 +26,9 @@ function TaskDetails({ task = {}, onClose }) {
   const { accessToken } = useAuth();
   const [showSubTask,setShowSubTask] = useState(false);
   const [selectedSubTask,setSelectedSubTask] = useState('');
+  const [subTaskCreated,setSubTaskCreated] = useState(true);
 
-  const { data: fetchedTaskData, loading, error } = useQuery(GET_TASK_BY_ID, {
+  const { data: fetchedTaskData, loading, error, refetch } = useQuery(GET_TASK_BY_ID, {
     variables: { taskId },
     client: taskClient,
     skip: !taskId, 
@@ -295,6 +297,12 @@ function TaskDetails({ task = {}, onClose }) {
   }, [taskQueryData]);
 
   useEffect(() => {
+    if (taskId) {
+      refetch();
+    }
+  }, [subTaskCreated, refetch, taskId]);
+
+  useEffect(() => {
     if (commentsContainerRef.current) {
       commentsContainerRef.current.scrollTop = commentsContainerRef.current.scrollHeight;
     }
@@ -402,6 +410,7 @@ function TaskDetails({ task = {}, onClose }) {
             onClose={() => setShowSubTask(false)} 
           />
         )}
+      { !subTaskCreated && <CreateSubTask taskId = {taskId} onChange={setSubTaskCreated} />}
       <div className="task-header flex items-center justify-between p-4 border-b bg-white shadow-sm sticky top-0 z-10">
         <div className="task-identifiers flex items-center">
           <div className="badge-container flex items-center gap-2">
@@ -450,13 +459,13 @@ function TaskDetails({ task = {}, onClose }) {
         <div className="task-subtasks mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold">Subtasks</h2>
-            <Link
-              to={`subTask/create}`}
+            <span
+              onClick={()=>setSubTaskCreated(false)}
               className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
             >
               <Plus size={16} className="mr-1" />
               Add subtask
-            </Link>
+            </span>
           </div>
   
               {taskData?.subTasks && task?.subTasks.length > 0 ? (
