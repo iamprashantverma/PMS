@@ -1,7 +1,8 @@
  extend type Query{
-     getSubTaskById(subTaskId : ID!): [SubTaskDTO]
+     getSubTaskById(subTaskId : ID!): SubTaskDTO
      getSubTasksByTaskId(taskId:String!):[SubTaskDTO]
      getSubTasksByProjectId(projectId:String!):[SubTaskDTO]
      getAllSubTasks:[SubTaskDTO]
      addSubTaskOnTask(taskId:String!, subTaskId:String!):ResponseDTO
+
 }

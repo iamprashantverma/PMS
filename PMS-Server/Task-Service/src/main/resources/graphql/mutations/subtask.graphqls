@@ -3,5 +3,5 @@
      deleteSubTask(subTaskId: ID!) : ResponseDTO
      assignMemberToSubTask(taskId:String!,memberId:String!):SubTaskDTO
      unAssignMemberToSubTask(taskId:String!,memberId:String!):SubTaskDTO
-     changeStatus(subTaskId:String!,status:IssueStatus!):SubTaskDTO
+     changeSubTaskStatus(subTaskId:String!,status:IssueStatus!):SubTaskDTO
 }

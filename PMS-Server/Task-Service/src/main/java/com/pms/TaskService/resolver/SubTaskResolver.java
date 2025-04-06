@@ -83,7 +83,7 @@ public class SubTaskResolver {
      * @return updated SubTaskDTO
      */
     @MutationMapping
-    public SubTaskDTO changeStatus(@Argument("subTaskId") String subTaskId, @Argument("status") Status status) {
+    public SubTaskDTO changeSubTaskStatus(@Argument("subTaskId") String subTaskId, @Argument("status") Status status) {
         log.info("Changing status of SubTask {} to {}", subTaskId, status);
         return subTaskService.changeSubTaskStatus(subTaskId, status);
     }
