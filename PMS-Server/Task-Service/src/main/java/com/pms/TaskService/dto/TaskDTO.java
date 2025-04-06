@@ -26,16 +26,15 @@ public class TaskDTO {
     private String projectId;
     private List<String> assignees = new ArrayList<>();
     private String creator;
-    private LocalDate createdDate;
-    private LocalDate updatedDate;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
     private LocalDate deadline;
     private Status status;
     private Priority priority;
     private Long completionPercent;
-    private boolean isBlocking;
     private String epicId;
     private String storyId;
     private String label;
     private String reporter;
-    private List<String> subTaskIds = new ArrayList<>();
+    private List<SubTaskDTO> subTasks = new ArrayList<>();
 }

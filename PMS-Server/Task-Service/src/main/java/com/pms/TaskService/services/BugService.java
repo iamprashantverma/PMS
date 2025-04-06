@@ -3,6 +3,7 @@ package com.pms.TaskService.services;
 import com.pms.TaskService.dto.BugDTO;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.enums.Status;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface BugService {
      * @param bugDTO The data transfer object containing the bug details.
      * @return The created bug as a BugDTO.
      */
-    BugDTO createBug(BugDTO bugDTO);
+    BugDTO createBug(BugDTO bugDTO, MultipartFile file);
 
     /**
      * Retrieves a bug by its unique identifier.

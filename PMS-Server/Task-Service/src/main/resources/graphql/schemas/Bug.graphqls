@@ -26,11 +26,13 @@ type BugDTO {
     status: IssueStatus!
     priority: Priority!
     tag: IssueTag
-    createdDate: Date
-    updatedDate: Date
+    createdAt: Date
+    updatedAt: Date
     deadline:Date
+    image:String
     projectId:String
     assignees:[String]
     label:String
-
+    expectedOutcome: String!
+    actualOutcome: String!
 }

@@ -27,91 +27,100 @@ public class EpicResolver {
     /**
      * Creates a new Epic.
      *
-     * @param epicDTO The DTO containing epic details.
-     * @return The created EpicDTO.
+     * @param epicDTO the epic details
+     * @param file optional image file
+     * @return the created EpicDTO
      */
     @MutationMapping
-    public EpicDTO createEpic(@Argument("epic") EpicDTO epicDTO,@Argument("image") MultipartFile file) {
-        log.info("Creating Epic: {},{}", epicDTO,file );
-        return epicService.createEpic(epicDTO);
+    public EpicDTO createEpic(@Argument("epic") EpicDTO epicDTO, @Argument("image") MultipartFile file) {
+        log.info("Creating Epic: {}, image attached: {}", epicDTO, file != null);
+        return epicService.createEpic(epicDTO); // You may want to handle file here too
     }
 
     /**
-     * Deletes an Epic by its ID.
+     * Deletes an Epic by ID.
      *
-     * @param epicId The ID of the Epic to delete.
-     * @return The deleted EpicDTO.
+     * @param epicId the ID of the Epic to delete
+     * @return the deleted EpicDTO
      */
     @MutationMapping
-    public EpicDTO deleteEpic(@Argument("epicId") String epicId) {
+    public EpicDTO deleteEpic(@Argument String epicId) {
+        log.info("Deleting Epic with ID: {}", epicId);
         return epicService.deleteEpic(epicId);
     }
 
     /**
-     * Retrieves an Epic by its ID.
+     * Retrieves an Epic by ID.
      *
-     * @param epicId The ID of the Epic.
-     * @return The EpicDTO if found.
+     * @param epicId the Epic ID
+     * @return the EpicDTO
      */
     @QueryMapping
-    public EpicDTO getEpicById(@Argument("epicId") String epicId) {
+    public EpicDTO getEpicById(@Argument String epicId) {
+        log.info("Fetching Epic by ID: {}", epicId);
         return epicService.getEpicById(epicId);
     }
 
     /**
-     * Retrieves all active Epics.
+     * Retrieves all Epics associated with a project.
      *
-     * @return List of all active EpicDTOs.
+     * @param projectId the project ID
+     * @return list of EpicDTOs
      */
     @QueryMapping
-    public List<EpicDTO> getAllEpicsByProjectId(@Argument("projectId")String  projectId) {
+    public List<EpicDTO> getAllEpicsByProjectId(@Argument String projectId) {
+        log.info("Fetching all Epics for Project ID: {}", projectId);
         return epicService.getAllEpicsByProjectId(projectId);
     }
 
     /**
      * Updates the status of an Epic.
      *
-     * @param epicId The ID of the Epic to update.
-     * @param status The new status to set.
-     * @return The updated EpicDTO.
+     * @param epicId the Epic ID
+     * @param status the new status
+     * @return updated EpicDTO
      */
     @MutationMapping
-    public EpicDTO updateEpicStatus(@Argument("epicId") String epicId, @Argument("status") Status status) {
+    public EpicDTO updateEpicStatus(@Argument String epicId, @Argument Status status) {
+        log.info("Updating Epic status - ID: {}, Status: {}", epicId, status);
         return epicService.updateEpicStatus(epicId, status);
     }
 
     /**
      * Assigns a member to an Epic.
      *
-     * @param epicId The ID of the Epic.
-     * @param memberId The ID of the member to assign.
-     * @return The updated EpicDTO.
+     * @param epicId the Epic ID
+     * @param memberId the Member ID
+     * @return updated EpicDTO
      */
     @MutationMapping
-    public EpicDTO assignMemberToEpic(@Argument("epicId") String epicId, @Argument("memberId") String memberId) {
+    public EpicDTO assignMemberToEpic(@Argument String epicId, @Argument String memberId) {
+        log.info("Assigning member {} to Epic {}", memberId, epicId);
         return epicService.assignMemberToEpic(epicId, memberId);
     }
 
     /**
      * Removes a member from an Epic.
      *
-     * @param epicId The ID of the Epic.
-     * @param memberId The ID of the member to remove.
-     * @return The updated EpicDTO.
+     * @param epicId the Epic ID
+     * @param memberId the Member ID
+     * @return updated EpicDTO
      */
     @MutationMapping
-    public EpicDTO removeMemberFromEpic(@Argument("epicId") String epicId, @Argument("memberId") String memberId) {
+    public EpicDTO removeMemberFromEpic(@Argument String epicId, @Argument String memberId) {
+        log.info("Removing member {} from Epic {}", memberId, epicId);
         return epicService.removeMemberFromEpic(epicId, memberId);
     }
 
     /**
-     * Retrieves all members assigned to a given Epic.
+     * Retrieves all members assigned to an Epic.
      *
-     * @param epicId The ID of the Epic.
-     * @return List of assigned UserDTOs.
+     * @param epicId the Epic ID
+     * @return list of assigned UserDTOs
      */
     @QueryMapping
-    public List<UserDTO> getAssignedMembers(@Argument("epicId") String epicId) {
+    public List<UserDTO> getAssignedMembers(@Argument String epicId) {
+        log.info("Fetching assigned members for Epic ID: {}", epicId);
         return epicService.getAssignedMembers(epicId);
     }
 }

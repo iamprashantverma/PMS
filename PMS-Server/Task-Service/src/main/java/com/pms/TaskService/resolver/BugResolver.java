@@ -1,7 +1,6 @@
 package com.pms.TaskService.resolver;
 
 import com.pms.TaskService.dto.BugDTO;
-
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.BugService;
@@ -16,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * Resolver class for handling GraphQL operations related to bugs.
- * Provides mutation and query mappings to create, update, delete, assign, change status,
- * and retrieve bugs.
+ * GraphQL resolver for managing bug-related operations.
  */
 @Controller
 @Slf4j
@@ -28,104 +25,104 @@ public class BugResolver {
     private final BugService bugService;
 
     /**
-     * Creates a new bug.
+     * Creates a new bug with optional image upload.
      *
-     * @param bugInput the input data for the new bug
-     * @return the created BugDTO
+     * @param bugInput the bug details
+     * @param file     optional image file
+     * @return the created bug
      */
     @MutationMapping
-    public BugDTO createBug(@Argument("bugInput") BugDTO bugInput, @Argument("image")MultipartFile file) {
-        log.info("Creating bug with input: {} and file{}", bugInput,file);
-        return bugService.createBug(bugInput);
+    public BugDTO createBug(@Argument("bugInput") BugDTO bugInput,
+                            @Argument("image") MultipartFile file) {
+        log.info("Creating bug: {}, with file: {}", bugInput, file.getOriginalFilename());
+        return bugService.createBug(bugInput, file);
     }
 
     /**
      * Updates an existing bug.
      *
-     * @param bugDTO the bug input data to update
-     * @return the updated BugDTO
+     * @param bugDTO updated bug data
+     * @return the updated bug
      */
     @MutationMapping
     public BugDTO updateBug(@Argument("bugDTO") BugDTO bugDTO) {
-        log.info("Updating bug with input: {}", bugDTO);
+        log.info("Updating bug: {}", bugDTO);
         return bugService.updateBug(bugDTO);
     }
 
     /**
-     * Deletes a bug by its ID.
+     * Deletes a bug by ID.
      *
-     * @param bugId the ID of the bug to delete
-     * @return the deleted BugDTO
+     * @param bugId the bug ID
+     * @return result message
      */
     @MutationMapping
-    public ResponseDTO deleteBug(@Argument("bugId") String bugId) {
-        log.info("Deleting bug with id: {}", bugId);
+    public ResponseDTO deleteBug(@Argument String bugId) {
+        log.info("Deleting bug with ID: {}", bugId);
         return bugService.deleteBug(bugId);
     }
 
     /**
      * Assigns a bug to a user.
      *
-     * @param bugId  the ID of the bug to assign
-     * @param userId the ID of the user to whom the bug will be assigned
-     * @return the updated BugDTO after assignment
+     * @param bugId  the bug ID
+     * @param userId the user ID
+     * @return result message
      */
     @MutationMapping
-    public ResponseDTO assignBugToUser(@Argument String bugId, @Argument String userId) {
-        log.info("Assigning bug with id {} to user with id {}", bugId, userId);
+    public ResponseDTO assignBugToUser(@Argument String bugId,
+                                       @Argument String userId) {
+        log.info("Assigning bug {} to user {}", bugId, userId);
         return bugService.assignBugToUser(bugId, userId);
     }
 
     /**
      * Changes the status of a bug.
      *
-     * @param bugId  the ID of the bug whose status is to be changed
-     * @param status the new status to set
-     * @return the updated BugDTO after status change
+     * @param bugId  the bug ID
+     * @param status new status
+     * @return result message
      */
     @MutationMapping
-    public ResponseDTO changeBugStatus(@Argument("bugId") String bugId, @Argument("status") Status status) {
-        log.info("Changing status for bug with id {} to {}", bugId, status);
+    public ResponseDTO changeBugStatus(@Argument String bugId,
+                                       @Argument Status status) {
+        log.info("Changing status of bug {} to {}", bugId, status);
         return bugService.changeBugStatus(bugId, status);
     }
 
-    // Query mappings
-
     /**
-     * Retrieves a bug by its ID.
+     * Retrieves a bug by ID.
      *
-     * @param bugId the ID of the bug to retrieve (mapped from the argument "budId")
-     * @return the BugDTO corresponding to the provided ID
+     * @param bugId the bug ID
+     * @return the bug
      */
     @QueryMapping
-    public BugDTO getBugById(@Argument("bugId") String bugId) {
-        log.info("Fetching bug with id: {}", bugId);
+    public BugDTO getBugById(@Argument String bugId) {
+        log.info("Fetching bug with ID: {}", bugId);
         return bugService.getBugById(bugId);
     }
 
     /**
-     * Retrieves a list of bugs associated with a specific project.
+     * Retrieves all bugs associated with a project.
      *
-     * @param projectId the ID of the project for which bugs are to be fetched
-     * @return a list of BugDTOs associated with the specified project
+     * @param projectId the project ID
+     * @return list of bugs
      */
     @QueryMapping
-    public List<BugDTO> getBugsByProjectId(@Argument("projectId") String projectId) {
-        log.info("Fetching bugs for project id: {}", projectId);
+    public List<BugDTO> getBugsByProjectId(@Argument String projectId) {
+        log.info("Fetching bugs for project ID: {}", projectId);
         return bugService.getBugsByProjectId(projectId);
     }
 
     /**
-     * Retrieves a list of bugs assigned to a specific user.
+     * Retrieves all bugs assigned to a specific user.
      *
-     * @param userId the ID of the user for which bugs are to be fetched
-     * @return a list of BugDTOs associated with the specified user
+     * @param userId the user ID
+     * @return list of bugs
      */
     @QueryMapping
-    public List<BugDTO> getBugsByUserId(@Argument("userId") String userId) {
-        log.info("Fetching bugs for user id: {}", userId);
+    public List<BugDTO> getBugsByUserId(@Argument String userId) {
+        log.info("Fetching bugs for user ID: {}", userId);
         return bugService.getBugsByUserId(userId);
     }
-
-
 }

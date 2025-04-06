@@ -6,12 +6,15 @@ type TaskDTO {
     project: String
     assignees: [String]
     updatedAt: String
+    createdAt:Date
     status: IssueStatus
     priority: Priority
     label:String
     memberId : [String]
     deadline: Date!
-    epic : EpicDTO
+    epicId : String
+    storyId:String
+    reporter:String
     subTasks : [SubTaskDTO]
 }
 

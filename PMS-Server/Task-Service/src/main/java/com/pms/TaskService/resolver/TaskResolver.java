@@ -124,4 +124,12 @@ public class TaskResolver {
         return taskService.changeTaskStatus(taskId,status);
     }
 
+    @MutationMapping
+    public TaskDTO assignNewParent(@Argument("parentId")String parentId,@Argument("taskId")String taskId,@Argument("parentType")String parent){
+        return taskService.assignNewParent(parentId,taskId,parent);
+    }
+    @QueryMapping
+    public List<TaskDTO> getTaskByEpicId(@Argument("epicId")String epicId){
+        return taskService.getTaskByEpicId(epicId);
+    }
 }

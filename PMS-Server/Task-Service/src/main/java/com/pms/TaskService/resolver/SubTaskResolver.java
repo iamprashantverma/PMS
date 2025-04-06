@@ -2,7 +2,6 @@ package com.pms.TaskService.resolver;
 
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.SubTaskDTO;
-import com.pms.TaskService.dto.TaskDTO;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.services.SubTaskService;
 import lombok.RequiredArgsConstructor;
@@ -14,18 +13,23 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
+/**
+ * GraphQL Resolver for managing SubTask-related operations.
+ */
+@Slf4j
 @Controller
 @RequiredArgsConstructor
-@Slf4j
 public class SubTaskResolver {
 
     private final SubTaskService subTaskService;
 
+    // ========= Mutations ========= //
+
     /**
-     * Creates a new subtask.
+     * Creates a new SubTask.
      *
-     * @param subTask the input subtask data as SubTaskInputDTO (mapped to SubTaskDTO)
-     * @return the created subtask as a SubTaskDTO
+     * @param subTask the SubTaskDTO containing subtask data
+     * @return the created SubTaskDTO
      */
     @MutationMapping
     public SubTaskDTO createSubTask(@Argument("subTask") SubTaskDTO subTask) {
@@ -34,33 +38,74 @@ public class SubTaskResolver {
     }
 
     /**
-     * Deletes a subtask by its ID.
+     * Deletes a SubTask by ID.
      *
-     * @param subTaskId the ID of the subtask to delete
-     * @return a ResponseDTO indicating the result of the deletion
+     * @param subTaskId the subtask ID
+     * @return response indicating success/failure
      */
     @MutationMapping
     public ResponseDTO deleteSubTask(@Argument("subTaskId") String subTaskId) {
-        log.info("Deleting subtask with id: {}", subTaskId);
+        log.info("Deleting subtask with ID: {}", subTaskId);
         return subTaskService.deleteSubTask(subTaskId);
     }
 
     /**
-     * Retrieves a subtask by its ID.
+     * Assigns a member to a SubTask.
      *
-     * @param subTaskId the ID of the subtask to retrieve
-     * @return the SubTaskDTO corresponding to the provided ID
+     * @param taskId the task ID
+     * @param memberId the member ID
+     * @return updated SubTaskDTO
+     */
+    @MutationMapping
+    public SubTaskDTO assignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        log.info("Assigning member {} to subtask {}", memberId, taskId);
+        return subTaskService.assignMemberToSubTask(taskId, memberId);
+    }
+
+    /**
+     * Unassigns a member from a SubTask.
+     *
+     * @param taskId the task ID
+     * @param memberId the member ID
+     * @return updated SubTaskDTO
+     */
+    @MutationMapping
+    public SubTaskDTO unAssignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
+        log.info("Unassigning member {} from subtask {}", memberId, taskId);
+        return subTaskService.unAssignedMemberFromTask(taskId, memberId);
+    }
+
+    /**
+     * Changes the status of a SubTask.
+     *
+     * @param subTaskId the subtask ID
+     * @param status the new status
+     * @return updated SubTaskDTO
+     */
+    @MutationMapping
+    public SubTaskDTO changeStatus(@Argument("subTaskId") String subTaskId, @Argument("status") Status status) {
+        log.info("Changing status of SubTask {} to {}", subTaskId, status);
+        return subTaskService.changeSubTaskStatus(subTaskId, status);
+    }
+
+    // ========= Queries ========= //
+
+    /**
+     * Retrieves a SubTask by ID.
+     *
+     * @param subTaskId the subtask ID
+     * @return SubTaskDTO
      */
     @QueryMapping
     public SubTaskDTO getSubTaskById(@Argument("subTaskId") String subTaskId) {
-        log.info("Retrieving subtask with id: {}", subTaskId);
+        log.info("Retrieving subtask with ID: {}", subTaskId);
         return subTaskService.getSubTaskById(subTaskId);
     }
 
     /**
-     * Retrieves all subtasks.
+     * Retrieves all SubTasks.
      *
-     * @return a list of all SubTaskDTOs
+     * @return list of SubTaskDTOs
      */
     @QueryMapping
     public List<SubTaskDTO> getAllSubTasks() {
@@ -69,54 +114,39 @@ public class SubTaskResolver {
     }
 
     /**
-     * Associates an existing subtask with a task.
+     * Retrieves all SubTasks for a given Task.
      *
-     * @param taskId    the ID of the task to which the subtask should be associated
-     * @param subTaskId the ID of the subtask to associate with the task
-     * @return the updated SubTaskDTO after association
+     * @param taskId the task ID
+     * @return list of SubTaskDTOs
      */
     @QueryMapping
-    public ResponseDTO addSubTaskOnTask(@Argument("taskId") String taskId, @Argument("subTaskId") String subTaskId) {
-        log.info("Associating subtask {} with task {}", subTaskId, taskId);
-        return subTaskService.addSubTaskOnTask(taskId, subTaskId);
-    }
-
-    /**
-     *
-     * @param taskId the id of task to get their all  subtask retrieves
-     * @return List<SubTaskDTO>
-     */
-    @QueryMapping
-    public List<SubTaskDTO> getSubTasksByTaskId(@Argument String taskId){
+    public List<SubTaskDTO> getSubTasksByTaskId(@Argument String taskId) {
+        log.info("Retrieving subtasks for Task ID: {}", taskId);
         return subTaskService.getSubTasksByTaskId(taskId);
     }
 
     /**
-     * Assigns a member to the specified SubTask using GraphQL mutation.
+     * Retrieves all SubTasks for a given Project.
      *
-     * @param taskId   the ID of the task to which the member should be assigned
-     * @param memberId the ID of the member to be assigned to the SubTask
-     * @return the updated SubTaskDTO after assigning the member
+     * @param projectId the project ID
+     * @return list of SubTaskDTOs
      */
-    @MutationMapping
-    public SubTaskDTO assignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
-        return subTaskService.assignMemberToSubTask(taskId, memberId);
+    @QueryMapping
+    public List<SubTaskDTO> getSubTasksByProjectId(@Argument String projectId) {
+        log.info("Retrieving subtasks for Project ID: {}", projectId);
+        return subTaskService.getSubTasksByProjectId(projectId);
     }
 
     /**
-     * Unassigns a member from the specified SubTask using GraphQL mutation.
+     * Associates a SubTask with a Task.
      *
-     * @param taskId   the ID of the task from which the member should be removed
-     * @param memberId the ID of the member to be unassigned from the SubTask
-     * @return the updated SubTaskDTO after unassigning the member
+     * @param taskId the task ID
+     * @param subTaskId the subtask ID
+     * @return response indicating association success
      */
-    @MutationMapping
-    public SubTaskDTO unAssignMemberToSubTask(@Argument("taskId") String taskId, @Argument("memberId") String memberId) {
-        return subTaskService.unAssignedMemberFromTask(taskId,memberId);
-    }
-
-    @MutationMapping
-    public SubTaskDTO changeStatus(@Argument("subTaskId")String subTaskId, @Argument("status")Status status) {
-        return subTaskService.changeSubTaskStatus(subTaskId,status);
+    @QueryMapping
+    public ResponseDTO addSubTaskOnTask(@Argument("taskId") String taskId, @Argument("subTaskId") String subTaskId) {
+        log.info("Associating SubTask {} with Task {}", subTaskId, taskId);
+        return subTaskService.addSubTaskOnTask(taskId, subTaskId);
     }
 }

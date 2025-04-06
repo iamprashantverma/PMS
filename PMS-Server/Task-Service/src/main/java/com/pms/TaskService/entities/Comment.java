@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +18,7 @@ public class Comment {
     private Long commentId ;
 
     @CreationTimestamp
-    private LocalDateTime timeStamp;
+    private LocalDate createdAt;
     private String taskId;
     private String userId;
     private String message;

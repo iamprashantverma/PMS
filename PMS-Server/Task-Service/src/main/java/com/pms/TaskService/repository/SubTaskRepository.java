@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface SubTaskRepository extends JpaRepository<SubTask, String> {
     List<SubTask> findAllByParentTask(Task task);
+
+    List<SubTask> findAllByProjectId(String projectId);
 }

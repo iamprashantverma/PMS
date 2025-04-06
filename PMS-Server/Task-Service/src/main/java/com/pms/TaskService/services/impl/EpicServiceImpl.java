@@ -21,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -40,11 +38,8 @@ public class EpicServiceImpl implements EpicService {
     private final UserFeignClient userFeignClient;
     private final CalendarEventProducer calendarEventProducer;
 
-
     /**
      * Generates a TaskEvent for an Epic.
-     * @param epic The Epic entity.
-     * @return TaskEvent
      */
     private TaskEvent getEpicTaskEvent(Epic epic) {
         return TaskEvent.builder()
@@ -61,8 +56,6 @@ public class EpicServiceImpl implements EpicService {
 
     /**
      * Converts an EpicDTO to an Epic entity.
-     * @param epicDTO The DTO containing Epic details.
-     * @return The corresponding Epic entity.
      */
     private Epic convertToEpicEntity(EpicDTO epicDTO) {
         return modelMapper.map(epicDTO, Epic.class);
@@ -70,8 +63,6 @@ public class EpicServiceImpl implements EpicService {
 
     /**
      * Converts an Epic entity to an EpicDTO.
-     * @param epic The Epic entity.
-     * @return The corresponding EpicDTO.
      */
     private EpicDTO convertToEpicDTo(Epic epic) {
         return modelMapper.map(epic, EpicDTO.class);
@@ -79,9 +70,6 @@ public class EpicServiceImpl implements EpicService {
 
     /**
      * Retrieves an Epic entity by ID.
-     * @param epicId The ID of the Epic.
-     * @return The Epic entity.
-     * @throws ResourceNotFound if not found.
      */
     private Epic getEpicEntity(String epicId) {
         return epicRepository.findById(epicId)
@@ -91,20 +79,18 @@ public class EpicServiceImpl implements EpicService {
     @Override
     @Transactional
     public EpicDTO createEpic(EpicDTO epicDTO) {
-        // get the project ID
         String projectId = epicDTO.getProjectId();
-        // call the project Service to ensure that given ProjectId is Valid
+
         ProjectDTO projectDTO = projectFeignClient.getProject(projectId);
         Epic epic = convertToEpicEntity(epicDTO);
         epic.setCreatedAt(LocalDate.now());
         Epic savedEpic = epicRepository.save(epic);
-        // add the epic within the current project
-        projectFeignClient.addEpicToProject(savedEpic.getProjectId(),savedEpic.getId());
 
-        TaskEvent taskEvent  = getEpicTaskEvent(savedEpic);
+        projectFeignClient.addEpicToProject(savedEpic.getProjectId(), savedEpic.getId());
+
+        TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
         taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.CREATED);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
@@ -113,7 +99,6 @@ public class EpicServiceImpl implements EpicService {
     @Override
     @Transactional
     public EpicDTO updateEpicStatus(String epicId, Status newStatus) {
-
         Epic existingEpic = getEpicEntity(epicId);
         Status oldStatus = existingEpic.getStatus();
 
@@ -128,7 +113,6 @@ public class EpicServiceImpl implements EpicService {
             producer.sendTaskEvent(taskEvent);
         }
 
-        // create an EPIC event and produce it
         TaskEvent taskEvent = getEpicTaskEvent(existingEpic);
         taskEvent.setAction(Actions.STATUS_CHANGED);
         taskEvent.setOldStatus(oldStatus);
@@ -139,7 +123,6 @@ public class EpicServiceImpl implements EpicService {
         producer.sendTaskEvent(taskEvent);
 
         taskEvent.setEventType(EventType.CALENDER);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToEpicDTo(savedEpic);
@@ -149,22 +132,22 @@ public class EpicServiceImpl implements EpicService {
     @Transactional
     public EpicDTO deleteEpic(String epicId) {
         Epic epic = getEpicEntity(epicId);
-        // if epic is already archived then throw error
-        if (epic.getStatus() == Status.COMPLETED)
-            throw new ResourceNotFound("No Epic found : "+epicId );
 
-        // Check if any associated stories or tasks are not completed
+        if (epic.getStatus() == Status.COMPLETED) {
+            throw new ResourceNotFound("No Epic found : " + epicId);
+        }
+
         boolean hasIncompleteEpics = epic.getStories().stream()
                 .anyMatch(story -> story.getStatus() != Status.COMPLETED);
+
         boolean hasIncompleteTasks = epic.getTasks().stream()
                 .allMatch(task -> task.getStatus() != Status.COMPLETED);
+
         if (hasIncompleteTasks) {
             throw new IllegalStateException("Epic cannot be deleted as it has incomplete stories or tasks.");
         }
 
-        // set the epic as ARCHIVED
         epic.setStatus(Status.COMPLETED);
-        // Perform deletion
         epicRepository.save(epic);
 
         TaskEvent taskEvent = getEpicTaskEvent(epic);
@@ -194,33 +177,26 @@ public class EpicServiceImpl implements EpicService {
 
     @Override
     public EpicDTO assignMemberToEpic(String epicId, String memberId) {
+        Epic existingEpic = getEpicEntity(epicId);
 
-            Epic existingEpic = getEpicEntity(epicId);
-            // fetch the member from the UserService that member Exist
-            UserDTO  user = userFeignClient.getUserById(memberId);
-            // set the new Member into the epic
-            existingEpic.getAssignees().add(memberId);
+        UserDTO user = userFeignClient.getUserById(memberId);
+        existingEpic.getAssignees().add(memberId);
 
-            Epic savedEpic = epicRepository.save(existingEpic);
+        Epic savedEpic = epicRepository.save(existingEpic);
 
-            // inform user that he is assigned to this epic
-            TaskEvent taskEvent = getEpicTaskEvent(existingEpic);
+        TaskEvent taskEvent = getEpicTaskEvent(existingEpic);
+        taskEvent.setAction(Actions.ASSIGNED);
+        taskEvent.setAssignees(Set.of(memberId));
+        taskEvent.setDescription("You are assigned to Epic");
 
-            taskEvent.setAction(Actions.ASSIGNED);
-            taskEvent.setAssignees(Set.of(memberId));
-            taskEvent.setDescription("You are assigned to Epic");
+        producer.sendTaskEvent(taskEvent);
 
-            // produce to the broker
-            producer.sendTaskEvent(taskEvent);
-
-            return convertToEpicDTo(savedEpic);
-
+        return convertToEpicDTo(savedEpic);
     }
 
     @Override
     public EpicDTO removeMemberFromEpic(String epicId, String memberId) {
-
-        UserDTO userDTO = userFeignClient.getUserById(memberId );
+        UserDTO userDTO = userFeignClient.getUserById(memberId);
         Epic exitingEpic = getEpicEntity(epicId);
 
         exitingEpic.getAssignees().remove(memberId);
@@ -229,21 +205,23 @@ public class EpicServiceImpl implements EpicService {
         TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
         taskEvent.setAction(Actions.UNASSIGNED);
         taskEvent.setAssignees(Set.of(memberId));
-        taskEvent.setDescription("You are unassigned from the Epic "+ epicId);
-        // produce to the broker
+        taskEvent.setDescription("You are unassigned from the Epic " + epicId);
+
         producer.sendTaskEvent(taskEvent);
 
-        return  convertToEpicDTo(savedEpic);
+        return convertToEpicDTo(savedEpic);
     }
 
     @Override
     public List<UserDTO> getAssignedMembers(String epicId) {
-        Epic epic =  getEpicEntity(epicId) ;
+        Epic epic = getEpicEntity(epicId);
         List<UserDTO> users = new LinkedList<>();
-        for ( String userId: epic.getAssignees()) {
+
+        for (String userId : epic.getAssignees()) {
             UserDTO user = userFeignClient.getUserById(userId);
             users.add(user);
         }
+
         return users;
     }
 }

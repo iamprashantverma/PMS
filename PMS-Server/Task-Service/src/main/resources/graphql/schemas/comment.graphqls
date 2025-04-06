@@ -2,6 +2,7 @@ type CommentDTO {
     commentId:Int!
     taskId: String
     userId: String
+    createdAt:Date
     message: String
 }
 input CommentInput{

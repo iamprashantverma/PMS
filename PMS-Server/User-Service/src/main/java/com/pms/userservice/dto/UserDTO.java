@@ -32,8 +32,6 @@ public class UserDTO {
     )
     private String phoneNo;
 
-    @NotNull(message = "Role is required")
-    private Roles role;
 
     @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
     private String gender;

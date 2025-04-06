@@ -88,12 +88,12 @@ public class BugDTO {
     /**
      * The date when the bug was reported.
      */
-    private LocalDate createdDate;
+    private LocalDate createdAt;
 
     /**
      * The last updated date of the bug.
      */
-    private LocalDate updatedDate;
+    private LocalDate updatedAt;
 
     /**
      * Current status of the bug.
@@ -113,4 +113,6 @@ public class BugDTO {
      * Label of the BUG
      */
     private String label;
+
+    private String image;
 }

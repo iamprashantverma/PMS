@@ -46,6 +46,6 @@ public abstract class Issue {
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
-
+    private  String label;
     private Long completionPercent;
 }

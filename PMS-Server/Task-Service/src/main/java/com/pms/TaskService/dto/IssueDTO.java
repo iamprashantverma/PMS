@@ -26,6 +26,8 @@ public class IssueDTO {
     private String reporter;
     private LocalDate createdDate;
     private LocalDate updatedDate;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
     private Status status;
     private Priority priority;
     private Long completionPercent;
