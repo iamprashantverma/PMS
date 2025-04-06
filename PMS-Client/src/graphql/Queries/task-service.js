@@ -105,8 +105,8 @@ export const GET_SUBTASK_BY_ID = gql`
       description
       assignees
       creator
-      createdDate
-      updatedDate
+      createdAt
+      updatedAt
       status
       priority
       label

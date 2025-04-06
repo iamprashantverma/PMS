@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Plus, GitBranch, GitCommit, Settings, ChevronDown, Delete, Trash } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-
+import { useNavigate } from 'react-router-dom';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { SUBSCRIBE_TO_COMMENT_UPDATES } from '@/graphql/Subscription/task-service';
 import { GET_TASK_BY_ID,GET_EPIC_BY_ID,GET_STORY_BY_ID   } from '@/graphql/Queries/task-service';
@@ -11,17 +11,20 @@ import { useAuth } from '@/context/AuthContext';
 import { getUserDetails } from '@/services/UserService';
 
 import { toast } from 'react-toastify';
+import SubtaskDetails from './SubTaskDetails';
 
 function TaskDetails({ task = {}, onClose }) {
   
   const { taskId: paramTaskId } = useParams();
   const taskId = task?.id || paramTaskId;
-
+  const navigate = useNavigate();
   const { taskClient,projectClient } = useApolloClients();
   const { user } = useAuth();
   const userId = user.userId;
   const commentsContainerRef = useRef(null);
   const { accessToken } = useAuth();
+  const [showSubTask,setShowSubTask] = useState(false);
+  const [selectedSubTask,setSelectedSubTask] = useState('');
 
   const { data: fetchedTaskData, loading, error } = useQuery(GET_TASK_BY_ID, {
     variables: { taskId },
@@ -133,7 +136,7 @@ function TaskDetails({ task = {}, onClose }) {
       }
     }
   });
-  
+
   // Story query if storyId exists
   const { loading: storyLoading, data: storyQueryData } = useQuery(GET_STORY_BY_ID, {
     variables: { storyId: taskData?.storyId },
@@ -387,12 +390,18 @@ function TaskDetails({ task = {}, onClose }) {
     }
     return null;
   };
-
+ 
   const parentInfo = getParentInfo();
   
   return (
     <div className="task-details-container flex flex-col h-full bg-gray-50">
       {/* Header */}
+          {showSubTask && (
+          <SubtaskDetails 
+            subTaskId={selectedSubTask} 
+            onClose={() => setShowSubTask(false)} 
+          />
+        )}
       <div className="task-header flex items-center justify-between p-4 border-b bg-white shadow-sm sticky top-0 z-10">
         <div className="task-identifiers flex items-center">
           <div className="badge-container flex items-center gap-2">
@@ -437,6 +446,44 @@ function TaskDetails({ task = {}, onClose }) {
             <h2 className="text-base font-semibold mb-2">Description</h2>
             <p className="text-gray-700">{taskData.description}</p>
           </div>
+          {/* Add this after the task description section */}
+        <div className="task-subtasks mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold">Subtasks</h2>
+            <Link
+              to={`subTask/create}`}
+              className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+            >
+              <Plus size={16} className="mr-1" />
+              Add subtask
+            </Link>
+          </div>
+  
+              {taskData?.subTasks && task?.subTasks.length > 0 ? (
+                <div className="space-y-2">
+                  {taskData?.subTasks.map(subtask => (
+                    <div   key={subtask.id} className="p-3 border rounded-lg hover:bg-gray-50 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className={`w-2 h-2 rounded-full ${getStatusColor(subtask.status)} mr-3`}></div>
+                        <div  >
+                          <div className="flex items-center">
+                            <span onClick={()=>{setSelectedSubTask(subtask?.id),setShowSubTask(true)}} className="text-xs bg-gray-200 px-2 py-0.5 rounded mr-2">{subtask.id}</span>
+                            <span className="font-medium">{subtask.title}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`text-xs px-2 py-1 rounded ${getStatusColor(subtask.status)}`}>
+                        {/* {getStatusDisplayName(subtask.status)} */}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500 border border-dashed rounded-lg">
+                  No subtasks yet
+                </div>
+              )}
+            </div>
           
           <div className="task-activity mt-8">
             <div className="activity-header flex items-center justify-between mb-4">
@@ -739,6 +786,7 @@ function TaskDetails({ task = {}, onClose }) {
           </div>
         </div>
       </div>
+    
     </div>
   );
 }

@@ -96,15 +96,15 @@ export const ASSIGN_MEMBER_TO_TASK = gql`
 `;
 
 export const ASSIGN_MEMBER_TO_SUBTASK = gql`
-mutation AssignMemberToSubTask($taskId: ID!, $memberId: ID!) {
+mutation AssignMemberToSubTask($taskId: String!, $memberId: String!) {
   assignMemberToSubTask(taskId: $taskId, memberId: $memberId) {
     id
     title
     description
     assignees
     creator
-    createdDate
-    updatedDate
+    createdAt
+    updatedAt
     status
     priority
     label
@@ -129,16 +129,33 @@ mutation UnAssignMemberToTask($taskId: String!, $memberId: String!) {
 }
 `;
 
+export const CHANGE_SUBTASK_STATUS = gql`
+  mutation ChangeSubTaskStatus($subTaskId: String!, $status: IssueStatus!) {
+    changeSubTaskStatus(subTaskId: $subTaskId, status: $status) {
+      id
+      title
+      description
+      assignees
+      creator
+      createdAt
+      updatedAt
+      status
+      priority
+      label
+    }
+  }
+`;
+
 export const UNASSIGN_MEMBER_TO_SUBTASK = gql`
-  mutation UnAssignMemberToSubTask($taskId: ID!, $memberId: ID!) {
+  mutation UnAssignMemberToSubTask($taskId: String!, $memberId: String!) {
     unAssignMemberToSubTask(taskId: $taskId, memberId: $memberId) {
       id
       title
       description
       assignees
       creator
-      createdDate
-      updatedDate
+      createdAt
+      updatedAt
       status
       priority
       label
@@ -229,22 +246,6 @@ export const ASSIGN_BUG_TO_USER = gql`
   }
 `;
 
-export const CHANGE_SUBTASK_STATUS = gql`
-  mutation ChangeStatus($subTaskId: String!, $status: String!) {
-    changeStatus(subTaskId: $subTaskId, status: $status) {
-      id
-      title
-      description
-      assignees
-      creator
-      createdDate
-      updatedDate
-      status
-      priority
-      label
-    }
-  }
-`;
 export const CREATE_SUBTASK = gql`
   mutation CreateSubTask($subTask: SubTaskInput!) {
     createSubTask(subTask: $subTask) {

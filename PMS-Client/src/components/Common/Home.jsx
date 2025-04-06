@@ -48,8 +48,6 @@ function Home() {
   });
   
   const project = data?.getProject || {};
-  console.log(user, project);
-
   const sideBarHandler = (section) => {
     if (section === 'planning') setPlanning(!planning);
     else if (section === 'development') setDevelopment(!development);
