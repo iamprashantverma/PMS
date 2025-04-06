@@ -9,6 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Represents a bug issue in the system.
+ * Inherits from the base Issue entity.
+ */
 @Entity
 @DiscriminatorValue("BUG")
 @Getter
@@ -18,27 +22,31 @@ import lombok.Setter;
 public class Bug extends Issue {
 
     /**
-     * Steps to reproduce the bug.
+     * Steps required to reproduce the bug.
      */
     private String stepsToReproduce;
 
     /**
-     * Expected behavior after executing the steps.
+     * Expected behavior after performing the reproduction steps.
      */
     private String expectedOutcome;
 
     /**
-     * Actual behavior that differs from the expected outcome.
+     * Actual behavior observed, which differs from the expected outcome.
      */
     private String actualOutcome;
 
+    /**
+     * The Epic to which this bug is related.
+     */
     @ManyToOne
     @JoinColumn(name = "epic_id")
     private Epic epic;
 
+    /**
+     * The Story under which this bug is categorized.
+     */
     @ManyToOne
     @JoinColumn(name = "story_id")
     private Story story;
-
-
 }
