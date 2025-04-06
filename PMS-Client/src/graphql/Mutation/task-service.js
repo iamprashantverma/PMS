@@ -228,3 +228,36 @@ export const ASSIGN_BUG_TO_USER = gql`
     }
   }
 `;
+
+export const CHANGE_SUBTASK_STATUS = gql`
+  mutation ChangeStatus($subTaskId: String!, $status: String!) {
+    changeStatus(subTaskId: $subTaskId, status: $status) {
+      id
+      title
+      description
+      assignees
+      creator
+      createdDate
+      updatedDate
+      status
+      priority
+      label
+    }
+  }
+`;
+export const CREATE_SUBTASK = gql`
+  mutation CreateSubTask($subTask: SubTaskInput!) {
+    createSubTask(subTask: $subTask) {
+      id
+      title
+      description
+      assignees
+      creator
+      createdDate
+      updatedDate
+      status
+      priority
+      label
+    }
+  }
+`;

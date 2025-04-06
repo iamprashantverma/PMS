@@ -3,7 +3,8 @@ import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_ALL_EPICS,
   GET_ALL_STORIES_BY_PROJECT_ID,
-  GET_ALL_EPICS_BY_PROJECT_ID
+  GET_ALL_EPICS_BY_PROJECT_ID,
+  GET_ALL_TASKS_BY_PROJECT_ID
 } from "@/graphql/Queries/task-service";
 import {
   CREATE_TASK,

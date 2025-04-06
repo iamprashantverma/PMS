@@ -132,6 +132,18 @@ export const GET_TASK_BY_ID = gql`
       storyId
       reporter
       createdAt
+      subTasks {
+            id
+            title
+            description
+            assignees
+            creator
+            createdAt
+            updatedAt
+            status
+            priority
+            label
+        }
     }
   }
 `;

@@ -4,7 +4,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createUploadLink } from 'apollo-upload-client';
-
+import toast from 'react-hot-toast';
 export const createProjectClient = (accessToken) => {
 
   const httpLink = createUploadLink({
@@ -47,9 +47,9 @@ export const createTaskClient = (accessToken) => {
       keepAlive: 30000,
       connectionAckTimeout: 10000,
       on: {
-        connected: () => console.log("WebSocket connected!"),
-        closed: () => console.log("WebSocket closed. Will automatically reconnect..."),
-        error: (err) => console.error("WebSocket error:", err),
+        connected: () => toast.success("WebSocket connected!"),
+        closed: () => toast.error("WebSocket closed. Will automatically reconnect..."),
+        error: (err) => toast.error("WebSocket error:", err),
       }
     })
   );

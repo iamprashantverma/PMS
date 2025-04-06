@@ -28,7 +28,7 @@ function TaskDetails({ task = {}, onClose }) {
     client: taskClient,
     skip: !taskId, 
   });
-  
+
   task = fetchedTaskData?.getTaskById || task;
   const [taskData, setTaskData] = useState(task || {
     id: 'sample-123',
@@ -121,7 +121,7 @@ function TaskDetails({ task = {}, onClose }) {
     skip: !taskId,
     fetchPolicy: 'network-only'
   });
-  
+
   // Epic query if epicId exists
   const { loading: epicLoading, data: epicQueryData } = useQuery(GET_EPIC_BY_ID, {
     variables: { epicId: taskData?.epicId },
@@ -269,7 +269,6 @@ function TaskDetails({ task = {}, onClose }) {
   
         try {
           const {data} = await getUserDetails(comment.userId, accessToken);
-          console.log(data);
           setTaskData(prev => ({
             ...prev,
             comments: [...(prev.comments || []), { ...comment, name: data.name }]
@@ -359,7 +358,6 @@ function TaskDetails({ task = {}, onClose }) {
         memberId: memberId.userId 
       },
       onCompleted:(d)=>{
-        console.log(d);
       }
     });
   };
@@ -398,11 +396,11 @@ function TaskDetails({ task = {}, onClose }) {
       <div className="task-header flex items-center justify-between p-4 border-b bg-white shadow-sm sticky top-0 z-10">
         <div className="task-identifiers flex items-center">
           <div className="badge-container flex items-center gap-2">
-            <span className="badge bg-purple-600 text-white px-2 py-1 rounded text-sm font-medium">{parentInfo?.id || ' '}</span>
+            <span className="badge bg-purple-600 text-white px-2 py-1 rounded text-sm font-medium">{parentInfo?.id || 'None '}</span>
             {parentInfo && (
               <>
                 <span className="divider text-gray-400">/</span>
-                <span className="badge bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">{taskData.id }</span>
+                <span className="badge bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">{taskData?.id }</span>
               </>
             )}
           </div>
