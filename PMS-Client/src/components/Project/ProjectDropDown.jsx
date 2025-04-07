@@ -27,7 +27,7 @@ function ProjectDropDown() {
     top-[110%] left-[10%] 
     sm:left-[20%] sm:top-[115%] 
     md:left-[25%] 
-    lg:left-[10%]
+    lg:left-[22%]
     w-[70vw] sm:w-[50vw] md:w-[40vw] lg:w-[16rem]
   `;
 

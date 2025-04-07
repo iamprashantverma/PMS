@@ -20,8 +20,8 @@ function UserRoutes() {
   return (
     <Routes>
       <Route element={<PrivateRoutes />}>
+        <Route path='/your-work/Task/:taskId'element={<TaskDetails/>} />
         <Route path="/profile" element={<ProfileSettings />} />
-
         <Route path="/project/:projectId" element={<Home />}>
           <Route path="calendar" element={<TaskCalendar />} />
           <Route path="board" element={<Board />} />

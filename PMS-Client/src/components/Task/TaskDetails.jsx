@@ -468,7 +468,7 @@ function TaskDetails({ task = {}, onClose }) {
             </span>
           </div>
   
-              {taskData?.subTasks && task?.subTasks.length > 0 ? (
+              {taskData?.subTasks && task?.subTasks?.length > 0 ? (
                 <div className="space-y-2">
                   {taskData?.subTasks.map(subtask => (
                     <div   key={subtask.id} className="p-3 border rounded-lg hover:bg-gray-50 flex items-center justify-between">

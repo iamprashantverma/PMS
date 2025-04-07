@@ -360,3 +360,42 @@ export const GET_BUG_BY_ID = gql`
   }
 `;
 
+export const GET_SUBTASKS_ASSIGNED_TO_USER = gql`
+  query GetSubTasksAssignedToUser($userId: String!) {
+    getSubTasksAssignedToUser(userId: $userId) {
+      id
+      title
+      description
+      assignees
+      creator
+      createdAt
+      updatedAt
+      status
+      priority
+      label
+    }
+  }
+`;
+
+export const GET_TASKS_ASSIGNED_TO_USER = gql`
+query GetTasksAssignedToUser($userId: String) {
+  getTasksAssignedToUser(userId: $userId) {
+    id
+    title
+    description
+    project
+    assignees
+    updatedAt
+    createdAt
+    status
+    priority
+    label
+    memberId
+    deadline
+    epicId
+    storyId
+    reporter
+  }
+}
+`;
+

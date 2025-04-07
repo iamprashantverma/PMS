@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import WorkDropDown from '../Work/WorkDropDown';
 import {
   User,
   ChevronDown,
@@ -31,9 +32,6 @@ function NavBar() {
     }
   };
 
-  console.log(createOpen);
-
-
   return (
     <nav
       className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 text-gray-800 shadow-md px-4 sm:px-8 fixed"
@@ -47,16 +45,19 @@ function NavBar() {
         {createOpen && <CreateTaskForm setCreateOpen={setCreateOpen} />}
         {/* Full Menu for Desktop */}
         <div className="ml-[40px] hidden md:flex gap-9 text-md">
-          {['Project', 'Your Work', 'Dashboards'].map((item) => (
+          <WorkDropDown/>
+          {['Project', 'Dashboards'].map((item) => (
             <div
               key={item}
-              className="flex items-center gap-1 cursor-pointer hover:text-blue-600"
+              className="flex items-center text-gray-700 hover:text-blue-600 focus:outline-none px-3 py-2"
               onClick={() => handleDropDownToggle(item.toLowerCase())}
             >
-              <p>{item}</p>
+              <p className="mr-1 font-medium">{item}</p>
               <ChevronDown className="w-4 h-4" />
             </div>
-          ))}
+          ))
+          }
+          
           <button
             onClick={()=>setCreateOpen(true)}
             className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition"
@@ -78,11 +79,18 @@ function NavBar() {
           </button>
           {showMore && (
             <div className="absolute right-0 top-10 bg-white shadow-lg rounded-md w-48 z-50">
-              {['Project', 'Your Work', 'Dashboards', 'Create'].map((item) => (
+              {['Project',  'Dashboards', 'Create'].map((item) => (
                 <div
                   key={item}
                   className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleDropDownToggle(item.toLowerCase())}
+                  onClick={() => {
+                    if (item === 'Create') {
+                      setCreateOpen(true);
+                    } else {
+                      handleDropDownToggle(item.toLowerCase());
+                    }
+                    setShowMore(false);
+                  }}
                 >
                   <p>{item}</p>
                   {item !== 'Create' && <ChevronRight className="w-4 h-4" />}
@@ -112,8 +120,11 @@ function NavBar() {
         </Link>
       </div>
 
+      {/* Dropdown Components */}
       {dropDown === 'project' && open && <ProjectDropDown />}
+    
     </nav>
+   
   );
 }
 
