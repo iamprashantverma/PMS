@@ -373,6 +373,7 @@ export const GET_SUBTASKS_ASSIGNED_TO_USER = gql`
       status
       priority
       label
+      image
     }
   }
 `;
@@ -395,6 +396,7 @@ query GetTasksAssignedToUser($userId: String) {
     epicId
     storyId
     reporter
+    image
   }
 }
 `;

@@ -15,12 +15,16 @@ import AllIssues from '@/components/Common/AllIssues';
 import TaskDetails from '@/components/Task/TaskDetails';
 import Timeline from '@/components/Task/Timeline';
 import BugDetails from '@/components/Task/BugDetails';
+import WorkDropDown from '@/components/Work/WorkDropDown';
+import AllWorks from '@/components/Work/AllWorks';
 
 function UserRoutes() {
   return (
     <Routes>
       <Route element={<PrivateRoutes />}>
-        <Route path='/your-work/Task/:taskId'element={<TaskDetails/>} />
+        <Route path="/your-work" element={<AllWorks />}>
+        <Route path="Task/:taskId" element={<TaskDetails />} />
+      </Route>
         <Route path="/profile" element={<ProfileSettings />} />
         <Route path="/project/:projectId" element={<Home />}>
           <Route path="calendar" element={<TaskCalendar />} />

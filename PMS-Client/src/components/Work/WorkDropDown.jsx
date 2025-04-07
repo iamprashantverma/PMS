@@ -21,7 +21,6 @@ function WorkDropDown() {
     client: taskClient,
     fetchPolicy: "network-only",
   });
-  console.log(data)
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const getFilteredTasks = () => {
