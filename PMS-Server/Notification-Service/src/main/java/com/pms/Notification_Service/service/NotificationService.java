@@ -1,52 +1,26 @@
 package com.pms.Notification_Service.service;
 
+import com.pms.Notification_Service.dto.UserMessageNotificationDTO;
 import com.pms.TaskService.event.TaskEvent;
 import jakarta.mail.MessagingException;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 
-/**
- * Interface for handling various task-related events received from Kafka topics.
- */
+import java.util.concurrent.Flow;
+
 public interface NotificationService {
 
-    /**
-     * Handles the event when a task is updated.
-     *
-     * @param taskEvent The event containing task update details.
-     */
     void taskTopicUpdateHandler(TaskEvent taskEvent) throws MessagingException;
 
-    /**
-     * Handles the event when a task's status is updated.
-     *
-     * @param taskEvent The event containing task status update details.
-     */
     void taskTopicStatusUpdateHandler(TaskEvent taskEvent);
 
-    /**
-     * Handles the event when a task is deleted.
-     *
-     * @param taskEvent The event containing task deletion details.
-     */
     void taskTopicDeletionHandler(TaskEvent taskEvent) throws MessagingException;
 
-    /**
-     * Handles the event when a member is assigned to a task.
-     *
-     * @param taskEvent The event containing task member assignment details.
-     */
     void taskTopicMemberAssignedHandler(TaskEvent taskEvent) throws MessagingException;
 
-    /**
-     * Handles the event when a member is unassigned from a task.
-     *
-     * @param taskEvent The event containing task member unassignment details.
-     */
     void taskTopicMemberUnassignedHandler(TaskEvent taskEvent) throws MessagingException;
 
-    /**
-     * Handles the event when a task's priority is updated.
-     *
-     * @param taskEvent The event containing task priority update details.
-     */
     void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent) throws MessagingException;
+
+    Publisher<UserMessageNotificationDTO> subscribeToNotification(String currentUserId);
 }

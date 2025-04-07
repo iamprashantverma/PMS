@@ -61,6 +61,38 @@
 		</dependency>
 
 		<dependency>
+			<groupId>name.nkonev.multipart-spring-graphql</groupId>
+			<artifactId>multipart-spring-graphql</artifactId>
+			<version>1.5.3</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-spring-boot-starter</artifactId>
+			<version>5.0.2</version>
+		</dependency>
+
+			<dependency>
+			<groupId>org.springframework.graphql</groupId>
+			<artifactId>spring-graphql</artifactId>
+		</dependency>
+
+		<dependency>
+		<groupId>com.graphql-java</groupId>
+		<artifactId>graphql-java-extended-scalars</artifactId>
+		<version>22.0</version>
+		<scope>compile</scope>
+	</dependency>
+
+
+
+
+
+
+
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>

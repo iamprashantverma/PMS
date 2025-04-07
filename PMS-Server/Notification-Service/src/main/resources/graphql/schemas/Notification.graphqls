@@ -1,0 +1,63 @@
+scalar  Date
+type Notification {
+    notificationId: String!
+    title: String
+    userId: String
+    entityId: String
+    description: String
+    createdDate: Date
+    updatedDate: Date
+    deadline: Date
+    priority: Priority
+    projectId: String
+    assignees: [String]
+    oldStatus: Status
+    newStatus: Status
+    updatedBy: String
+    eventType: EventType
+    action: Action
+    isReads: Boolean
+    commentText: String
+    commentedBy: String
+}
+enum Action {
+    UPDATED,
+    DELETED,
+    STATUS_CHANGED,
+    ASSIGNED,
+    UNASSIGNED
+    PRIORITY_CHANGED,
+}
+enum EventType {
+    TASK
+    COMMENT
+    STATUS_CHANGE
+    BUG
+    EPIC
+    ISSUE
+    STORY
+    SUBTASK
+    CALENDER
+}
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
+
+enum Status {
+    IN_PLANNED
+    IN_PROGRESS
+    COMPLETED
+    ON_HOLD
+    CANCELED
+    IN_QA
+    DELIVERED
+    INITIATED
+    PLANNING
+    REVIEW
+    REVISION
+    ARCHIVED
+    TODO
+}
