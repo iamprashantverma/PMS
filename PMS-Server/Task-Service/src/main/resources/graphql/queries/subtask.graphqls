@@ -4,5 +4,6 @@
      getSubTasksByProjectId(projectId:String!):[SubTaskDTO]
      getAllSubTasks:[SubTaskDTO]
      addSubTaskOnTask(taskId:String!, subTaskId:String!):ResponseDTO
+      getSubTasksAssignedToUser(userId:String):[SubTaskDTO]
 
 }

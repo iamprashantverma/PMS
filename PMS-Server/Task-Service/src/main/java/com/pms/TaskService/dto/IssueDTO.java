@@ -32,5 +32,6 @@ public class IssueDTO {
     private Priority priority;
     private Long completionPercent;
     private String label;
+    private String image;
     
 }

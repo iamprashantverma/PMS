@@ -22,4 +22,5 @@ public class SubTaskDTO extends IssueDTO {
     @NotNull(message = "please provide the task id")
     @NotBlank(message = "please enter valid taskId")
     private String taskId;
+
 }

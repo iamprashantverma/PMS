@@ -115,4 +115,5 @@ public class BugDTO {
     private String label;
 
     private String image;
+
 }

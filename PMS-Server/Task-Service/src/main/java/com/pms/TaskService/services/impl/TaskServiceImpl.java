@@ -1,5 +1,6 @@
 package com.pms.TaskService.services.impl;
 
+import com.pms.TaskService.auth.UserContextHolder;
 import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.dto.ResponseDTO;
 import com.pms.TaskService.dto.TaskDTO;
@@ -21,8 +22,10 @@ import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.TaskService;
 
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +49,10 @@ public class TaskServiceImpl implements TaskService {
     private final StoryRepository storyRepository;
     private final CloudinaryService cloudinaryService;
 
+    private String getCurrentUserId(){
+        return UserContextHolder.getCurrentUserId();
+    }
+
     // Utility Methods
     private TaskDTO convertToDTO(Task task) {
         return modelMapper.map(task, TaskDTO.class);
@@ -65,6 +72,8 @@ public class TaskServiceImpl implements TaskService {
                 .createdDate(task.getCreatedAt())
                 .priority(task.getPriority())
                 .deadline(task.getDeadLine())
+                .updatedBy(getCurrentUserId())
+                .updatedDate(task.getUpdatedAt())
                 .description(task.getDescription())
                 .build();
     }
@@ -80,6 +89,14 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findAllByEpic_Id(epicId)
                 .stream().map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskDTO> getTasksAssignedToUser(String userId) {
+        List<Task> tasks = taskRepository.findAllByAssignee(userId);
+        return tasks.stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     @Override
@@ -99,7 +116,17 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDTO changeTaskStatus(String taskId, Status status) {
         Task task = getTaskEntity(taskId);
+        Status oldStatus = task.getStatus();
         task.setStatus(status);
+
+        Task savedTask = taskRepository.save(task);
+        TaskEvent taskEvent = generateTaskEvent(savedTask);
+        log.info("task Entity,{}",savedTask.getUpdatedAt());
+        taskEvent.setNewStatus(status);
+        taskEvent.setOldStatus(oldStatus);
+        taskEvent.setAction(Actions.STATUS_CHANGED);
+
+        taskEventProducer.sendTaskEvent(taskEvent);
         return convertToDTO(taskRepository.save(task));
     }
 

@@ -35,6 +35,7 @@ public class TaskDTO {
     private String epicId;
     private String storyId;
     private String label;
+    private String image;
     private String reporter;
     private List<SubTaskDTO> subTasks = new ArrayList<>();
 }

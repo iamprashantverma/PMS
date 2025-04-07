@@ -3,6 +3,8 @@ package com.pms.Notification_Service.service.impl;
 
 import com.pms.Notification_Service.clients.UserFeignClient;
 import com.pms.Notification_Service.dto.UserDTO;
+import com.pms.Notification_Service.entities.UserMessageNotification;
+import com.pms.Notification_Service.repositories.UserMessageNotificationRepo;
 import com.pms.Notification_Service.service.NotificationService;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.EventType;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.mail.MessagingException;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +28,8 @@ public class NotificationServiceImpl  implements NotificationService {
 
     private final UserFeignClient userFeignClient;
     private final   EmailService emailService;
+    private final ModelMapper modelMapper;
+    private final UserMessageNotificationRepo userMessageNotificationRepo;
 
 
     @Override
@@ -68,12 +73,18 @@ public class NotificationServiceImpl  implements NotificationService {
 
     @Override
     public void taskTopicStatusUpdateHandler(TaskEvent taskEvent) {
+
         EventType eventType = taskEvent.getEventType();
         String title = taskEvent.getTitle();
         String description = taskEvent.getDescription();
         String taskId = taskEvent.getEntityId();
         Status newStatus = taskEvent.getNewStatus();
         Status oldStatus = taskEvent.getOldStatus();
+
+        UserMessageNotification umn = modelMapper.map(taskEvent,UserMessageNotification.class);
+        userMessageNotificationRepo.save(umn);
+        System.out.println(umn);
+
         List<UserDTO> assignees = new ArrayList<>();
         String subject = eventType + " Status Update Notification: " + title;
         // Fetch all users from UserService

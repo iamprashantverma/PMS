@@ -11,6 +11,7 @@ type IssueDTO{
     status: IssueStatus
     priority: Priority
     label:String
+    image:String
 }
 
 type ResponseDTO{
@@ -25,7 +26,6 @@ ON_HOLD,
 CANCELED,
 IN_QA,
 DELIVERED,
-NO_CHANGE,
 TODO,
 ARCHIVED
 }

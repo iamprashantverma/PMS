@@ -6,4 +6,5 @@ extend type Query{
     getTasksByStatusAndEpic(status:IssueStatus,epicId:String!):[TaskDTO]
     assignNewParent(parentId:String!,taskId:String!,parent:String!):TaskDTO
     getTaskByEpicId(epicId:String!):[TaskDTO]
+    getTasksAssignedToUser(userId:String):[TaskDTO]
 }

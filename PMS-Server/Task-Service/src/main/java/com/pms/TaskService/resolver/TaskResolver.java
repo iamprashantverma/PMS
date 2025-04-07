@@ -132,4 +132,9 @@ public class TaskResolver {
     public List<TaskDTO> getTaskByEpicId(@Argument("epicId")String epicId){
         return taskService.getTaskByEpicId(epicId);
     }
+
+    @QueryMapping
+    public  List<TaskDTO> getTasksAssignedToUser(@Argument("userId")String userId) {
+        return taskService.getTasksAssignedToUser(userId);
+    }
 }

@@ -197,6 +197,14 @@ public class SubTaskServiceImpl implements SubTaskService {
     }
 
     @Override
+    public List<SubTaskDTO> getSubTasksAssignedToUser(String userId) {
+        List<SubTask> subTasks  = subTaskRepository.findAllSubTasksByAssignee(userId);
+        return subTasks.stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public SubTaskDTO changeSubTaskStatus(String subTaskId, Status status) {
         SubTask subTask = subTaskRepository.findById(subTaskId)

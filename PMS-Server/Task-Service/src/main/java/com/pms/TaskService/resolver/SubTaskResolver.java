@@ -149,4 +149,8 @@ public class SubTaskResolver {
         log.info("Associating SubTask {} with Task {}", subTaskId, taskId);
         return subTaskService.addSubTaskOnTask(taskId, subTaskId);
     }
+    @QueryMapping
+    public List<SubTaskDTO> getSubTasksAssignedToUser(@Argument("userId")String userId){
+        return  subTaskService.getSubTasksAssignedToUser(userId);
+    }
 }

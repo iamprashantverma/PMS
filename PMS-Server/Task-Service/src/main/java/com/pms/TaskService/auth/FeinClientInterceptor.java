@@ -12,10 +12,11 @@ public class FeinClientInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         String userId = UserContextHolder.getCurrentUserId();
-        if(userId == null){
+        if (userId != null) {
             requestTemplate.header("X-User-Id", userId);
         }
     }
+
 
 
 

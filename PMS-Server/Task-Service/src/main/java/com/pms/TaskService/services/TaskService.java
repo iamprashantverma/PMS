@@ -136,4 +136,7 @@ public interface TaskService {
      * @return A list of TaskDTOs.
      */
     List<TaskDTO> getTaskByEpicId(String epicId);
+
+    List<TaskDTO> getTasksAssignedToUser(String userId);
+
 }

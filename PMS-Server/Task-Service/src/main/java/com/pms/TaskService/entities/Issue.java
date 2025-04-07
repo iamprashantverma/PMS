@@ -4,6 +4,8 @@ import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.Random;
@@ -20,6 +22,7 @@ import java.util.Set;
 @Entity
 @Table(name = "issues")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@EntityListeners(AuditingEntityListener.class)
 @DiscriminatorColumn(name = "issue_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Issue {
 
@@ -31,6 +34,7 @@ public abstract class Issue {
 
     @PrePersist
     public void generateId() {
+        this.updatedAt = LocalDate.now();
         this.id = String.format("%06d", new Random().nextInt(999999));
     }
 
@@ -70,6 +74,11 @@ public abstract class Issue {
      */
     private LocalDate updatedAt;
 
+    @PreUpdate
+    public void preUpdate() {
+        System.out.println("PreUpdate is Triggered");
+        this.updatedAt = LocalDate.now();
+    }
     /**
      * Deadline to complete the issue.
      */

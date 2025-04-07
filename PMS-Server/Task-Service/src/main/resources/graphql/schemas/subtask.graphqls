@@ -10,6 +10,7 @@ type SubTaskDTO {
     priority: Priority
     parentTask : TaskDTO
     label:String
+    image:String
 }
 
 input SubTaskInputDTO{

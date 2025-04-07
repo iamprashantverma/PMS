@@ -15,6 +15,7 @@ type TaskDTO {
     epicId : String
     storyId:String
     reporter:String
+    image:String
     subTasks : [SubTaskDTO]
 }
 
