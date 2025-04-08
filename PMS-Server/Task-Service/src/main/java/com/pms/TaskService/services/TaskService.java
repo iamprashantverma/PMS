@@ -137,6 +137,11 @@ public interface TaskService {
      */
     List<TaskDTO> getTaskByEpicId(String epicId);
 
+    /**
+     * Retrieves all tasks assigned to a specific user.
+     *
+     * @param userId the ID of the user
+     * @return a list of tasks assigned to the specified user
+     */
     List<TaskDTO> getTasksAssignedToUser(String userId);
-
 }

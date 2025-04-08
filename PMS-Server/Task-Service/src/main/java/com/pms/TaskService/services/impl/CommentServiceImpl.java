@@ -1,5 +1,6 @@
 package com.pms.TaskService.services.impl;
 
+import com.pms.TaskService.auth.UserContextHolder;
 import com.pms.TaskService.dto.CommentDTO;
 import com.pms.TaskService.entities.Comment;
 import com.pms.TaskService.event.NotificationEvent;
@@ -31,6 +32,12 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationEventProducer producer;
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
+
+    // Get the ID of the currently authenticated user
+    private String getCurrentUserId() {
+        return UserContextHolder.getCurrentUserId();
+    }
+
 
     // Sinks for emitting updates
     private final Map<String, Sinks.Many<CommentDTO>> taskCommentSinks = new ConcurrentHashMap<>();
@@ -125,7 +132,6 @@ public class CommentServiceImpl implements CommentService {
     private void sendCommentUpdate(String taskId, CommentDTO comment) {
         Sinks.Many<CommentDTO> sink = taskCommentSinks.get(taskId);
         if (sink != null) {
-            System.out.println(comment);
             sink.tryEmitNext(comment);
         }
     }

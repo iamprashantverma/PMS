@@ -22,10 +22,8 @@ import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.TaskService;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,19 +47,22 @@ public class TaskServiceImpl implements TaskService {
     private final StoryRepository storyRepository;
     private final CloudinaryService cloudinaryService;
 
-    private String getCurrentUserId(){
+    // Get the ID of the currently authenticated user
+    private String getCurrentUserId() {
         return UserContextHolder.getCurrentUserId();
     }
 
-
+    // Convert Entity to DTO
     private TaskDTO convertToDTO(Task task) {
         return modelMapper.map(task, TaskDTO.class);
     }
 
+    // Convert DTO to Entity
     private Task convertToEntity(TaskDTO taskDTO) {
         return modelMapper.map(taskDTO, Task.class);
     }
 
+    // Generate TaskEvent object for Kafka/Event tracking
     private TaskEvent generateTaskEvent(Task task) {
         return TaskEvent.builder()
                 .entityId(task.getId())
@@ -78,27 +79,31 @@ public class TaskServiceImpl implements TaskService {
                 .build();
     }
 
+    // Get task entity or throw exception if not found
     private Task getTaskEntity(String taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFound("Task not found: " + taskId));
     }
 
-    // Service Methods
+    // Get tasks by Epic ID
     @Override
     public List<TaskDTO> getTaskByEpicId(String epicId) {
         return taskRepository.findAllByEpic_Id(epicId)
-                .stream().map(this::convertToDTO)
+                .stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    // Get tasks assigned to a specific user
     @Override
     public List<TaskDTO> getTasksAssignedToUser(String userId) {
-        List<Task> tasks = taskRepository.findAllByAssignee(userId);
-        return tasks.stream()
+        return taskRepository.findAllByAssignee(userId)
+                .stream()
                 .map(this::convertToDTO)
                 .toList();
     }
 
+    // Assign a parent (Project, Epic, or Story) to a Task
     @Override
     public TaskDTO assignNewParent(String parentId, String taskId, String parent) {
         Task task = getTaskEntity(taskId);
@@ -112,7 +117,7 @@ public class TaskServiceImpl implements TaskService {
         return convertToDTO(taskRepository.save(task));
     }
 
-
+    // Change task status and update its completion percent accordingly
     @Override
     @Transactional
     public TaskDTO changeTaskStatus(String taskId, Status status) {
@@ -120,30 +125,26 @@ public class TaskServiceImpl implements TaskService {
         Status oldStatus = task.getStatus();
         task.setStatus(status);
 
-        if(status == Status.TODO) {
-            task.setCompletionPercent(0L);
-        } else if(status == Status.IN_PLANNED) {
-            task.setCompletionPercent(10L);
-        } else if (status == Status.IN_PROGRESS) {
-            task.setCompletionPercent(60L);
-        } else if(status == Status.IN_QA) {
-            task.setCompletionPercent(90L);
-        } else if (status == Status.COMPLETED || status == Status.ARCHIVED) {
-            task.setCompletionPercent(100L);
+        // Update completion percentage based on status
+        switch (status) {
+            case TODO -> task.setCompletionPercent(0L);
+            case IN_PLANNED -> task.setCompletionPercent(10L);
+            case IN_PROGRESS -> task.setCompletionPercent(60L);
+            case IN_QA -> task.setCompletionPercent(90L);
+            case COMPLETED, ARCHIVED -> task.setCompletionPercent(100L);
         }
 
         Task savedTask = taskRepository.save(task);
         TaskEvent taskEvent = generateTaskEvent(savedTask);
-
-        log.info("task Entity,{}",savedTask.getUpdatedAt());
-        taskEvent.setNewStatus(status);
         taskEvent.setOldStatus(oldStatus);
+        taskEvent.setNewStatus(status);
         taskEvent.setAction(Actions.STATUS_CHANGED);
 
         taskEventProducer.sendTaskEvent(taskEvent);
-        return convertToDTO(taskRepository.save(task));
+        return convertToDTO(savedTask);
     }
 
+    // Create a new task and link to appropriate parent (Epic, Story, or Project)
     @Override
     @Transactional
     public TaskDTO createTask(TaskDTO taskDTO, MultipartFile file) {
@@ -158,6 +159,8 @@ public class TaskServiceImpl implements TaskService {
         task.setImage(imageUrl);
 
         Task savedTask = taskRepository.save(task);
+
+        // Attach to appropriate parent
         if (taskDTO.getEpicId() != null) {
             addTaskOnEpic(taskDTO.getEpicId(), savedTask);
         } else if (taskDTO.getStoryId() != null) {
@@ -166,12 +169,12 @@ public class TaskServiceImpl implements TaskService {
             projectFeignClient.addTaskToProject(task.getProjectId(), savedTask.getId());
         }
 
+        // Send calendar event
         TaskEvent taskEvent = generateTaskEvent(savedTask);
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(savedTask.getStatus());
         taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setEvent(EventType.TASK);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedTask);
@@ -179,11 +182,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTaskById(String taskId) {
-        Task task = getTaskEntity(taskId);
-        log.info("{}", task.getSubTasks());
-        return convertToDTO(task);
+        return convertToDTO(getTaskEntity(taskId));
     }
 
+    // Soft delete task if all subtasks are completed
     @Override
     @Transactional
     public ResponseDTO deleteTask(String taskId) {
@@ -212,6 +214,7 @@ public class TaskServiceImpl implements TaskService {
         return new ResponseDTO("Task has been archived or deleted successfully.");
     }
 
+    // Update task if it is not already completed
     @Override
     public TaskDTO updateTask(TaskDTO taskDTO) {
         Task existingTask = getTaskEntity(taskDTO.getId());
@@ -221,7 +224,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task toBeModifiedTask = modelMapper.map(taskDTO, Task.class);
-
+        // Preserve fields not to be overridden by the update
         toBeModifiedTask.setAssignees(existingTask.getAssignees());
         toBeModifiedTask.setStory(existingTask.getStory());
         toBeModifiedTask.setEpic(existingTask.getEpic());
@@ -239,7 +242,6 @@ public class TaskServiceImpl implements TaskService {
         taskEvent.setUpdatedDate(LocalDate.now());
 
         taskEventProducer.sendTaskEvent(taskEvent);
-        taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(modifiedTask);
@@ -248,7 +250,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskDTO> getAllTaskByProjectId(String projectId) {
         return taskRepository.findByProjectId(projectId)
-                .stream().map(this::convertToDTO)
+                .stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -283,7 +286,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll().stream()
+        return taskRepository.findAll()
+                .stream()
                 .filter(task -> task.getStatus() != Status.COMPLETED)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -292,20 +296,21 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskDTO> getTasksByUserId(String userId) {
         return taskRepository.findByAssigneesContains(userId)
-                .stream().map(this::convertToDTO)
+                .stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<TaskDTO> getTasksByStatus(Status status, String epicId) {
         return taskRepository.findAllByStatusAndEpic_Id(status, epicId)
-                .stream().map(this::convertToDTO)
+                .stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TaskDTO assignMemberToTask(String taskId, String memberId) {
-
         Task task = getTaskEntity(taskId);
         task.getAssignees().add(memberId);
         Task savedTask = taskRepository.save(task);

@@ -15,9 +15,11 @@ import com.pms.TaskService.repository.EpicRepository;
 import com.pms.TaskService.repository.StoryRepository;
 import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.StoryService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,19 +40,23 @@ public class StoryServiceImpl implements StoryService {
     private final CalendarEventProducer calendarEventProducer;
     private final CloudinaryService cloudinaryService;
 
+    // Utility method to convert DTO to entity
     private Story convertToEntity(StoryDTO storyDTO) {
         return modelMapper.map(storyDTO, Story.class);
     }
 
-    private StoryDTO convertToDTO(Story storyId) {
-        return modelMapper.map(storyId, StoryDTO.class);
+    // Utility method to convert entity to DTO
+    private StoryDTO convertToDTO(Story story) {
+        return modelMapper.map(story, StoryDTO.class);
     }
 
+    // Utility method to fetch Story entity by ID or throw exception
     private Story getStoryEntity(String storyId) {
         return storyRepository.findById(storyId)
                 .orElseThrow(() -> new ResourceNotFound("Story not found: " + storyId));
     }
 
+    // Generates a TaskEvent from Story object
     private TaskEvent generateTaskEvent(Story story) {
         return TaskEvent.builder()
                 .entityId(story.getId())
@@ -65,6 +71,7 @@ public class StoryServiceImpl implements StoryService {
                 .build();
     }
 
+    // Create a new story with optional image upload and add it to an epic
     @Override
     @Transactional
     public StoryDTO createStory(StoryDTO storyDTO, MultipartFile file) {
@@ -74,11 +81,11 @@ public class StoryServiceImpl implements StoryService {
 
         Story savedStory = storyRepository.save(story);
 
-        String epicId = storyDTO.getEpicId();
-        if (epicId == null)
-            throw new ResourceNotFound("Epic Id has not provided");
-        else
-            addStoryOnEpic(epicId, savedStory);
+        if (storyDTO.getEpicId() == null) {
+            throw new ResourceNotFound("Epic Id has not been provided");
+        } else {
+            addStoryOnEpic(storyDTO.getEpicId(), savedStory);
+        }
 
         TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setEventType(EventType.CALENDER);
@@ -90,12 +97,14 @@ public class StoryServiceImpl implements StoryService {
         return convertToDTO(story);
     }
 
+    // Update an existing story
     @Override
     public StoryDTO updateStory(StoryDTO storyDTO) {
         Story story = getStoryEntity(storyDTO.getId());
 
-        if (story.getStatus() == Status.COMPLETED)
-            throw new ResourceNotFound("Story is Already Completed, Can't Modify");
+        if (story.getStatus() == Status.COMPLETED) {
+            throw new ResourceNotFound("Story is already completed. Cannot modify.");
+        }
 
         story.setUpdatedAt(LocalDate.now());
 
@@ -115,16 +124,16 @@ public class StoryServiceImpl implements StoryService {
         taskEvent.setNewStatus(modifiedStory.getStatus());
         taskEvent.setProjectId(modifiedStory.getProjectId());
         taskEvent.setUpdatedDate(LocalDate.now());
-        taskEvent.setDescription("Story Updated Successfully");
+        taskEvent.setDescription("Story updated successfully");
 
         taskEventProducer.sendTaskEvent(taskEvent);
-
         taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedStory);
     }
 
+    // Delete or archive story only if all its tasks and bugs are completed
     @Override
     @Transactional
     public StoryDTO deleteStory(String storyId) {
@@ -137,7 +146,7 @@ public class StoryServiceImpl implements StoryService {
                 .allMatch(bug -> bug.getStatus() == Status.COMPLETED);
 
         if (!allTasksCompleted || !allBugsCompleted) {
-            throw new IllegalStateException("Cannot delete story. All associated tasks must be completed first.");
+            throw new IllegalStateException("Cannot delete story. All associated tasks and bugs must be completed.");
         }
 
         Status oldStatus = story.getStatus();
@@ -147,11 +156,10 @@ public class StoryServiceImpl implements StoryService {
 
         TaskEvent taskEvent = generateTaskEvent(story);
         taskEvent.setAction(Actions.DELETED);
-        taskEvent.setNewStatus(Status.COMPLETED);
         taskEvent.setOldStatus(oldStatus);
+        taskEvent.setNewStatus(Status.COMPLETED);
 
         taskEventProducer.sendTaskEvent(taskEvent);
-
         taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
@@ -160,23 +168,23 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public StoryDTO getStoryById(String storyId) {
-        Story story = getStoryEntity(storyId);
-        return convertToDTO(story);
+        return convertToDTO(getStoryEntity(storyId));
     }
 
     @Override
     public List<StoryDTO> getAllStoriesByProjectId(String projectId) {
-        List<Story> stories = storyRepository.findByProjectId(projectId);
-        return stories.stream()
+        return storyRepository.findByProjectId(projectId).stream()
                 .map(this::convertToDTO)
                 .toList();
     }
 
     @Override
     public List<StoryDTO> getAllStoriesByUserId(String userId) {
+        // Placeholder for implementation
         return List.of();
     }
 
+    // Assign a user to a story
     @Override
     @Transactional
     public StoryDTO assignUserToStory(String storyId, String userId) {
@@ -194,6 +202,7 @@ public class StoryServiceImpl implements StoryService {
         return convertToDTO(savedStory);
     }
 
+    // Unassign a user from a story
     @Override
     @Transactional
     public StoryDTO unassignUserFromStory(String storyId, String userId) {
@@ -211,14 +220,15 @@ public class StoryServiceImpl implements StoryService {
         return convertToDTO(savedStory);
     }
 
+    // Change status of a story
     @Override
     @Transactional
     public StoryDTO changeStoryStatus(String storyId, Status status) {
         Story story = getStoryEntity(storyId);
-        story.setUpdatedAt(LocalDate.now());
 
         Status oldStatus = story.getStatus();
         story.setStatus(status);
+        story.setUpdatedAt(LocalDate.now());
 
         storyRepository.save(story);
 
@@ -235,20 +245,21 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public List<StoryDTO> getStoriesByStatus(Status status) {
-        List<Story> stories = storyRepository.findByStatus(status);
-        return stories.stream()
+        return storyRepository.findByStatus(status).stream()
                 .map(this::convertToDTO)
                 .toList();
     }
 
+    // Adds a story to the corresponding epic
     @Override
     @Transactional
     public void addStoryOnEpic(String epicId, Story story) {
         Epic epic = epicRepository.findById(epicId)
                 .orElseThrow(() -> new ResourceNotFound("Epic not found: " + epicId));
 
-        if (epic.getStatus() == Status.COMPLETED)
+        if (epic.getStatus() == Status.COMPLETED) {
             throw new ResourceNotFound("Epic is already marked as completed or deleted");
+        }
 
         epic.getStories().add(story);
         story.setEpic(epic);
@@ -256,8 +267,9 @@ public class StoryServiceImpl implements StoryService {
         epicRepository.save(epic);
         storyRepository.save(story);
 
+        // Optional: return a meaningful response if needed
         ResponseDTO.builder()
-                .message("Story added to the epics")
+                .message("Story added to the epic")
                 .build();
     }
 }

@@ -96,5 +96,11 @@ public interface SubTaskService {
      * @return A list of SubTaskDTOs linked to the project.
      */
     List<SubTaskDTO> getSubTasksByProjectId(String projectId);
+    /**
+     * Retrieves all subtasks assigned to a specific user.
+     *
+     * @param userId the unique identifier of the user
+     * @return a list of SubTaskDTOs assigned to the specified user
+     */
     List<SubTaskDTO> getSubTasksAssignedToUser(String userId);
 }

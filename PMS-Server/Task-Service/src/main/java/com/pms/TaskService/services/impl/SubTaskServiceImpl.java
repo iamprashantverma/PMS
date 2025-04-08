@@ -37,9 +37,10 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final TaskEventProducer producer;
     private final CalendarEventProducer calendarEventProducer;
 
-    private String getCurrentUserId(){
+    private String getCurrentUserId() {
         return UserContextHolder.getCurrentUserId();
     }
+
     private SubTask convertToEntity(SubTaskDTO subTaskDTO) {
         return modelMapper.map(subTaskDTO, SubTask.class);
     }
@@ -48,6 +49,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         return modelMapper.map(subTask, SubTaskDTO.class);
     }
 
+    // Generate TaskEvent with projectId pulled from Epic, Story, or fallback to SubTask
     private TaskEvent generateTaskEvent(SubTask subTask) {
         Task parentTask = subTask.getParentTask();
         String projectId = null;
@@ -75,12 +77,12 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .build();
     }
 
-
     @Override
     @Transactional
     public SubTaskDTO createSubTask(SubTaskDTO subTaskDTO) {
         SubTask subTask = convertToEntity(subTaskDTO);
 
+        // Fetch and validate parent task
         Task task = taskRepository.findById(subTaskDTO.getTaskId())
                 .orElseThrow(() -> new ResourceNotFound("Task not found: " + subTaskDTO.getTaskId()));
 
@@ -97,6 +99,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         taskRepository.save(task);
         log.info("{}", task);
 
+        // Send calendar event for subtask creation
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setNewStatus(savedSubTask.getStatus());
         taskEvent.setAction(Actions.CREATED);
@@ -113,12 +116,14 @@ public class SubTaskServiceImpl implements SubTaskService {
         SubTask subTask = subTaskRepository.findById(subTaskId)
                 .orElseThrow(() -> new ResourceNotFound("SubTask not found: " + subTaskId));
 
+        // Archive the subtask
         Status oldStatus = subTask.getStatus();
         subTask.setStatus(Status.COMPLETED);
         subTask.setCompletionPercent(100L);
 
-        SubTask savedSubTask  =  subTaskRepository.save(subTask);
+        SubTask savedSubTask = subTaskRepository.save(subTask);
 
+        // Send task event to notify deletion
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(Status.COMPLETED);
@@ -182,6 +187,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         subTask.getAssignees().add(memberId);
         SubTask savedSubTask = subTaskRepository.save(subTask);
 
+        // Notify assignment
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAssignees(Set.of(memberId));
@@ -202,6 +208,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         subTask.getAssignees().remove(memberId);
         SubTask savedSubTask = subTaskRepository.save(subTask);
 
+        // Notify unassignment
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.UNASSIGNED);
@@ -219,7 +226,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public List<SubTaskDTO> getSubTasksAssignedToUser(String userId) {
-        List<SubTask> subTasks  = subTaskRepository.findAllSubTasksByAssignee(userId);
+        List<SubTask> subTasks = subTaskRepository.findAllSubTasksByAssignee(userId);
         return subTasks.stream()
                 .map(this::convertToDTO)
                 .toList();
@@ -230,25 +237,25 @@ public class SubTaskServiceImpl implements SubTaskService {
     public SubTaskDTO changeSubTaskStatus(String subTaskId, Status status) {
         SubTask subTask = subTaskRepository.findById(subTaskId)
                 .orElseThrow(() -> new ResourceNotFound("Invalid subTask Id: " + subTaskId));
+
         Status oldStatus = subTask.getStatus();
         subTask.setStatus(status);
 
-        if(status == Status.TODO) {
-            subTask.setCompletionPercent(0L);
-        } else if(status == Status.IN_PROGRESS) {
-            subTask.setCompletionPercent(60L);
-        } else if(status == Status.IN_QA){
-            subTask.setCompletionPercent(90L);
-        } else if(status == Status.COMPLETED || status == Status.ARCHIVED){
-            subTask.setCompletionPercent(100L);
-        } else if(status == Status.IN_PLANNED) {
-            subTask.setCompletionPercent(10L);
+        // Set completion percentage based on new status
+        switch (status) {
+            case TODO -> subTask.setCompletionPercent(0L);
+            case IN_PROGRESS -> subTask.setCompletionPercent(60L);
+            case IN_QA -> subTask.setCompletionPercent(90L);
+            case COMPLETED, ARCHIVED -> subTask.setCompletionPercent(100L);
+            case IN_PLANNED -> subTask.setCompletionPercent(10L);
         }
+
         SubTask savedTask = subTaskRepository.save(subTask);
+
+        // Notify status change
         TaskEvent taskEvent = generateTaskEvent(subTask);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(status);
-
         producer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedTask);

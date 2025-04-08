@@ -43,18 +43,21 @@ public class BugServiceImpl implements BugService {
     private final ProjectFeignClient projectFeignClient;
     private final CloudinaryService cloudinaryService;
 
-    private String getCurrentUserId(){
+    private String getCurrentUserId() {
         return UserContextHolder.getCurrentUserId();
     }
-    // Utility Methods
+
+    // Convert DTO to Entity
     private Bug convertToEntity(BugDTO bugDTO) {
         return modelMapper.map(bugDTO, Bug.class);
     }
 
+    // Convert Entity to DTO
     private BugDTO convertToDTO(Bug bug) {
         return modelMapper.map(bug, BugDTO.class);
     }
 
+    // Create a TaskEvent for bug
     private TaskEvent generateTaskEvent(Bug bug) {
         return TaskEvent.builder()
                 .entityId(bug.getId())
@@ -71,7 +74,7 @@ public class BugServiceImpl implements BugService {
                 .build();
     }
 
-    // CRUD Operations
+    // Create new bug
     @Override
     @Transactional
     public BugDTO createBug(BugDTO bugDTO, MultipartFile file) {
@@ -96,7 +99,6 @@ public class BugServiceImpl implements BugService {
 
         bug.setCreatedAt(LocalDate.now());
         bug.setImage(cloudinaryService.uploadImage(file));
-
         Bug savedBug = bugRepository.save(bug);
 
         if (epicId == null && storyId == null && taskId == null) {
@@ -106,12 +108,12 @@ public class BugServiceImpl implements BugService {
         TaskEvent taskEvent = generateTaskEvent(savedBug);
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setEventType(EventType.CALENDER);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedBug);
     }
 
+    // Delete bug (soft delete by marking completed)
     @Override
     @Transactional
     public ResponseDTO deleteBug(String bugId) {
@@ -120,7 +122,7 @@ public class BugServiceImpl implements BugService {
 
         Status oldStatus = bug.getStatus();
         bug.setStatus(Status.COMPLETED);
-        Bug savedBug =  bugRepository.save(bug);
+        Bug savedBug = bugRepository.save(bug);
 
         TaskEvent taskEvent = generateTaskEvent(savedBug);
         taskEvent.setOldStatus(oldStatus);
@@ -135,6 +137,7 @@ public class BugServiceImpl implements BugService {
         return new ResponseDTO("Bug deleted successfully");
     }
 
+    // Get bug by ID
     @Override
     public BugDTO getBugById(String bugId) {
         Bug bug = bugRepository.findById(bugId)
@@ -142,6 +145,7 @@ public class BugServiceImpl implements BugService {
         return convertToDTO(bug);
     }
 
+    // Update bug
     @Override
     public BugDTO updateBug(BugDTO bugDTO) {
         String id = bugDTO.getId();
@@ -149,24 +153,22 @@ public class BugServiceImpl implements BugService {
                 .orElseThrow(() -> new ResourceNotFound("Invalid Bug ID"));
 
         Status oldStatus = existingBug.getStatus();
-        Priority oldPriority = existingBug.getPriority();
 
-        Bug toBeModified = convertToEntity(bugDTO);
-        toBeModified.setId(id);
-        toBeModified.setCreatedAt(existingBug.getCreatedAt());
-        toBeModified.setUpdatedAt(LocalDate.now());
-        toBeModified.setAssignees(existingBug.getAssignees());
-        toBeModified.setStory(existingBug.getStory());
-        toBeModified.setEpic(existingBug.getEpic());
+        Bug updatedBug = convertToEntity(bugDTO);
+        updatedBug.setId(id);
+        updatedBug.setCreatedAt(existingBug.getCreatedAt());
+        updatedBug.setUpdatedAt(LocalDate.now());
+        updatedBug.setAssignees(existingBug.getAssignees());
+        updatedBug.setStory(existingBug.getStory());
+        updatedBug.setEpic(existingBug.getEpic());
 
-        Bug savedBug = bugRepository.save(toBeModified);
+        Bug savedBug = bugRepository.save(updatedBug);
 
         TaskEvent taskEvent = generateTaskEvent(savedBug);
-        taskEvent.setCreatedDate(savedBug.getCreatedAt());
         taskEvent.setOldStatus(oldStatus);
-        taskEvent.setNewStatus(bugDTO.getStatus());
-        taskEvent.setDeadline(bugDTO.getDeadline());
-        taskEvent.setAssignees(existingBug.getAssignees());
+        taskEvent.setNewStatus(savedBug.getStatus());
+        taskEvent.setDeadline(savedBug.getDeadLine());
+        taskEvent.setAssignees(savedBug.getAssignees());
         taskEvent.setAction(Actions.UPDATED);
 
         producer.sendTaskEvent(taskEvent);
@@ -174,9 +176,10 @@ public class BugServiceImpl implements BugService {
         taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
-        return convertToDTO(toBeModified);
+        return convertToDTO(savedBug);
     }
 
+    // Assign bug to user
     @Override
     @Transactional
     public ResponseDTO assignBugToUser(String bugId, String userId) {
@@ -199,6 +202,7 @@ public class BugServiceImpl implements BugService {
         return new ResponseDTO("Bug assigned to user successfully");
     }
 
+    // Change bug status
     @Override
     @Transactional
     public ResponseDTO changeBugStatus(String bugId, Status status) {
@@ -223,19 +227,18 @@ public class BugServiceImpl implements BugService {
         return new ResponseDTO("Bug status updated successfully");
     }
 
-    // Fetch operations
+    // Get all bugs for a project
     @Override
     public List<BugDTO> getBugsByProjectId(String projectId) {
-        List<Bug> bugs = bugRepository.findByProjectId(projectId);
-        return bugs.stream()
+        return bugRepository.findByProjectId(projectId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    // Get bugs assigned to a specific user
     @Override
     public List<BugDTO> getBugsByUserId(String userId) {
-        List<Bug> bugs = bugRepository.findByAssignees(userId);
-        return bugs.stream()
+        return bugRepository.findByAssignees(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
