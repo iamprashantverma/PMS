@@ -34,7 +34,6 @@ public class UserMessageNotification {
     private LocalDate deadline;
     private Priority priority;
     private String projectId;
-    private String assignedTo;
     private Status oldStatus;
     private Status newStatus;
     private String updatedBy;

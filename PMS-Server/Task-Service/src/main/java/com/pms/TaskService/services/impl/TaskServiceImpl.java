@@ -53,7 +53,7 @@ public class TaskServiceImpl implements TaskService {
         return UserContextHolder.getCurrentUserId();
     }
 
-    // Utility Methods
+
     private TaskDTO convertToDTO(Task task) {
         return modelMapper.map(task, TaskDTO.class);
     }
@@ -112,6 +112,7 @@ public class TaskServiceImpl implements TaskService {
         return convertToDTO(taskRepository.save(task));
     }
 
+
     @Override
     @Transactional
     public TaskDTO changeTaskStatus(String taskId, Status status) {
@@ -119,8 +120,21 @@ public class TaskServiceImpl implements TaskService {
         Status oldStatus = task.getStatus();
         task.setStatus(status);
 
+        if(status == Status.TODO) {
+            task.setCompletionPercent(0L);
+        } else if(status == Status.IN_PLANNED) {
+            task.setCompletionPercent(10L);
+        } else if (status == Status.IN_PROGRESS) {
+            task.setCompletionPercent(60L);
+        } else if(status == Status.IN_QA) {
+            task.setCompletionPercent(90L);
+        } else if (status == Status.COMPLETED || status == Status.ARCHIVED) {
+            task.setCompletionPercent(100L);
+        }
+
         Task savedTask = taskRepository.save(task);
         TaskEvent taskEvent = generateTaskEvent(savedTask);
+
         log.info("task Entity,{}",savedTask.getUpdatedAt());
         taskEvent.setNewStatus(status);
         taskEvent.setOldStatus(oldStatus);
@@ -142,7 +156,6 @@ public class TaskServiceImpl implements TaskService {
 
         String imageUrl = cloudinaryService.uploadImage(file);
         task.setImage(imageUrl);
-        task.setCreatedAt(LocalDate.now());
 
         Task savedTask = taskRepository.save(task);
         if (taskDTO.getEpicId() != null) {
@@ -184,6 +197,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         task.setStatus(Status.COMPLETED);
+        task.setCompletionPercent(100L);
         taskRepository.save(task);
 
         TaskEvent taskEvent = generateTaskEvent(task);
@@ -291,6 +305,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO assignMemberToTask(String taskId, String memberId) {
+
         Task task = getTaskEntity(taskId);
         task.getAssignees().add(memberId);
         Task savedTask = taskRepository.save(task);

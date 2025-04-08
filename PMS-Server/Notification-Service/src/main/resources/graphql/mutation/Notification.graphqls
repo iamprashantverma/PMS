@@ -1,0 +1,4 @@
+type Mutation{
+    readSingleNotification(id:Int!):Notification
+    readAllNotification(userId:String!):[Notification]
+}

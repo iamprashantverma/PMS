@@ -8,8 +8,6 @@ public class UserDTO {
     private String name;
     private String email;
     private String phoneNo;
-//    private Roles role;
     private String gender;
-//    private Status status;
     private String language;
 }

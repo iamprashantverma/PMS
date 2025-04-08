@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
 import java.util.concurrent.Flow;
 
 public interface NotificationService {
@@ -23,4 +24,8 @@ public interface NotificationService {
     void taskTopicPriorityUpdatedHandler(TaskEvent taskEvent) throws MessagingException;
 
     Publisher<UserMessageNotificationDTO> subscribeToNotification(String currentUserId);
+
+    UserMessageNotificationDTO readSingleNotification(Long id);
+
+    List<UserMessageNotificationDTO> readAllNotification(String userId);
 }

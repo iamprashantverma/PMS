@@ -1,5 +1,6 @@
 package com.pms.TaskService.services.impl;
 
+import com.pms.TaskService.auth.UserContextHolder;
 import com.pms.TaskService.clients.ProjectFeignClient;
 import com.pms.TaskService.dto.BugDTO;
 import com.pms.TaskService.dto.ResponseDTO;
@@ -42,6 +43,9 @@ public class BugServiceImpl implements BugService {
     private final ProjectFeignClient projectFeignClient;
     private final CloudinaryService cloudinaryService;
 
+    private String getCurrentUserId(){
+        return UserContextHolder.getCurrentUserId();
+    }
     // Utility Methods
     private Bug convertToEntity(BugDTO bugDTO) {
         return modelMapper.map(bugDTO, Bug.class);
@@ -61,6 +65,8 @@ public class BugServiceImpl implements BugService {
                 .deadline(bug.getDeadLine())
                 .createdDate(bug.getCreatedAt())
                 .event(EventType.BUG)
+                .updatedBy(getCurrentUserId())
+                .updatedDate(bug.getUpdatedAt())
                 .description(bug.getDescription())
                 .build();
     }
@@ -114,9 +120,9 @@ public class BugServiceImpl implements BugService {
 
         Status oldStatus = bug.getStatus();
         bug.setStatus(Status.COMPLETED);
-        bugRepository.save(bug);
+        Bug savedBug =  bugRepository.save(bug);
 
-        TaskEvent taskEvent = generateTaskEvent(bug);
+        TaskEvent taskEvent = generateTaskEvent(savedBug);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(Status.COMPLETED);
         taskEvent.setAction(Actions.DELETED);

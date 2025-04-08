@@ -35,6 +35,7 @@ public abstract class Issue {
     @PrePersist
     public void generateId() {
         this.updatedAt = LocalDate.now();
+        this.createdAt = LocalDate.now();
         this.id = String.format("%06d", new Random().nextInt(999999));
     }
 

@@ -92,7 +92,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         for (String userId : taskEvent.getAssignees()) {
             UserMessageNotification umn = modelMapper.map(taskEvent, UserMessageNotification.class);
-            umn.setAssignedTo(userId);
+            umn.setUserId(userId);
             UserMessageNotification saved = userMessageNotificationRepo.save(umn);
 
             // Emit real-time notification to the user
@@ -247,20 +247,46 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Publisher<UserMessageNotificationDTO> subscribeToNotification(String currentUserId) {
 
-
+        // Fetch and map unread notifications
         List<UserMessageNotificationDTO> unreadDTOs = userMessageNotificationRepo
-                .findByAssignedToAndIsReadFalse(currentUserId).stream()
+                .findAllByUserIdAndIsReadFalse(currentUserId).stream()
                 .map(notification -> modelMapper.map(notification, UserMessageNotificationDTO.class))
                 .toList();
-        System.out.println(unreadDTOs.size());
+
+        System.out.println("Unread notifications: " + unreadDTOs.size());
+
+        // Create or reuse the sink for this user
         Sinks.Many<UserMessageNotificationDTO> sink = userNotificationSinks.computeIfAbsent(
                 currentUserId,
                 key -> Sinks.many().multicast().directBestEffort()
         );
 
+        // Return existing + future notifications as a Flux
         return Flux.concat(
                 Flux.fromIterable(unreadDTOs),
                 sink.asFlux()
         );
     }
+
+
+    @Override
+    public UserMessageNotificationDTO readSingleNotification(Long id) {
+        UserMessageNotification umn = userMessageNotificationRepo.findById(id).orElse(null);
+        if(umn != null) {
+            userMessageNotificationRepo.deleteById(id);
+        }
+        return modelMapper.map(umn,UserMessageNotificationDTO.class);
+    }
+
+    @Override
+    public List<UserMessageNotificationDTO> readAllNotification(String userId) {
+        List<UserMessageNotification > umns = userMessageNotificationRepo.findAllByUserId(userId);
+        userMessageNotificationRepo.deleteAll(umns);
+        return umns.stream()
+                .map(umn -> modelMapper.map(umn, UserMessageNotificationDTO.class))
+                .toList();
+
+
+    }
+
 }

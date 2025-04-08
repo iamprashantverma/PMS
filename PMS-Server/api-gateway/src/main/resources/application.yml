@@ -48,6 +48,14 @@ spring:
             - StripPrefix=3
             - AuthenticationFilter
 
+        - id: Notification-Service
+          uri: lb://Notification-Service
+          predicates:
+            - Path=/api/v1/notification/**
+          filters:
+            - StripPrefix=2
+            - AuthenticationFilter
+
 jwt:
   secretKey: ads9f6askj3h4k1hf86asdfiahkjh34a789s6df89ayshkjh3jkh786adsf78ay
 
