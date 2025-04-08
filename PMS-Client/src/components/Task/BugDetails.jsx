@@ -58,7 +58,7 @@ function BugDetails() {
     fetchPolicy: 'network-only',
     skip: !bugId
   });
-  console.log(data);
+
   // Mutation for changing bug status
   const [changeBugStatus, { loading: statusLoading }] = useMutation(CHANGE_BUG_STATUS, {
     client: taskClient,
@@ -94,6 +94,7 @@ function BugDetails() {
             getUserDetails(userId, accessToken)
           );
           const assignees = await Promise.all(assigneePromises);
+        
           const assigneesDetails = assignees.map((a) => a.data);
           setAssigneeDetails(assigneesDetails);
 

@@ -360,8 +360,6 @@ function TaskDetails({ task = {}, onClose }) {
     setNewAssignee("");
   };
   
-  
-
   const handleUnassign = (memberId) => {
     unassignMemberFromTask({
       variables: {

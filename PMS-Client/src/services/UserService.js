@@ -10,7 +10,6 @@ const apiClient = axios.create({
 });
 
 export const getUserDetails = async (userId, token) => {
-
   try {
     const { data } = await apiClient.get(`/details?userId=${userId}`, {
       headers: {
@@ -38,3 +37,69 @@ export const updateUserDetails = async (formData, token) => {
 };
 
 
+export const updateCommentMentions = async (userId, value, token) => {
+
+  try {
+    const data = await apiClient.patch(`/notifications/comment-mentions?userId=${userId}&value=${value}`,{},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch ({response}) {
+    throw response?.data?.error;
+  }
+};
+
+export const updateTaskUpdates = async (userId, value, token) => {
+  try {
+    const { data } = await apiClient.patch(
+      `/notifications/task-updates?userId=${userId}&value=${value}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch ({ response }) {
+    throw response?.data?.error;
+  }
+};
+
+export const updateBugUpdates = async (userId, value, token) => {
+  try {
+    const { data } = await apiClient.patch(
+      `/notifications/bug-updates?userId=${userId}&value=${value}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch ({ response }) {
+    throw response?.data?.error;
+  }
+};
+
+export const updateEmailUpdates = async (userId, value, token) => {
+  try {
+    const { data } = await apiClient.patch(
+      `/notifications/email-updates?userId=${userId}&value=${value}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch ({ response }) {
+    throw response?.data?.error;
+  }
+};

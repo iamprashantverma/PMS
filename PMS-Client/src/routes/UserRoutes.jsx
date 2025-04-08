@@ -15,8 +15,9 @@ import AllIssues from '@/components/Common/AllIssues';
 import TaskDetails from '@/components/Task/TaskDetails';
 import Timeline from '@/components/Task/Timeline';
 import BugDetails from '@/components/Task/BugDetails';
-import WorkDropDown from '@/components/Work/WorkDropDown';
+
 import AllWorks from '@/components/Work/AllWorks';
+import UserSetting from '@/pages/UserSetting';
 
 function UserRoutes() {
   return (
@@ -25,7 +26,7 @@ function UserRoutes() {
         <Route path="/your-work" element={<AllWorks />}>
         <Route path="Task/:taskId" element={<TaskDetails />} />
       </Route>
-        <Route path="/profile" element={<ProfileSettings />} />
+        <Route path="/profile" element={<UserSetting/>} />
         <Route path="/project/:projectId" element={<Home />}>
           <Route path="calendar" element={<TaskCalendar />} />
           <Route path="board" element={<Board />} />
