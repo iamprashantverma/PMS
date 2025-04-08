@@ -70,6 +70,23 @@ export const updateTaskUpdates = async (userId, value, token) => {
   }
 };
 
+export const updateSubTaskUpdates = async (userId, value, token) => {
+  try {
+    const { data } = await apiClient.patch(
+      `/notifications/sub-task-updates?userId=${userId}&value=${value}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch ({ response }) {
+    throw response?.data?.error;
+  }
+};
+
 export const updateBugUpdates = async (userId, value, token) => {
   try {
     const { data } = await apiClient.patch(

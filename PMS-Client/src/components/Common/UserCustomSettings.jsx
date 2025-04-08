@@ -5,9 +5,10 @@ import {
   updateBugUpdates, 
   updateCommentMentions, 
   updateTaskUpdates, 
-  updateEmailUpdates 
+  updateEmailUpdates,
+  updateSubTaskUpdates
 } from '@/services/UserService';
-import { Bell, MessageSquare, Bug, Mail, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, MessageSquare, Bug, Mail, CheckCircle, XCircle, ListChecks } from 'lucide-react';
 
 function UserCustomSettings() {
   const { user, accessToken } = useAuth();
@@ -30,6 +31,13 @@ function UserCustomSettings() {
       title: 'Task Updates',
       description: 'Receive updates for tasks you\'re assigned to',
       updateFn: updateTaskUpdates
+    },
+    {
+      key: 'subTaskUpdates',
+      icon: ListChecks,
+      title: 'Subtask Updates',
+      description: 'Get notifications for subtask changes in your tasks',
+      updateFn: updateSubTaskUpdates
     },
     {
       key: 'bugUpdates',
@@ -93,8 +101,6 @@ function UserCustomSettings() {
     setPendingUpdates(prev => ({ ...prev, [settingKey]: true }));
     
     try {
-      // Call the update function with proper parameters
-      
       const response = await settingDef.updateFn(user.id, newValue, accessToken);
       
       if (response?.data) {
