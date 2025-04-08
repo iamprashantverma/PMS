@@ -19,7 +19,7 @@ spring:
           uri: lb://User-Service
           predicates:
             - Path=/api/v1/users/**
-            - Method=GET,POST,PUT,DELETE
+            - Method=GET,POST,PUT,DELETE,PATCH
           filters:
             - StripPrefix=2
             - AuthenticationFilter
@@ -28,6 +28,7 @@ spring:
           uri: lb://Project-Service
           predicates:
             - Path=/api/v1/projects/**
+            - Method=GET,POST,PUT,DELETE,PATCH
           filters:
             - StripPrefix=2
             - AuthenticationFilter
