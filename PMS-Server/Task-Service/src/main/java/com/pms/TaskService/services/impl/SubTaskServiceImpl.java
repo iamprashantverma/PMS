@@ -70,6 +70,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .createdDate(subTask.getCreatedAt())
                 .updatedDate(subTask.getUpdatedAt())
                 .projectId(projectId)
+
                 .newStatus(subTask.getStatus())
                 .updatedBy(getCurrentUserId())
                 .assignees(subTask.getAssignees())
@@ -256,8 +257,11 @@ public class SubTaskServiceImpl implements SubTaskService {
         TaskEvent taskEvent = generateTaskEvent(subTask);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(status);
+        taskEvent.setAction(Actions.STATUS_CHANGED);
+
         producer.sendTaskEvent(taskEvent);
 
+        log.info("subTask Status event sent");
         return convertToDTO(savedTask);
     }
 }

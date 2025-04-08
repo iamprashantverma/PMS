@@ -1,5 +1,6 @@
 package com.pms.Notification_Service.service.impl;
 
+import com.pms.Notification_Service.advices.APIResponse;
 import com.pms.Notification_Service.auth.UserContextHolder;
 import com.pms.Notification_Service.clients.UserFeignClient;
 import com.pms.Notification_Service.dto.UserDTO;
@@ -91,6 +92,16 @@ public class NotificationServiceImpl implements NotificationService {
         Status oldStatus = taskEvent.getOldStatus();
 
         for (String userId : taskEvent.getAssignees()) {
+           APIResponse<UserDTO> userData  =  userFeignClient.getUserById(userId);
+           UserDTO user = userData.getData();
+            if(eventType == EventType.TASK && user.getTaskUpdates() != null && !user.getTaskUpdates())
+                    continue;
+            else if(eventType == EventType.BUG && user.getBugUpdates() != null && !user.getBugUpdates())
+                    continue;
+            else if(eventType == EventType.SUBTASK && user.getSubTaskUpdates() != null && !user.getSubTaskUpdates())
+                continue;
+            System.out.println(user);
+
             UserMessageNotification umn = modelMapper.map(taskEvent, UserMessageNotification.class);
             umn.setUserId(userId);
             UserMessageNotification saved = userMessageNotificationRepo.save(umn);
@@ -118,7 +129,6 @@ public class NotificationServiceImpl implements NotificationService {
                 variables.put("oldStatus", oldStatus);
                 variables.put("newStatus", newStatus);
                 variables.put("eventType", eventType);
-
                 emailService.sendEmail(user.getEmail(), subject, "task-status-update", variables);
                 log.info("Email sent to {} regarding task update for taskId {}", user.getEmail(), taskId);
             } catch (MessagingException e) {
@@ -253,21 +263,17 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(notification -> modelMapper.map(notification, UserMessageNotificationDTO.class))
                 .toList();
 
-        System.out.println("Unread notifications: " + unreadDTOs.size());
-
         // Create or reuse the sink for this user
         Sinks.Many<UserMessageNotificationDTO> sink = userNotificationSinks.computeIfAbsent(
                 currentUserId,
                 key -> Sinks.many().multicast().directBestEffort()
         );
-
         // Return existing + future notifications as a Flux
         return Flux.concat(
                 Flux.fromIterable(unreadDTOs),
                 sink.asFlux()
         );
     }
-
 
     @Override
     public UserMessageNotificationDTO readSingleNotification(Long id) {

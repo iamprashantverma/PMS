@@ -59,5 +59,6 @@ public class User {
     private Boolean taskUpdates;
     private Boolean bugUpdates;
     private Boolean emailUpdates;
+    private Boolean subTaskUpdates;
 
 }

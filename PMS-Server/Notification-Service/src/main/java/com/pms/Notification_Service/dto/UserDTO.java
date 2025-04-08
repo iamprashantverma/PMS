@@ -10,4 +10,9 @@ public class UserDTO {
     private String phoneNo;
     private String gender;
     private String language;
+    private Boolean commentMentions;
+    private Boolean taskUpdates;
+    private Boolean bugUpdates;
+    private Boolean emailUpdates;
+    private Boolean subTaskUpdates;
 }

@@ -40,6 +40,12 @@ public class UserController {
             @RequestParam Boolean value) {
         return ResponseEntity.ok(userService.updateNotificationField(userId, "taskUpdates", value));
     }
+    @PatchMapping("/notifications/sub-task-updates")
+    public ResponseEntity<UserDTO> updateSubTaskUpdates(
+            @RequestParam String userId,
+            @RequestParam Boolean value) {
+        return ResponseEntity.ok(userService.updateNotificationField(userId, "subtaskUpdates", value));
+    }
 
     @PatchMapping("/notifications/bug-updates")
     public ResponseEntity<UserDTO> updateBugUpdates(

@@ -115,6 +115,7 @@ public class UserServiceImpl implements UserService {
             case "taskUpdates" -> user.setTaskUpdates(value);
             case "bugUpdates" -> user.setBugUpdates(value);
             case "emailUpdates" -> user.setEmailUpdates(value);
+            case "subtaskUpdates" ->user.setSubTaskUpdates(value);
             default -> throw new IllegalArgumentException("Invalid field name: " + fieldName);
         }
 

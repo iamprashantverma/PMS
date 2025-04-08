@@ -57,6 +57,7 @@ public class UserDTO {
 
     private Boolean commentMentions;
     private Boolean taskUpdates;
+    private Boolean subTaskUpdates;
     private Boolean bugUpdates;
     private Boolean emailUpdates;
 }
