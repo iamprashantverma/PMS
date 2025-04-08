@@ -27,6 +27,33 @@ public class UserController {
         ResponseDTO responseDTO = userService.updateUserDetails(userDTO,file);
         return ResponseEntity.ok(responseDTO);
     }
+    @PatchMapping("/notifications/comment-mentions")
+    public ResponseEntity<UserDTO> updateCommentMentions(
+            @RequestParam String userId,
+            @RequestParam Boolean value) {
+        return ResponseEntity.ok(userService.updateNotificationField(userId, "commentMentions", value));
+    }
+
+    @PatchMapping("/notifications/task-updates")
+    public ResponseEntity<UserDTO> updateTaskUpdates(
+            @RequestParam String userId,
+            @RequestParam Boolean value) {
+        return ResponseEntity.ok(userService.updateNotificationField(userId, "taskUpdates", value));
+    }
+
+    @PatchMapping("/notifications/bug-updates")
+    public ResponseEntity<UserDTO> updateBugUpdates(
+            @RequestParam String userId,
+            @RequestParam Boolean value) {
+        return ResponseEntity.ok(userService.updateNotificationField(userId, "bugUpdates", value));
+    }
+
+    @PatchMapping("/notifications/email-updates")
+    public ResponseEntity<UserDTO> updateEmailUpdates(
+            @RequestParam String userId,
+            @RequestParam Boolean value) {
+        return ResponseEntity.ok(userService.updateNotificationField(userId, "emailUpdates", value));
+    }
 
 
 }

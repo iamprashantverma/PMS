@@ -12,6 +12,7 @@ import com.pms.userservice.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,7 +89,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(userDTO.getEmail());
         existingUser.setPhoneNo(userDTO.getPhoneNo());
 
-        String  profileUrl = cloudinaryService.uploadImage(file);
+        String profileUrl = cloudinaryService.uploadImage(file);
         existingUser.setImage(profileUrl);
 
         userRepository.save(existingUser);
@@ -103,4 +104,22 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return ResponseDTO.builder().message("User deactivated successfully").build();
     }
+
+    @Override
+    public UserDTO updateNotificationField(String userId, String fieldName, Boolean value) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        switch (fieldName) {
+            case "commentMentions" -> user.setCommentMentions(value);
+            case "taskUpdates" -> user.setTaskUpdates(value);
+            case "bugUpdates" -> user.setBugUpdates(value);
+            case "emailUpdates" -> user.setEmailUpdates(value);
+            default -> throw new IllegalArgumentException("Invalid field name: " + fieldName);
+        }
+
+        User modifiedUser = userRepository.save(user);
+        return convertToUserDTO(modifiedUser);
+    }
 }
+

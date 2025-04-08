@@ -44,25 +44,6 @@ public class User {
     private String address;
     private String gender;
 
-    @ElementCollection
-    @CollectionTable(name = "user_projects", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> projectIds;
-
-    @ElementCollection
-    @CollectionTable(name = "user_tasks", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> taskIds;
-
-    @ElementCollection
-    @CollectionTable(name = "sub_tasks", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> SubTaskIds;
-
-    @ElementCollection
-    @CollectionTable(name = "user_epics", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> epicIds;
-
-    @ElementCollection
-    @CollectionTable(name = "user_bugs", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> bugIds;
 
     private String language;
 
@@ -74,5 +55,9 @@ public class User {
     @ToString.Exclude
     private Set<Session> sessions;
 
+    private Boolean commentMentions;
+    private Boolean taskUpdates;
+    private Boolean bugUpdates;
+    private Boolean emailUpdates;
 
 }

@@ -54,4 +54,9 @@ public class UserDTO {
     private String language;
 
     private LocalDate joinedAt;
+
+    private Boolean commentMentions;
+    private Boolean taskUpdates;
+    private Boolean bugUpdates;
+    private Boolean emailUpdates;
 }

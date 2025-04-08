@@ -39,4 +39,5 @@ public interface UserService {
     ResponseDTO deactivateUser(String userId);
 
 
+    UserDTO updateNotificationField(String userId, String taskUpdates, Boolean value);
 }
