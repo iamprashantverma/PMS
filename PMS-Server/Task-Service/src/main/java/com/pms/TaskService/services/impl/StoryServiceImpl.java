@@ -90,7 +90,6 @@ public class StoryServiceImpl implements StoryService {
         }
 
         TaskEvent taskEvent = generateTaskEvent(story);
-        taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(savedStory.getStatus());
 

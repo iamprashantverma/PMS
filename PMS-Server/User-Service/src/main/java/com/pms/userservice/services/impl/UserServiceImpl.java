@@ -58,7 +58,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ResponseDTO assignRoleToUser(String userId, Roles role) {
         User user = getUserById(userId);
-        user.setRole(role);
         userRepository.save(user);
         return ResponseDTO.builder().message("Role assigned successfully").build();
     }

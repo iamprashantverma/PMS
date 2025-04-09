@@ -3,7 +3,6 @@ package com.pms.userservice.services.impl;
 
 import com.pms.userservice.dto.*;
 import com.pms.userservice.entities.User;
-import com.pms.userservice.entities.enums.Roles;
 import com.pms.userservice.entities.enums.Status;
 import com.pms.userservice.exceptions.ResourceAlreadyExist;
 import com.pms.userservice.repositories.UserRepository;
@@ -75,7 +74,8 @@ public class AuthServiceImpl implements AuthService {
 
         /* set up the initial fields */
         toBeCreated.setStatus(Status.ACTIVE);
-        toBeCreated.setRole(Roles.USER);
+        toBeCreated.setJoinedAt(LocalDate.now());
+
         String password = user.getPassword();
         /* hash the password*/
         String hashPass = passwordEncoder.encode(password);

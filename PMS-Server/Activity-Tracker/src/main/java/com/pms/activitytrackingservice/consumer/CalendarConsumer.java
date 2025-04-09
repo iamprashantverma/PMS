@@ -20,7 +20,7 @@ public class CalendarConsumer {
     public void handleCalendarEvent(TaskEvent taskEvent) {
 
         log.info("Calendar event successfully received: {}", taskEvent);
-        System.out.println(taskEvent);
+        System.out.println(taskEvent.getEventType());
         // Create a custom CalendarDTO from TaskEvent
         CalendarDTO calendarDTO = CalendarDTO.builder()
                 .entityId(taskEvent.getEntityId())

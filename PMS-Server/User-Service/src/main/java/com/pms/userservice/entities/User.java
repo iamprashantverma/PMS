@@ -34,8 +34,7 @@ public class User {
     private String image;
     private String phoneNo;
 
-    @Enumerated(EnumType.STRING)
-    private Roles role;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

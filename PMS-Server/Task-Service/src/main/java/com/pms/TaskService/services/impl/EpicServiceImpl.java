@@ -79,7 +79,6 @@ public class EpicServiceImpl implements EpicService {
         projectFeignClient.addEpicToProject(savedEpic.getProjectId(), savedEpic.getId());
 
         TaskEvent taskEvent = getEpicTaskEvent(savedEpic);
-        taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.CREATED);
         calendarEventProducer.sendTaskEvent(taskEvent);
 

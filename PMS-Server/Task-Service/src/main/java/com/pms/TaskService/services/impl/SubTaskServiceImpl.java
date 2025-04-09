@@ -105,8 +105,6 @@ public class SubTaskServiceImpl implements SubTaskService {
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setNewStatus(savedSubTask.getStatus());
         taskEvent.setAction(Actions.CREATED);
-        taskEvent.setEventType(EventType.CALENDER);
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedSubTask);
