@@ -85,6 +85,6 @@ public class TaskEvent {
     /* List of linked entities (used for linking tasks, bugs, epics, etc.) */
     private Set<String> linkedEntityIds;
 
-    private EventType event;
+    private Long completionPercent;
 
 }

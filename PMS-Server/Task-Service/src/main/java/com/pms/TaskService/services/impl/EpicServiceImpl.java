@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static com.pms.TaskService.auth.UserContextHolder.getCurrentUserId;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -71,6 +73,7 @@ public class EpicServiceImpl implements EpicService {
 
         Epic epic = convertToEpicEntity(epicDTO);
         epic.setCreatedAt(LocalDate.now());
+        epic.setCreator(getCurrentUserId());
         Epic savedEpic = epicRepository.save(epic);
 
         projectFeignClient.addEpicToProject(savedEpic.getProjectId(), savedEpic.getId());

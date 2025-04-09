@@ -76,6 +76,7 @@ public class TaskServiceImpl implements TaskService {
                 .updatedBy(getCurrentUserId())
                 .updatedDate(task.getUpdatedAt())
                 .description(task.getDescription())
+                .completionPercent(task.getCompletionPercent())
                 .build();
     }
 
@@ -139,8 +140,11 @@ public class TaskServiceImpl implements TaskService {
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(status);
         taskEvent.setAction(Actions.STATUS_CHANGED);
-
+        // produce the event which Notification Service will listen
         taskEventProducer.sendTaskEvent(taskEvent);
+        taskEvent.setEventType(EventType.CALENDER);
+        // produce the event which activity service will listen and change or modify the info.
+        calendarEventProducer.sendTaskEvent(taskEvent);
         return convertToDTO(savedTask);
     }
 
@@ -157,7 +161,7 @@ public class TaskServiceImpl implements TaskService {
 
         String imageUrl = cloudinaryService.uploadImage(file);
         task.setImage(imageUrl);
-
+        task.setCreator(getCurrentUserId());
         Task savedTask = taskRepository.save(task);
 
         // Attach to appropriate parent
@@ -173,8 +177,7 @@ public class TaskServiceImpl implements TaskService {
         TaskEvent taskEvent = generateTaskEvent(savedTask);
         taskEvent.setAction(Actions.CREATED);
         taskEvent.setNewStatus(savedTask.getStatus());
-        taskEvent.setEventType(EventType.CALENDER);
-        taskEvent.setEvent(EventType.TASK);
+
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedTask);
@@ -200,15 +203,13 @@ public class TaskServiceImpl implements TaskService {
 
         task.setStatus(Status.COMPLETED);
         task.setCompletionPercent(100L);
-        taskRepository.save(task);
+        Task savedTask =  taskRepository.save(task);
 
-        TaskEvent taskEvent = generateTaskEvent(task);
-        taskEvent.setEventType(EventType.CALENDER);
+        TaskEvent taskEvent = generateTaskEvent(savedTask);
         taskEvent.setAction(Actions.DELETED);
         taskEvent.setOldStatus(task.getStatus());
         taskEvent.setNewStatus(Status.COMPLETED);
         taskEvent.setDescription("Task Successfully deleted");
-
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Task has been archived or deleted successfully.");
@@ -242,6 +243,7 @@ public class TaskServiceImpl implements TaskService {
         taskEvent.setUpdatedDate(LocalDate.now());
 
         taskEventProducer.sendTaskEvent(taskEvent);
+        taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(modifiedTask);

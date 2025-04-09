@@ -34,6 +34,6 @@ public class Calendar {
     @Enumerated(EnumType.STRING)
     private Priority priority;
     private  String title;
-    private EventType event;
+    private EventType eventType;
 
 }

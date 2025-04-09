@@ -20,7 +20,7 @@ public class CalendarConsumer {
     public void handleCalendarEvent(TaskEvent taskEvent) {
 
         log.info("Calendar event successfully received: {}", taskEvent);
-
+        System.out.println(taskEvent);
         // Create a custom CalendarDTO from TaskEvent
         CalendarDTO calendarDTO = CalendarDTO.builder()
                 .entityId(taskEvent.getEntityId())
@@ -33,7 +33,7 @@ public class CalendarConsumer {
                 .oldStatus(taskEvent.getOldStatus())
                 .newStatus(taskEvent.getNewStatus())
                 .title(taskEvent.getTitle())
-                .event(taskEvent.getEvent())
+                .eventType(taskEvent.getEventType())
                 .priority(taskEvent.getPriority())
                 .build();
 
@@ -42,6 +42,11 @@ public class CalendarConsumer {
             calendarService.createEvent(calendarDTO);
         } else if (taskEvent.getAction() == Actions.UPDATED) {
             calendarService.updateEvent(calendarDTO);
+        } else if(taskEvent.getAction() == Actions.STATUS_CHANGED)  {
+            log.info("completion time is{}",taskEvent.getCompletionPercent());
+            calendarService.statusUpdate(calendarDTO);
+        } else if(taskEvent.getAction() == Actions.DELETED){
+            calendarService.deleteEvents(calendarDTO);
         } else {
             log.info("Unknown Action Found on the Calendar Event: {}", taskEvent.getAction());
         }

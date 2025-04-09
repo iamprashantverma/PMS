@@ -11,6 +11,7 @@ type SubTaskDTO {
     parentTask : TaskDTO
     label:String
     image:String
+    deadline:Date
 }
 
 input SubTaskInputDTO{

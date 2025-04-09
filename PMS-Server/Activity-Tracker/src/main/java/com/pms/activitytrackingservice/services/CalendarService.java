@@ -1,6 +1,7 @@
 package com.pms.activitytrackingservice.services;
 
 
+import com.pms.TaskService.event.TaskEvent;
 import com.pms.activitytrackingservice.dto.CalendarDTO;
 import com.pms.TaskService.event.enums.Priority;
 import com.pms.TaskService.event.enums.Status;
@@ -65,4 +66,8 @@ public interface CalendarService {
     void deleteEvent(Long eventId);
 
     List<CalendarDTO> findAllEventsByProjectId(String projectId);
+
+    void statusUpdate(CalendarDTO calendarDTO);
+
+    void deleteEvents(CalendarDTO calendarDTO);
 }

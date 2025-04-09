@@ -37,7 +37,6 @@ public class GitHubController {
         log.info("Received GitHub Webhook - Event: {}", eventType);
 
         try {
-            log.info("i m withing");
             // Extract repository information
             Map<String, Object> repository = (Map<String, Object>) payload.get("repository");
             String repositoryName = Optional.ofNullable(repository)

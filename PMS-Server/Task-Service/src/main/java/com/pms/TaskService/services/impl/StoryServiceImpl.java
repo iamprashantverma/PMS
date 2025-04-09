@@ -28,6 +28,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static com.pms.TaskService.auth.UserContextHolder.getCurrentUserId;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -78,7 +80,7 @@ public class StoryServiceImpl implements StoryService {
         Story story = convertToEntity(storyDTO);
         String imageUrl = cloudinaryService.uploadImage(file);
         story.setImage(imageUrl);
-
+        story.setCreator(getCurrentUserId());
         Story savedStory = storyRepository.save(story);
 
         if (storyDTO.getEpicId() == null) {

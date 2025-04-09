@@ -38,5 +38,4 @@ public class CalendarDTO {
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
-    private EventType event;
 }

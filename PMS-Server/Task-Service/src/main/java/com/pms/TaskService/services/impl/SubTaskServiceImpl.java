@@ -70,11 +70,10 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .createdDate(subTask.getCreatedAt())
                 .updatedDate(subTask.getUpdatedAt())
                 .projectId(projectId)
-
                 .newStatus(subTask.getStatus())
                 .updatedBy(getCurrentUserId())
+                .completionPercent(subTask.getCompletionPercent())
                 .assignees(subTask.getAssignees())
-                .event(EventType.SUBTASK)
                 .build();
     }
 
@@ -82,6 +81,8 @@ public class SubTaskServiceImpl implements SubTaskService {
     @Transactional
     public SubTaskDTO createSubTask(SubTaskDTO subTaskDTO) {
         SubTask subTask = convertToEntity(subTaskDTO);
+
+        System.out.println(subTaskDTO.getDeadline());
 
         // Fetch and validate parent task
         Task task = taskRepository.findById(subTaskDTO.getTaskId())
@@ -92,7 +93,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         }
 
         subTask.setParentTask(task);
-
+        subTask.setCreator(getCurrentUserId());
         SubTask savedSubTask = subTaskRepository.save(subTask);
         log.info("{}", savedSubTask);
 
@@ -128,9 +129,9 @@ public class SubTaskServiceImpl implements SubTaskService {
         TaskEvent taskEvent = generateTaskEvent(savedSubTask);
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(Status.COMPLETED);
+
         producer.sendTaskEvent(taskEvent);
 
-        taskEvent.setEventType(EventType.CALENDER);
         taskEvent.setAction(Actions.DELETED);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
@@ -261,6 +262,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         producer.sendTaskEvent(taskEvent);
 
+        calendarEventProducer.sendTaskEvent(taskEvent);
         log.info("subTask Status event sent");
         return convertToDTO(savedTask);
     }

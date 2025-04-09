@@ -18,7 +18,7 @@ public class GitHub {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String eventType; // push, pull_request, issue_comment
+    private String eventType;
 
     private String repositoryName;
     private String branch;

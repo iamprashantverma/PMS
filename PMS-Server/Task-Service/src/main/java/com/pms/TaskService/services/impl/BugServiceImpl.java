@@ -67,7 +67,6 @@ public class BugServiceImpl implements BugService {
                 .eventType(EventType.BUG)
                 .deadline(bug.getDeadLine())
                 .createdDate(bug.getCreatedAt())
-                .event(EventType.BUG)
                 .updatedBy(getCurrentUserId())
                 .updatedDate(bug.getUpdatedAt())
                 .description(bug.getDescription())
@@ -99,6 +98,7 @@ public class BugServiceImpl implements BugService {
 
         bug.setCreatedAt(LocalDate.now());
         bug.setImage(cloudinaryService.uploadImage(file));
+        bug.setCreator(getCurrentUserId());
         Bug savedBug = bugRepository.save(bug);
 
         if (epicId == null && storyId == null && taskId == null) {
@@ -107,7 +107,7 @@ public class BugServiceImpl implements BugService {
 
         TaskEvent taskEvent = generateTaskEvent(savedBug);
         taskEvent.setAction(Actions.CREATED);
-        taskEvent.setEventType(EventType.CALENDER);
+
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedBug);
@@ -122,6 +122,7 @@ public class BugServiceImpl implements BugService {
 
         Status oldStatus = bug.getStatus();
         bug.setStatus(Status.COMPLETED);
+        bug.setCompletionPercent(100L);
         Bug savedBug = bugRepository.save(bug);
 
         TaskEvent taskEvent = generateTaskEvent(savedBug);
@@ -131,7 +132,6 @@ public class BugServiceImpl implements BugService {
 
         producer.sendTaskEvent(taskEvent);
 
-        taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug deleted successfully");
@@ -173,7 +173,6 @@ public class BugServiceImpl implements BugService {
 
         producer.sendTaskEvent(taskEvent);
 
-        taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return convertToDTO(savedBug);
@@ -211,9 +210,19 @@ public class BugServiceImpl implements BugService {
 
         Status oldStatus = bug.getStatus();
         bug.setStatus(status);
-        bugRepository.save(bug);
 
-        TaskEvent taskEvent = generateTaskEvent(bug);
+        switch (status) {
+            case TODO -> bug.setCompletionPercent(0L);
+            case IN_PLANNED -> bug.setCompletionPercent(10L);
+            case IN_PROGRESS -> bug.setCompletionPercent(60L);
+            case IN_QA -> bug.setCompletionPercent(90L);
+            case COMPLETED, ARCHIVED -> bug.setCompletionPercent(100L);
+        }
+
+         Bug savedBug =  bugRepository.save(bug);
+
+        TaskEvent taskEvent = generateTaskEvent(savedBug);
+
         taskEvent.setOldStatus(oldStatus);
         taskEvent.setNewStatus(status);
         taskEvent.setAction(Actions.STATUS_CHANGED);
@@ -221,7 +230,6 @@ public class BugServiceImpl implements BugService {
 
         producer.sendTaskEvent(taskEvent);
 
-        taskEvent.setEventType(EventType.CALENDER);
         calendarEventProducer.sendTaskEvent(taskEvent);
 
         return new ResponseDTO("Bug status updated successfully");
@@ -242,4 +250,5 @@ public class BugServiceImpl implements BugService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
 }

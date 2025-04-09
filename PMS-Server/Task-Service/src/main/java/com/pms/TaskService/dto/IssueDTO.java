@@ -28,6 +28,7 @@ public class IssueDTO {
     private LocalDate updatedDate;
     private LocalDate createdAt;
     private LocalDate updatedAt;
+    private LocalDate deadline;
     private Status status;
     private Priority priority;
     private Long completionPercent;
