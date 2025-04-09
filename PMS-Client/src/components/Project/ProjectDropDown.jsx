@@ -23,13 +23,14 @@ function ProjectDropDown() {
   if (dropDown !== 'project' || !open) return null;
   
   const containerClasses = `
-    absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg 
-    top-[110%] left-[10%] 
-    sm:left-[20%] sm:top-[115%] 
-    md:left-[25%] 
-    lg:left-[22%]
-    w-[70vw] sm:w-[50vw] md:w-[40vw] lg:w-[16rem]
-  `;
+  absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg 
+  top-[110%] left-[10%] 
+  sm:left-[20%] sm:top-[90%] 
+  md:left-[25%] 
+  lg:left-[21%] 
+  w-[75vw] sm:w-[55vw] md:w-[45vw] lg:w-[18rem]
+`;
+
 
   if (loading)
     return (
@@ -50,7 +51,7 @@ function ProjectDropDown() {
   return (
     <div className={containerClasses}> 
       {/* Scrollable project list */}
-      <div className="max-h-[35vh] overflow-y-auto py-2 space-y-1">
+      <div className="max-h-[35vh]  overflow-y-auto py-2 space-y-1">
         {projects.length > 0 ? (
           projects.map((project) => (
             <div 
