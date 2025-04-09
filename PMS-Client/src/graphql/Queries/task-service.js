@@ -110,6 +110,7 @@ export const GET_SUBTASK_BY_ID = gql`
       status
       priority
       label
+      deadline
     }
   }
 `;
@@ -143,6 +144,7 @@ export const GET_TASK_BY_ID = gql`
             status
             priority
             label
+            deadline
         }
     }
   }
@@ -374,6 +376,7 @@ export const GET_SUBTASKS_ASSIGNED_TO_USER = gql`
       priority
       label
       image
+      deadline
     }
   }
 `;

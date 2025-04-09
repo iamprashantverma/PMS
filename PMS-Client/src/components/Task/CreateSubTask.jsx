@@ -36,7 +36,7 @@ function CreateSubTask({ taskId, onChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     createSubTask({
       variables: {
         subTask: {

@@ -3,7 +3,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useNavigate } from "react-router-dom";
 import WorkDropDown from "../Work/WorkDropDown";
 import NotificationDropDown from "./NotificationDropDown";
-import UserCustomSettings from "./UserCustomSettings";
+import { CheckSquare } from "lucide-react";
 import {
   User,
   ChevronDown,
@@ -16,10 +16,11 @@ import { Link } from "react-router-dom";
 import ProjectDropDown from "../Project/ProjectDropDown";
 import CreateTaskForm from "./CreateTaskForm";
 import { useAuth } from "@/context/AuthContext";
+
 function NavBar() {
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(6);
+
   const { setDropDown, dropDown, setOpen, open } = useAppContext();
   const dropdownRef = useRef(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -35,37 +36,63 @@ function NavBar() {
     }
   };
 
+  // Navigate to dashboard route
+  const handleDashboardClick = () => {
+    navigate("/dashboard");
+    setShowMore(false);
+  };
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowMore(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <nav
-      className="flex items-center justify-between z-50 h-[10dvh] w-full bg-gray-50 text-gray-800 shadow-md px-4 sm:px-8 fixed"
+      className="flex items-center justify-between z-50 h-[8dvh] sm:h-[9dvh] md:h-[10dvh] w-full bg-gray-50 text-gray-800 shadow-md px-2 sm:px-4 md:px-8 fixed"
       ref={dropdownRef}
     >
       {/* Left Side */}
-      <div className="flex items-center flex-1 gap-4">
-        <Link
-          to="/"
-          className="text-xl sm:text-2xl font-semibold text-blue-600"
-        >
-          PSM
-        </Link>
+      <div className="flex items-center flex-1 gap-2 sm:gap-4">
+        <div className="flex items-center space-x-1 sm:space-x-2">
+          <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" />
+          <span className="text-sm sm:text-base md:text-xl font-bold">TaskFlow</span>
+        </div>
+        
         {createOpen && <CreateTaskForm setCreateOpen={setCreateOpen} />}
+        
         {/* Full Menu for Desktop */}
-        <div className="ml-[40px] hidden md:flex gap-9 text-md">
+        <div className="ml-2 sm:ml-4 md:ml-[40px] hidden md:flex gap-4 lg:gap-9 text-sm lg:text-md">
           <WorkDropDown />
-          {["Project", "Dashboards"].map((item) => (
-            <div
-              key={item}
-              className="flex items-center text-gray-700 hover:text-blue-600 focus:outline-none px-3 py-2"
-              onClick={() => handleDropDownToggle(item.toLowerCase())}
-            >
-              <p className="mr-1 font-medium">{item}</p>
-              <ChevronDown className="w-4 h-4" />
-            </div>
-          ))}
+          
+          <div
+            key="Project"
+            className="flex items-center text-gray-700 hover:text-blue-600 focus:outline-none px-2 py-1 md:px-3 md:py-2"
+            onClick={() => handleDropDownToggle("project")}
+          >
+            <p className="mr-1 font-medium">Project</p>
+            <ChevronDown className="w-3 h-3 md:w-4 md:h-4" />
+          </div>
+          
+          <div
+            key="Dashboards"
+            className="flex items-center text-gray-700 hover:text-blue-600 focus:outline-none px-2 py-1 md:px-3 md:py-2"
+            onClick={handleDashboardClick}
+          >
+            <p className="mr-1 font-medium">Dashboards</p>
+            
+          </div>
 
           <button
             onClick={() => setCreateOpen(true)}
-            className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition text-xs sm:text-sm"
           >
             Create
           </button>
@@ -73,52 +100,79 @@ function NavBar() {
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center justify-end gap-8 md:w-[30%] w-[50%] relative">
+      <div className="flex items-center justify-end gap-2 xs:gap-4 sm:gap-6 md:gap-8 w-auto sm:w-[40%] md:w-[30%] relative">
         {/* Mobile More Dropdown */}
         <div className="md:hidden relative">
           <button
             onClick={() => setShowMore(!showMore)}
-            className="flex items-center gap-1 text-sm"
+            className="flex items-center gap-1 text-xs sm:text-sm"
           >
-            More <ChevronDown className="w-4 h-4" />
+            More <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
           {showMore && (
-            <div className="absolute right-0 top-10 bg-white shadow-lg rounded-md w-48 z-50">
-              {["Project", "Dashboards", "Create"].map((item) => (
+            <div className="absolute right-0 top-8 bg-white shadow-lg rounded-md w-36 sm:w-48 z-50">
+              <div className="py-1">
                 <div
-                  key={item}
-                  className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                  className="flex items-center justify-between px-3 py-2 text-xs sm:text-sm cursor-pointer hover:bg-gray-100"
                   onClick={() => {
-                    if (item === "Create") {
-                      setCreateOpen(true);
-                    } else {
-                      handleDropDownToggle(item.toLowerCase());
-                    }
+                    WorkDropDown();
                     setShowMore(false);
                   }}
                 >
-                  <p>{item}</p>
-                  {item !== "Create" && <ChevronRight className="w-4 h-4" />}
+                  <p>Work</p>
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
-              ))}
+                
+                <div
+                  className="flex items-center justify-between px-3 py-2 text-xs sm:text-sm cursor-pointer hover:bg-gray-100"
+                  onClick={() => {
+                    handleDropDownToggle("project");
+                    setShowMore(false);
+                  }}
+                >
+                  <p>Project</p>
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                </div>
+                
+                <div
+                  className="flex items-center justify-between px-3 py-2 text-xs sm:text-sm cursor-pointer hover:bg-gray-100"
+                  onClick={handleDashboardClick}
+                >
+                  <p>Dashboards</p>
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                </div>
+                
+                <div
+                  className="flex items-center px-3 py-2 text-xs sm:text-sm cursor-pointer hover:bg-gray-100"
+                  onClick={() => {
+                    setCreateOpen(true);
+                    setShowMore(false);
+                  }}
+                >
+                  <p>Create</p>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* Right Icons */}
-
-        <NotificationDropDown />
-        {/* </Link> */}
-        <Link to="/support">
-          <HelpCircle className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
+        <div >
+          <NotificationDropDown />
+        </div>
+        
+        <Link to="/support" className="hidden sm:block">
+          <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
         </Link>
+        
         <Link to="/profile">
-          <Settings className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
+          <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600" />
         </Link>
+        
         {user?.id && (
-          <div className="flex items-center space-x-2 bg-gray-100 px-3 py-3 rounded-full shadow-sm hover:bg-gray-200 transition-all">
-            <User className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-800">
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-gray-100 px-2 py-2 sm:px-3 rounded-full shadow-sm hover:bg-gray-200 transition-all">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+            <span className="text-xs sm:text-sm font-medium text-gray-800 hidden xs:block">
               {user.name}
             </span>
           </div>

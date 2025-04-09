@@ -108,6 +108,7 @@ mutation AssignMemberToSubTask($taskId: String!, $memberId: String!) {
     status
     priority
     label
+    deadline
   }
 }
 `;
@@ -142,6 +143,7 @@ export const CHANGE_SUBTASK_STATUS = gql`
       status
       priority
       label
+      deadline
     }
   }
 `;
@@ -259,6 +261,7 @@ export const CREATE_SUBTASK = gql`
       status
       priority
       label
+      deadline
     }
   }
 `;

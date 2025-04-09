@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState, createContext } from 'react'
 import {jwtDecode} from 'jwt-decode';
 import { login as loginService} from '@/services/AuthService';
-
+import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 
 function AuthProvider({children}) {
-  
+  const navigate = useNavigate();
   const [user,setUser] = useState(null);
   const [accessToken, setAccessToken] = useState('');
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ function AuthProvider({children}) {
       const decoded = jwtDecode(token);
       const currentTime = Math.floor(Date.now() / 1000);
 
-      //  if token expired the logout
+
       if (decoded.exp && decoded.exp < currentTime) {
         return;
       }
@@ -41,6 +41,8 @@ function AuthProvider({children}) {
         const storedAccessToken = localStorage.getItem('accessToken');
         if (storedAccessToken) {
           decodeAndSetUser(storedAccessToken);
+        } else {
+          navigate("/");
         }
         setLoading(false);
       };

@@ -54,7 +54,6 @@ function SubtaskDetails({subTaskId, onClose}) {
     fetchPolicy: "network-only",
     skip: !subTaskId, 
   });
-  
   // Re-fetch when subTaskId changes
   useEffect(() => {
     if (subTaskId) {
@@ -299,7 +298,7 @@ function SubtaskDetails({subTaskId, onClose}) {
             <Calendar className="mr-2 text-teal-500" />
             <div>
               <div className="text-sm text-gray-500">Due Date</div>
-              <div className="font-medium">{formatDate(subtaskDetails.dueDate)}</div>
+              <div className="font-medium">{formatDate(subtaskDetails.deadline)}</div>
             </div>
           </div>
           

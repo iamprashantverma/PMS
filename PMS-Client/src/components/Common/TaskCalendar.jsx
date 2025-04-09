@@ -15,21 +15,20 @@ const TaskCalendar = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [eventTypeFilter, setEventTypeFilter] = useState('All');
   
-
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const {data} = await getCalendarEvents(projectId, accessToken);
                 const formattedEvents = Array.isArray(data) ? data.map(task => ({
-                  id: task.id,
-                  title: task.title || "Untitled Task",
-                  status: task.newStatus || "Not Started",
-                  priority: task.priority || "Low",
-                  deadline: task.deadLine,
-                  completionPercent: task.completionPercent || 0,
-                  event: task.event || "TASK",
-              })) : [];
-              setCalendarEvents(formattedEvents); 
+                    id: task.id,
+                    title: task.title || "Untitled Task",
+                    status: task.newStatus || "TODO",
+                    priority: task.priority || "Low",
+                    deadline: task.deadLine,
+                    completionPercent: task.completionPercent || 0,
+                    eventType: task.eventType || "TASK",
+                })) : [];
+                setCalendarEvents(formattedEvents); 
             } catch (error) {
                 console.error('Failed to fetch calendar events:', error);
                 setCalendarEvents([]);
@@ -41,7 +40,6 @@ const TaskCalendar = () => {
         }
     }, [projectId, accessToken]);
     
-
     const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
     const getFirstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
@@ -71,7 +69,7 @@ const TaskCalendar = () => {
     const filteredTasks = (tasks) => {
         return tasks.filter(task => 
             (statusFilter === 'All' || task.status === statusFilter) &&
-            (eventTypeFilter === 'All' || task.event === eventTypeFilter) &&
+            (eventTypeFilter === 'All' || task.eventType === eventTypeFilter) &&
             (searchTerm === '' || task.title.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     };
@@ -82,7 +80,7 @@ const TaskCalendar = () => {
         const days = [];
 
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className="h-40 border p-1 bg-gray-50"></div>);
+            days.push(<div key={`empty-${i}`} className="h-48 border p-1 bg-gray-50"></div>);
         }
 
         for (let day = 1; day <= daysInMonth; day++) {
@@ -90,34 +88,34 @@ const TaskCalendar = () => {
             const dayTasks = filteredTasks(calendarEvents.filter(event => event.deadline === dateString));
 
             days.push(
-                <div key={day} className="h-40   border p-1 overflow-y-auto">
-                    <div className="text-right  text-gray-500 text-sm mb-1">{day}</div>
+                <div key={day} className="h-48 border p-2 overflow-y-auto">
+                    <div className="text-right text-gray-500 text-sm mb-2">{day}</div>
                     {dayTasks.map(task => (
-                        <div key={task.id} className="mb-2 p-2 rounded text-sm  shadow-sm" style={{ 
-                            backgroundColor: getEventTypeColor(task.event),
-                            borderLeft: `3px solid ${getPriorityColor(task.priority)}`
+                        <div key={task.id} className="mb-2 p-2 rounded text-sm shadow-sm" style={{ 
+                            backgroundColor: getEventTypeColor(task.eventType),
+                            borderLeft: `4px solid ${getPriorityColor(task.priority)}`
                         }}>
-                            <div className="font-medium truncate">{task.title}</div>
+                            <div className="font-medium truncate mb-1">{task.title}</div>
                             
                             {/* Event Type Badge */}
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${getEventTypeBadgeColor(task.event)}`}>
-                                    {task.event}
+                            <div className="flex items-center gap-1 mb-1 flex-wrap">
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getEventTypeBadgeColor(task.eventType)}`}>
+                                    {task.eventType}
                                 </span>
                             </div>
                             
                             {/* Status Indicator */}
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-1 mb-1 flex-wrap">
                                 <span className="text-xs text-gray-600">Status:</span>
-                                <span className={` px-1 text-[7px] py-0.5 rounded-full ${getStatusBadgeColor(task.status)}`}>
+                                <span className={`px-1 text-xs py-0.5 rounded-full ${getStatusBadgeColor(task.status)}`}>
                                     {task.status}
                                 </span>
                             </div>
                             
                             {/* Completion Percentage */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-[14px] text-gray-600">Progress:</span>
-                                <div className="flex-1  flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-wrap">
+                                <span className="text-xs text-gray-600">Progress:</span>
+                                <div className="flex-1 flex items-center gap-1">
                                     <div className="w-full h-2 bg-gray-200 rounded-full">
                                         <div 
                                             className="h-2 rounded-full" 
@@ -127,7 +125,7 @@ const TaskCalendar = () => {
                                             }}
                                         ></div>
                                     </div>
-                                    <span className="text-xs text-[10px] font-medium">
+                                    <span className="text-xs font-medium whitespace-nowrap">
                                         {task.completionPercent || 0}%
                                     </span>
                                 </div>
@@ -169,6 +167,8 @@ const TaskCalendar = () => {
     };
 
     const getPriorityColor = (priority) => {
+        if (!priority) return 'rgb(107, 114, 128)';
+        
         switch (priority) {
             case 'High': return 'rgb(239, 68, 68)';
             case 'Medium': return 'rgb(245, 158, 11)';
@@ -178,14 +178,15 @@ const TaskCalendar = () => {
     };
 
     const getCompletionColor = (percent) => {
-        if (percent >= 90) return '#10B981'; // green
-        if (percent >= 50) return '#3B82F6'; // blue
-        if (percent > 0) return '#F59E0B'; // yellow
-        return '#EF4444'; // red
+        if (percent === null || percent === undefined) return '#EF4444';
+        if (percent >= 90) return '#10B981'; 
+        if (percent >= 50) return '#3B82F6';
+        if (percent > 0) return '#F59E0B';
+        return '#EF4444'; 
     };
 
     return (
-        <div className="container mx-auto p-4 max-w-6xl">
+        <div className="container mx-auto p-4 max-w-7xl">
             <h1 className="text-2xl font-bold text-gray-700 mb-6">Calendar</h1>
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -241,7 +242,7 @@ const TaskCalendar = () => {
 
             <div className="grid grid-cols-7 gap-px bg-gray-100 border border-gray-100 rounded-lg overflow-hidden">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center font-medium p-2 bg-gray-100">
+                    <div key={day} className="text-center font-medium p-3 bg-gray-100 text-gray-700">
                         {day}
                     </div>
                 ))}

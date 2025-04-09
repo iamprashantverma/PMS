@@ -18,11 +18,13 @@ import BugDetails from '@/components/Task/BugDetails';
 
 import AllWorks from '@/components/Work/AllWorks';
 import UserSetting from '@/pages/UserSetting';
+import Dashboard from '@/pages/Dashboard';
 
 function UserRoutes() {
   return (
     <Routes>
       <Route element={<PrivateRoutes />}>
+        <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path="/your-work" element={<AllWorks />}>
         <Route path="Task/:taskId" element={<TaskDetails />} />
       </Route>

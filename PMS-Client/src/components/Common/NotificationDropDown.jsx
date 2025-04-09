@@ -6,18 +6,17 @@ import { GET_LATEST_NOTIFICATION } from '@/graphql/Subscription/notification-ser
 import { getUserDetails } from '@/services/UserService'
 import { useMutation, useSubscription } from '@apollo/client'
 import { Bell, Check, Trash, X, AlertCircle, Clock, ArrowRight } from 'lucide-react'
-
+import { useNavigate } from 'react-router-dom'
 function NotificationDropDown() {
   const { user, accessToken } = useAuth()
   const userId = user?.id
   const { notificationClient } = useApolloClients()
-  
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([])
   const [isOpen, setIsOpen] = useState(false)
   const [userNames, setUserNames] = useState({})
   const dropdownRef = useRef(null)
 
-  // Subscription: Listen for latest notification
   const { data: subscriptionData } = useSubscription(GET_LATEST_NOTIFICATION, {
     client: notificationClient,
     variables: { userId },
@@ -140,7 +139,16 @@ function NotificationDropDown() {
         )
     }
   }
-
+  const clickHandler = (e)=>{
+      if(e.eventType == 'TASK'){
+        setIsOpen(false);
+        navigate(`project/${e.projectId}/task/${e.entityId}`)
+      } else if(e.eventType == 'BUG') {
+        setIsOpen(false);
+        navigate(`project/${e.projectId}/bug/${e.entityId}`)
+      } else  
+        return;
+  }
   const getNotificationIcon = (notification) => {
     switch (notification.action) {
       case 'STATUS_CHANGED':
@@ -206,6 +214,7 @@ function NotificationDropDown() {
               notifications.map(notification => (
                 <div 
                   key={notification.notificationId} 
+                  onClick={()=>clickHandler(notification)}
                   className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex">
