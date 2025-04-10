@@ -12,6 +12,7 @@ import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.EventType;
 import com.pms.projectservice.event.enums.Priority;
 import com.pms.projectservice.event.enums.Status;
+import com.pms.userservice.events.PasswordResetRequestedEvent;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -81,6 +84,29 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
     }
+
+    @Override
+    public void sendForgetPasswordOtp(PasswordResetRequestedEvent passwordResetRequestedEvent) throws MessagingException {
+        String userId = passwordResetRequestedEvent.getUserId();
+        String email = passwordResetRequestedEvent.getEmail();
+        String name = passwordResetRequestedEvent.getName();
+        String otp = passwordResetRequestedEvent.getOtp();
+        LocalDateTime requestedAt = passwordResetRequestedEvent.getRequestedAt();
+
+        // Prepare model for Thymeleaf template
+        Map<String, Object> model = new HashMap<>();
+        model.put("userId", userId);
+        model.put("email", email);
+        model.put("name", name);
+        model.put("otp", otp);
+        model.put("requestedAt", requestedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        String subject = "🔐 Password Reset OTP";
+        String template = "forget-password";
+
+        emailService.sendEmail(email, subject, template, model);
+    }
+
 
     @Override
     public void taskTopicStatusUpdateHandler(TaskEvent taskEvent) {

@@ -10,9 +10,9 @@ import static com.pms.userservice.configs.KafkaConfig.PASSWORD_RESET_TOPIC;
 @Service
 @RequiredArgsConstructor
 public class UserEventProducer {
-    private final KafkaTemplate<String, PasswordResetRequestedEvent> kafkaTemplate;
+    private final KafkaTemplate<Long, PasswordResetRequestedEvent> kafkaTemplate;
 
     public void sendPasswordResetRequestedEvent(PasswordResetRequestedEvent passwordResetRequestedEvent) {
-        kafkaTemplate.send(PASSWORD_RESET_TOPIC,passwordResetRequestedEvent.getUserId(),passwordResetRequestedEvent);
+        kafkaTemplate.send(PASSWORD_RESET_TOPIC,passwordResetRequestedEvent.getId(),passwordResetRequestedEvent);
     }
 }

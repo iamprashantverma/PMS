@@ -142,7 +142,6 @@ public class AuthServiceImpl implements AuthService {
                 .otp(otp)
                 .expiryAt(LocalDateTime.now().plusMinutes(5))
                 .email(email)
-                .used(false)
                 .userAgent(userAgent)
                 .windowId(forgetPasswordDTO.getWindowId())
                 .build();
@@ -151,6 +150,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Send event to Kafka for notification
         PasswordResetRequestedEvent event = PasswordResetRequestedEvent.builder()
+                .id(toBeCreated.getId())
                 .name(user.getName())
                 .userId(user.getUserId())
                 .email(email)
@@ -189,13 +189,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidRequestException("OTP has expired.");
         }
 
-        if (passwordReset.isUsed()) {
-            throw new InvalidRequestException("OTP has already been used.");
-        }
-
-        // Mark OTP as used
-        passwordReset.setUsed(true);
-        passwordResetRepository.save(passwordReset);
+        passwordResetRepository.delete(passwordReset);
 
         // Reset user password
         User user = userRepository.findByEmail(email)
