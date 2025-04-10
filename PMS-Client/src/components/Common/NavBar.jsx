@@ -179,7 +179,7 @@ function NavBar() {
         )}
       </div>
 
-      {/* Dropdown Components */}
+     
       {dropDown === "project" && open && <ProjectDropDown />}
     </nav>
   );
