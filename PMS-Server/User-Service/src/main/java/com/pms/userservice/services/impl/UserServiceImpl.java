@@ -50,11 +50,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Roles> getAllRoles() {
-        return List.of(Roles.values());
-    }
-
-    @Override
     @Transactional
     public ResponseDTO assignRoleToUser(String userId, Roles role) {
         User user = getUserById(userId);

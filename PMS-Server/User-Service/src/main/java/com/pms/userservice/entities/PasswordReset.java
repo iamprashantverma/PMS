@@ -1,34 +1,34 @@
 package com.pms.userservice.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "password_reset_tokens")
+@Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PasswordResetToken {
+public class PasswordReset {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String token;
-
     @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
-    private LocalDateTime expiryDate;
+    private String otp;
+
+    @CreationTimestamp
+    private LocalDateTime createAt;
 
     @Column(nullable = false)
-    private String ipAddress;
+    private LocalDateTime expiryAt;
 
     @Column(nullable = false)
     private String userAgent;
@@ -36,8 +36,11 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private boolean used = false;
 
+    @Column(nullable = false)
+    private String windowId;
+
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiryDate);
+        return LocalDateTime.now().isAfter(expiryAt);
     }
 
 }

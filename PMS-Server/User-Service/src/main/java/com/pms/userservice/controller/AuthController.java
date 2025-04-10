@@ -82,8 +82,8 @@ public class AuthController {
 
     /* send the otp to their email address */
     @PostMapping("/otp")
-    public ResponseEntity<ResponseDTO> sendOtp( @Valid @RequestBody ForgetPasswordDTO forgetPasswordDTO) {
-        ResponseDTO res = authService.sendOtp(forgetPasswordDTO);
+    public ResponseEntity<ResponseDTO> sendOtp( @Valid @RequestBody ForgetPasswordDTO forgetPasswordDTO,HttpServletRequest httpServletRequest) {
+        ResponseDTO res = authService.sendOtp(forgetPasswordDTO,httpServletRequest);
         return ResponseEntity.ok(res);
     }
 

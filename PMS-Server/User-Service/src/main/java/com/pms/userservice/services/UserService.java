@@ -9,35 +9,78 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/**
+ * Service interface for managing user-related operations.
+ */
 public interface UserService {
 
-    /* get the user by their id */
+    /**
+     * Retrieves a user entity by user ID.
+     *
+     * @param userId the ID of the user
+     * @return the User entity
+     */
     User getUserById(String userId);
 
-    /* get user by email */
+    /**
+     * Finds a user by their email address.
+     *
+     * @param userEmail the email of the user
+     * @return the User entity
+     */
     User findUserByEmail(String userEmail);
 
-    /* get all roles */
-    List<Roles> getAllRoles();
-
-    /* assigning the specific role to the user*/
+    /**
+     * Assigns a specific role to a user.
+     *
+     * @param userId the ID of the user
+     * @param role   the role to be assigned
+     * @return a response containing success or failure message
+     */
     @Transactional
-    ResponseDTO assignRoleToUser(String userId, Roles role) ;
+    ResponseDTO assignRoleToUser(String userId, Roles role);
 
-    /* get User Details */
-    UserDTO getUserDetails(String userId) ;
+    /**
+     * Retrieves detailed information for a specific user.
+     *
+     * @param userId the ID of the user
+     * @return the user details in DTO form
+     */
+    UserDTO getUserDetails(String userId);
 
-    /*get all users */
+    /**
+     * Retrieves a list of all users in the system.
+     *
+     * @return a list of UserDTOs
+     */
     List<UserDTO> getAllUsers();
 
-    /*update the user details */
+    /**
+     * Updates the details of a user, optionally with a profile image.
+     *
+     * @param userDTO the new user details
+     * @param file    the user's profile picture (optional)
+     * @return a response containing success or failure message
+     */
     @Transactional
     ResponseDTO updateUserDetails(UserDTO userDTO, MultipartFile file);
 
-    /*deactivate the user */
+    /**
+     * Deactivates a user account by setting its status to inactive.
+     *
+     * @param userId the ID of the user to deactivate
+     * @return a response containing success or failure message
+     */
     @Transactional
     ResponseDTO deactivateUser(String userId);
 
-
+    /**
+     * Updates the user-specific notification settings.
+     *
+     * @param userId      the ID of the user
+     * @param taskUpdates the type of notification setting to update
+     * @param value       the new value (true or false)
+     * @return the updated user DTO
+     */
     UserDTO updateNotificationField(String userId, String taskUpdates, Boolean value);
 }

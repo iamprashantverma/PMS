@@ -32,7 +32,6 @@ public class JWTServiceImpl implements JWTService {
     public String generateAccessToken(User user ) {
         return Jwts.builder()
                 .subject(user.getUserId())
-                .claim("role",user.getRole())
                 .claim("email",user.getEmail())
                 .claim("name",user.getName())
                 .issuedAt(new Date())

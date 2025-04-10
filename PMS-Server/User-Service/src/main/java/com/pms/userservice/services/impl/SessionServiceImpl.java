@@ -20,41 +20,42 @@ import java.util.Optional;
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository sessionRepository;
-    private final  static Integer  SESSION_LIMIT = 1;
+    private static final Integer SESSION_LIMIT = 1;
 
     @Override
     @Transactional
     public void generateNewSession(User user, String refreshToken) {
-        /* get the all active session of the user */
+        // Get all active sessions for the user
         List<Session> userSessions = sessionRepository.findByUser(user);
-        /* if session limit full then delete the lase recent session */
-        if ( userSessions.size() == SESSION_LIMIT) {
+
+        // If session limit is reached, delete the least recently used session
+        if (userSessions.size() >= SESSION_LIMIT) {
             userSessions.sort(Comparator.comparing(Session::getLastUsedBy));
             Session lastRecentSession = userSessions.getFirst();
             sessionRepository.delete(lastRecentSession);
         }
 
-//        log.info("user:{}",user);
-        /* creating the new Session */
+        // Create and save a new session
         Session session = Session.builder()
                 .user(user)
                 .refreshToken(refreshToken)
                 .build();
-//        log.info("session :{}",session);
-        /* persist the new session into the database */
+
         sessionRepository.save(session);
     }
 
     @Override
     public boolean validateSession(String refreshToken) {
+        // Check if session exists for the given refresh token
         Optional<Session> optionalSession = sessionRepository.findByRefreshToken(refreshToken);
-        return  optionalSession.isPresent() ;
+        return optionalSession.isPresent();
     }
 
     @Override
     public void deleteSession(String refreshToken) {
-        Session session = sessionRepository.findByRefreshToken(refreshToken).orElseThrow(()->new ResourceNotFound("No active  session found !"));
+        // Delete the session associated with the refresh token
+        Session session = sessionRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new ResourceNotFound("No active session found!"));
         sessionRepository.delete(session);
     }
-
 }
