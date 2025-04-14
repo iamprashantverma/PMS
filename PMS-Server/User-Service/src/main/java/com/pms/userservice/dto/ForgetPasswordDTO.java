@@ -9,8 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ForgetPasswordDTO {
-
-    @Size(min = 6,max = 8 ,message = "please enter window id in the range")
     @NotBlank(message = "please provide window id for your current window")
     private  String windowId;
 

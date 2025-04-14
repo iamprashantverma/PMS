@@ -81,14 +81,14 @@ public class AuthController {
     }
 
     /* send the otp to their email address */
-    @PostMapping("/otp")
+    @PatchMapping("/otp")
     public ResponseEntity<ResponseDTO> sendOtp( @Valid @RequestBody ForgetPasswordDTO forgetPasswordDTO,HttpServletRequest httpServletRequest) {
         ResponseDTO res = authService.sendOtp(forgetPasswordDTO,httpServletRequest);
         return ResponseEntity.ok(res);
     }
 
     /* verify the token and reset their password */
-    @PostMapping("/verify")
+    @PatchMapping("/verify")
     public ResponseEntity<ResponseDTO> verifyOtp( @Valid @RequestBody VerifyResetPasswordDTO verifyResetPasswordDTO) {
         ResponseDTO res = authService.verifyOtp(verifyResetPasswordDTO);
         return ResponseEntity.ok(res);
