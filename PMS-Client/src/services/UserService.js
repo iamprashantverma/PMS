@@ -120,3 +120,24 @@ export const updateEmailUpdates = async (userId, value, token) => {
     throw response?.data?.error;
   }
 };
+
+export const sendOtp = async (formData) => {
+  try {
+    const { data } = await apiClient.patch("/auth/otp",formData);
+    return data;
+  } catch ({ response }) {
+    throw response?.data?.error;
+  }
+};
+
+export const verifyOtp = async (formData) => {
+  try {
+    const { data } = await apiClient.patch("/auth/verify",formData);
+    return data;
+  } catch ({ response }) {
+    
+    throw response?.data?.error;
+  }
+};
+
+

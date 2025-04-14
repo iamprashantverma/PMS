@@ -77,6 +77,7 @@ const TaskCalendar = () => {
             setIsLoading(true);
             try {
                 const { data } = await getCalendarEvents(projectId, accessToken);
+               
                 const formattedEvents = Array.isArray(data) ? data.map(task => ({
                     id: task.id,
                     title: task.title || "Untitled Task",

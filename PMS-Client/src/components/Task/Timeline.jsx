@@ -347,13 +347,6 @@ function Timeline() {
               </React.Fragment>
             ))}
             
-            {/* Create Epic button */}
-            {/* <div className="border-t p-4">
-              <button className="flex items-center text-gray-700 hover:text-gray-900">
-                <span className="mr-2 font-medium">+</span>
-                <span>Create Epic</span>
-              </button>
-            </div> */}
           </div>
         </div>
       </div>
