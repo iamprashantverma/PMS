@@ -15,9 +15,9 @@ import com.pms.TaskService.exceptions.ResourceAlreadyExist;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
-import com.pms.TaskService.repository.EpicRepository;
-import com.pms.TaskService.repository.StoryRepository;
-import com.pms.TaskService.repository.TaskRepository;
+import com.pms.TaskService.repositories.EpicRepository;
+import com.pms.TaskService.repositories.StoryRepository;
+import com.pms.TaskService.repositories.TaskRepository;
 import com.pms.TaskService.services.CloudinaryService;
 import com.pms.TaskService.services.TaskService;
 

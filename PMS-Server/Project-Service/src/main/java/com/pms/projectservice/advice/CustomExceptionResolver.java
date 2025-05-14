@@ -1,6 +1,6 @@
 package com.pms.projectservice.advice;
 
-import com.pms.projectservice.exceptions.ResourceNotFound;
+
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;

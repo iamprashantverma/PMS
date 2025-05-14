@@ -1,6 +1,5 @@
 package com.pms.TaskService.clients;
 
-import com.pms.TaskService.dto.ProjectDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +15,9 @@ public interface ProjectFeignClient {
      * Retrieves a project by its ID.
      *
      * @param projectId the ID of the project to retrieve
-     * @return the ProjectDTO
      */
     @GetMapping
-    ProjectDTO getProject(@RequestParam("projectId") String projectId);
+    void getProject(@RequestParam("projectId") String projectId);
 
     /**
      * Adds a task to the specified project.

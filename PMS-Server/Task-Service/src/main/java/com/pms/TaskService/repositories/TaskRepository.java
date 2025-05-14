@@ -1,6 +1,5 @@
-package com.pms.TaskService.repository;
+package com.pms.TaskService.repositories;
 
-import com.pms.TaskService.entities.Issue;
 import com.pms.TaskService.entities.Task;
 import com.pms.TaskService.entities.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;

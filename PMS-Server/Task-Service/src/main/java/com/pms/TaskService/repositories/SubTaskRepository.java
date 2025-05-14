@@ -1,4 +1,4 @@
-package com.pms.TaskService.repository;
+package com.pms.TaskService.repositories;
 
 import com.pms.TaskService.entities.SubTask;
 import com.pms.TaskService.entities.Task;

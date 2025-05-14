@@ -12,8 +12,8 @@ import com.pms.TaskService.event.enums.EventType;
 import com.pms.TaskService.exceptions.ResourceNotFound;
 import com.pms.TaskService.producer.CalendarEventProducer;
 import com.pms.TaskService.producer.TaskEventProducer;
-import com.pms.TaskService.repository.SubTaskRepository;
-import com.pms.TaskService.repository.TaskRepository;
+import com.pms.TaskService.repositories.SubTaskRepository;
+import com.pms.TaskService.repositories.TaskRepository;
 import com.pms.TaskService.services.SubTaskService;
 
 import jakarta.transaction.Transactional;

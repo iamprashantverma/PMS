@@ -2,7 +2,6 @@ package com.pms.projectservice.resolver;
 
 import com.pms.projectservice.dto.ProjectDTO;
 import com.pms.projectservice.dto.ResponseDTO;
-import com.pms.projectservice.entities.enums.Priority;
 import com.pms.projectservice.entities.enums.Status;
 import com.pms.projectservice.services.ProjectService;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +85,7 @@ public class ProjectResolver {
     }
     @QueryMapping
     public List<ProjectDTO> findAllProject( @Argument("pageNo") int page){
-        log.info("Finding All Project for the User ID,{}");
+        log.info("Finding All Project for the User ID,{}",page);
         return projectService.findAllProject(page);
     }
 
