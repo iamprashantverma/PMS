@@ -1,0 +1,253 @@
+version: "3.8"
+
+services:
+  user-db:
+    image: mysql:8
+    container_name: user-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prashant@1234
+      MYSQL_DATABASE: userservice
+    volumes:
+      - user-db-data:/var/lib/mysql
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  task-db:
+    image: mysql:8
+    container_name: task-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prashant@1234
+      MYSQL_DATABASE: taskservice
+    volumes:
+      - task-db-data:/var/lib/mysql
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  project-db:
+    image: mysql:8
+    container_name: project-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prashant@1234
+      MYSQL_DATABASE: projectservice
+    volumes:
+      - project-db-data:/var/lib/mysql
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  notification-db:
+    image: mysql:8
+    container_name: notification-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prashant@1234
+      MYSQL_DATABASE: notificationservice
+    volumes:
+      - notification-db-data:/var/lib/mysql
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  activity-db:
+    image: mysql:8
+    container_name: activity-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prashant@1234
+      MYSQL_DATABASE: activityservice
+    volumes:
+      - activity-db-data:/var/lib/mysql
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9093", "--list"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 40s
+
+  discovery-service:
+    image: imprashantverma/discovery-server
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - pms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 20s
+
+  config-server:
+    image: imprashantverma/config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - pms-network
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 20s
+
+  user-service:
+    image: imprashantverma/user-service
+    container_name: user-service
+    networks:
+      - pms-network
+    depends_on:
+      user-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+  task-service:
+    image: imprashantverma/task-service
+    container_name: task-service
+    networks:
+      - pms-network
+    depends_on:
+      task-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+  project-service:
+    image: imprashantverma/project-service
+    container_name: project-service
+    networks:
+      - pms-network
+    depends_on:
+      project-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+  activity-tracker:
+    image: imprashantverma/activity-tracker
+    container_name: activity-tracker
+    networks:
+      - pms-network
+    depends_on:
+      activity-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+  notification-service:
+    image: imprashantverma/notification-service
+    container_name: notification-service
+    networks:
+      - pms-network
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+  api-gateway:
+    image: imprashantverma/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - pms-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: on-failure
+
+volumes:
+  user-db-data:
+  task-db-data:
+  project-db-data:
+  notification-db-data:
+  activity-db-data:
+  kafka-data:
+
+networks:
+  pms-network:

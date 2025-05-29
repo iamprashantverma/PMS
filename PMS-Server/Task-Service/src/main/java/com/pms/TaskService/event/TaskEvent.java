@@ -1,6 +1,7 @@
 package com.pms.TaskService.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.pms.TaskService.entities.enums.Priority;
 import com.pms.TaskService.entities.enums.Status;
 import com.pms.TaskService.event.enums.Actions;
@@ -8,7 +9,7 @@ import com.pms.TaskService.event.enums.EventType;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Set;
 

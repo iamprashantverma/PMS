@@ -1,4 +1,12 @@
-FROM ubuntu:latest
-LABEL authors="verma"
+FROM openjdk
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+
+RUN ./mvnw dependency:go-offline
+
+COPY src ./src
+
+CMD ["./mvnw","spring-boot:run"]

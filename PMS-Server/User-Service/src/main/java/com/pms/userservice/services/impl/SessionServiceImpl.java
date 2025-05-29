@@ -31,7 +31,7 @@ public class SessionServiceImpl implements SessionService {
         // If session limit is reached, delete the least recently used session
         if (userSessions.size() >= SESSION_LIMIT) {
             userSessions.sort(Comparator.comparing(Session::getLastUsedBy));
-            Session lastRecentSession = userSessions.getFirst();
+            Session lastRecentSession = userSessions.get(0);
             sessionRepository.delete(lastRecentSession);
         }
 
