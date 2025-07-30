@@ -167,11 +167,12 @@ function TaskDetails({ task = {}, onClose }) {
     fetchReporterData();
   }, [taskData?.reporter, accessToken]);
 
-  // Fetch assignee details
+  
   useEffect(() => {
     const fetchAssigneeDetails = async () => {
       if (taskData.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
         try {
+          console.log(taskData.assignees);
           const assigneePromises = taskData.assignees.map(assigneeId => 
             getUserDetails(assigneeId, accessToken)
           );
@@ -183,6 +184,7 @@ function TaskDetails({ task = {}, onClose }) {
           setAssigneeDetails(extractedData);
 
         } catch (error) {
+          toast.error(error);
           console.error("Error fetching assignee details:", error);
         }
       } else if (taskData.assignees && !Array.isArray(taskData.assignees)) {

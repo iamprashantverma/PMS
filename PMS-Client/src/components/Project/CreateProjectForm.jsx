@@ -14,7 +14,7 @@ function CreateProjectForm() {
     description: "",
     startDate: "",
     deadline: "",
-    status: "PLANNED",
+    status: "PLANNING",
     priority: "MEDIUM",
     clientId: "",
   });
@@ -22,8 +22,8 @@ function CreateProjectForm() {
   const [createProject, { loading, error }] = useMutation(CREATE_PROJECT, {
     client: projectClient,
     onCompleted: (data) => {
-      toast.success("🎉 Project created successfully!");
-      navigate(`/projects/${data.createProject.projectId}`);
+      toast.success(" Project created successfully!");
+      navigate(`/projects`);
     },
   });
 
@@ -143,7 +143,7 @@ function CreateProjectForm() {
                 onChange={handleChange}
                 className="w-full border-2 border-gray-200 rounded-xl px-5 py-3 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
               >
-                <option value="PLANNED">📅 Planned</option>
+                <option value="PLANNING">📅 Planned</option>
                 <option value="IN_PROGRESS">🚧 In Progress</option>
                 <option value="COMPLETED">✅ Completed</option>
                 <option value="ON_HOLD">⏸️ On Hold</option>

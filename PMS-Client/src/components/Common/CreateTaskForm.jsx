@@ -30,13 +30,13 @@ function CreateTaskForm({setCreateOpen}) {
   const [title, setTitle] = useState("");
   const [epicId, setEpicId] = useState("");
   const [storyId, setStoryId] = useState("");
-  const [priority, setPriority] = useState("");
+  const [priority, setPriority] = useState("LOW");
   const [deadline, setDeadline] = useState("");
   const [label, setLabel] = useState("");
   const [reporter] = useState(user?.userId || "");
   const [description, setDescription] = useState("");
   const [issueType, setIssueType] = useState("Task");
-  const [status, setStatus] = useState("To Do");
+  const [status, setStatus] = useState("TODO");
   const [image, setImage] = useState(null);
   const [expectedOutcome, setExpectedOutcome] = useState("");
   const [actualOutcome, setActualOutcome] = useState("");
