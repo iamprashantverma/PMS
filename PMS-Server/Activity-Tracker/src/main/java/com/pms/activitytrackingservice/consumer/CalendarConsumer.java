@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CalendarConsumer {
+public class    CalendarConsumer {
 
     private final CalendarService calendarService;
 

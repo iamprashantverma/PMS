@@ -149,6 +149,9 @@ services:
   user-service:
     image: imprashantverma/user-service
     container_name: user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
@@ -158,13 +161,14 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
   task-service:
     image: imprashantverma/task-service
     container_name: task-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
@@ -174,13 +178,14 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
   project-service:
     image: imprashantverma/project-service
     container_name: project-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
@@ -190,13 +195,14 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
   activity-tracker:
     image: imprashantverma/activity-tracker
     container_name: activity-tracker
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
@@ -206,13 +212,14 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
   notification-service:
     image: imprashantverma/notification-service
     container_name: notification-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
@@ -222,8 +229,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
   api-gateway:
@@ -231,13 +236,14 @@ services:
     container_name: api-gateway
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_IMPORT=http://config-server:8888
     networks:
       - pms-network
     depends_on:
       config-server:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     restart: on-failure
 
 volumes:

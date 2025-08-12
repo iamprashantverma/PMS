@@ -313,6 +313,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO assignMemberToTask(String taskId, String memberId) {
+
         Task task = getTaskEntity(taskId);
         task.getAssignees().add(memberId);
         Task savedTask = taskRepository.save(task);
@@ -325,6 +326,7 @@ public class TaskServiceImpl implements TaskService {
 
         return convertToDTO(savedTask);
     }
+
 
     @Override
     public TaskDTO unAssignedMemberFromTask(String taskId, String memberId) {

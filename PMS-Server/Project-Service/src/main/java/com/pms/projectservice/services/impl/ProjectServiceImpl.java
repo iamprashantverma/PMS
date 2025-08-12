@@ -316,7 +316,7 @@ public class ProjectServiceImpl implements ProjectService {
         /* create the projectEvent */
         ProjectEvent projectEvent = getPriorityChangedEvent(modifedProject,oldPriority);
         /* if notification allowed then only send  produce the notification event */
-        if (project.getNotification())
+        if ( project.getNotification() != null &&  project.getNotification())
             producer.sendProjectEvent(projectEvent);
 
         /* convert into the DTO and return it*/
@@ -350,7 +350,6 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectEvent projectEvent = getMemberAssignedEvent(updatedProject,member);
 
 //        producer.sendProjectEvent(projectEvent);
-
         return convertToProjectDTO(updatedProject);
     }
 

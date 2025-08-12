@@ -26,7 +26,7 @@ public class Project {
 
     @PrePersist
     public void createId() {
-
+        this.notification = false;
         this.projectId = PREFIX + UUID.randomUUID().toString().substring(0, 8);
     }
 
@@ -57,7 +57,7 @@ public class Project {
 
     private String image;
 
-    private Boolean notification;
+    private Boolean notification = false;
 
     @ElementCollection
     private Set<String> memberIds = new HashSet<>();

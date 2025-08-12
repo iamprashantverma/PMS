@@ -46,6 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private void sendNotificationUpdate(String userId, UserMessageNotificationDTO notification) {
+
         Sinks.Many<UserMessageNotificationDTO> sink = userNotificationSinks.get(userId);
         if (sink != null) {
             sink.tryEmitNext(notification);
