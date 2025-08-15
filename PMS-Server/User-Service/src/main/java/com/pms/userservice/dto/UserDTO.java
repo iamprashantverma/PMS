@@ -1,13 +1,12 @@
 package com.pms.userservice.dto;
 
-import com.pms.userservice.entities.enums.Roles;
+
 import com.pms.userservice.entities.enums.Status;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 public class UserDTO {
