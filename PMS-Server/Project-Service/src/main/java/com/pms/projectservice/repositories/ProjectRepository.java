@@ -16,6 +16,13 @@ public interface ProjectRepository extends JpaRepository<Project,String> {
     List<Project> findAllByStatus(Status status);
 
     List<Project> findAllByTitle(String title);
+    @Query("""
+       SELECT p FROM Project p
+       WHERE :userId MEMBER OF p.memberIds
+          OR p.projectCreator = :userId
+       """)
+    Page<Project> findAllByUserMembershipOrCreator(@Param("userId") String userId, Pageable pageable);
+
 
     @Query("SELECT p FROM Project p WHERE (p.projectCreator = :userId OR :userId IN elements(p.memberIds)) AND p.status <> 'COMPLETED'")
     Page<Project> findByCreatorOrMemberAndStatusNotCompleted(@Param("userId") String userId, Pageable pageable);

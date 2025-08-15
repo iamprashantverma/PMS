@@ -430,8 +430,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDTO> findAllProject( int page) {
+        String userId = getUserIdFromContext();
         Pageable pageable = PageRequest.of(page, 5);
-        Page<Project> projectPage = projectRepository.findAll(pageable);
+        Page<Project> projectPage = projectRepository.findAllByUserMembershipOrCreator(userId,pageable);
         log.info("size,{}", projectPage.getContent().size());
         return projectPage.getContent().stream()
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
