@@ -1,5 +1,6 @@
 package com.pms.userservice.events;
 
+import com.pms.userservice.events.enums.EventType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,4 +14,5 @@ public class UserSignupEvent {
     private Boolean subTaskUpdates;
     private Boolean bugUpdates;
     private Boolean emailUpdates;
+    private EventType eventType;
 }
