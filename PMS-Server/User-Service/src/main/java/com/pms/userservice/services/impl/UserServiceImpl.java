@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
                 .commentMentions(user.getCommentMentions())
                 .emailUpdates(user.getEmailUpdates())
                 .bugUpdates(user.getBugUpdates())
+                .name(user.getName())
                 .subTaskUpdates(user.getSubTaskUpdates())
                 .taskUpdates(user.getTaskUpdates())
                 .build();

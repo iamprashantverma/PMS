@@ -6,6 +6,7 @@ import com.pms.userservice.entities.User;
 import com.pms.userservice.entities.enums.Status;
 import com.pms.userservice.events.PasswordResetRequestedEvent;
 import com.pms.userservice.events.UserSignupEvent;
+import com.pms.userservice.events.enums.EventType;
 import com.pms.userservice.exceptions.InvalidRequestException;
 import com.pms.userservice.exceptions.ResourceAlreadyExist;
 import com.pms.userservice.exceptions.ResourceNotFound;
@@ -59,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
         return UserSignupEvent.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
+                .name(user.getName())
                 .commentMentions(user.getCommentMentions())
                 .emailUpdates(user.getEmailUpdates())
                 .bugUpdates(user.getBugUpdates())
@@ -115,7 +117,10 @@ public class AuthServiceImpl implements AuthService {
        User savedUser =  userRepository.save(toBeCreated);
 
        // event create and sends
-       eventProducer.sendUserSignupEvent(createUserSignupEvent(savedUser));
+        UserSignupEvent event = createUserSignupEvent(savedUser);
+        event.setEventType(EventType.USER_SIGNUP);
+        eventProducer.sendUserSignupEvent(event);
+
 
         return ResponseDTO.builder()
                 .message("Signup successful!")

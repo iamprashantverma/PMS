@@ -14,11 +14,11 @@ import static com.pms.userservice.configs.KafkaConfig.USER_SIGNUP_EVENT;
 @Service
 @RequiredArgsConstructor
 public class UserEventProducer {
-    private final KafkaTemplate<Long, PasswordResetRequestedEvent> resetRequestedEventKafkaTemplate;
+    private final KafkaTemplate<String , PasswordResetRequestedEvent> resetRequestedEventKafkaTemplate;
     private final KafkaTemplate<String, UserSignupEvent>signupEventKafkaTemplate;
 
     public void sendPasswordResetRequestedEvent(PasswordResetRequestedEvent passwordResetRequestedEvent) {
-        resetRequestedEventKafkaTemplate.send(PASSWORD_RESET_TOPIC,passwordResetRequestedEvent.getId(),passwordResetRequestedEvent);
+        resetRequestedEventKafkaTemplate.send(PASSWORD_RESET_TOPIC, String.valueOf(passwordResetRequestedEvent.getId()),passwordResetRequestedEvent);
         log.info("password-reset-event-send{}", passwordResetRequestedEvent.getEmail());
     }
 

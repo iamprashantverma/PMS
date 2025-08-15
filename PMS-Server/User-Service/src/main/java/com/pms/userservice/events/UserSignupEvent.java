@@ -9,6 +9,7 @@ import lombok.Data;
 public class UserSignupEvent {
     private String userId;
     private String email;
+    private String name;
     private Boolean commentMentions;
     private Boolean taskUpdates;
     private Boolean subTaskUpdates;

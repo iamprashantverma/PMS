@@ -39,8 +39,8 @@ public class UserServiceImpl implements UserService {
                 });
 
         modelMapper.map(event, existingUser);
-        userRepository.save(existingUser);
-        log.info("User details updated successfully for user ID: {}", event.getUserId());
+        UserDetails user =  userRepository.save(existingUser);
+        log.info("User details updated successfully for:{}", user);
     }
 
     @Override

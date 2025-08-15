@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.auth.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @RefreshScope
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -61,11 +63,14 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ResponseDTO> logout(HttpServletRequest req,HttpServletResponse response)  {
 
+        Arrays.stream(req.getCookies()).forEach(System.out::println);
         String refreshToken = Arrays.stream(req.getCookies())
                 .filter(cookie -> "refresh_token".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+
+        log.info("refresh-Token {}",refreshToken);
 
         ResponseDTO responseDTO =  authService.logout(refreshToken);
         Cookie refreshTokenCookie = new Cookie("refresh_token", null);

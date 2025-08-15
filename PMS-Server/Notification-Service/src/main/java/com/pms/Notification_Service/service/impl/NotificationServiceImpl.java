@@ -1,12 +1,12 @@
 package com.pms.Notification_Service.service.impl;
 
-import com.pms.Notification_Service.advices.APIResponse;
+
 import com.pms.Notification_Service.auth.UserContextHolder;
-import com.pms.Notification_Service.clients.UserFeignClient;
-import com.pms.Notification_Service.dto.UserDTO;
 import com.pms.Notification_Service.dto.UserMessageNotificationDTO;
+import com.pms.Notification_Service.entities.UserDetails;
 import com.pms.Notification_Service.entities.UserMessageNotification;
 import com.pms.Notification_Service.repositories.UserMessageNotificationRepo;
+import com.pms.Notification_Service.repositories.UserRepository;
 import com.pms.Notification_Service.service.NotificationService;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.TaskService.event.enums.EventType;
@@ -33,10 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final UserFeignClient userFeignClient;
+
     private final EmailService emailService;
     private final ModelMapper modelMapper;
     private final UserMessageNotificationRepo userMessageNotificationRepo;
+    private final UserRepository userRepository;
 
     // Map of user-specific sinks for emitting notifications
     private final Map<String, Sinks.Many<UserMessageNotificationDTO>> userNotificationSinks = new ConcurrentHashMap<>();
@@ -67,8 +68,12 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = eventType + " Update Notification: " + title;
 
         for (String userId : assigneeIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null && user.getEmail() != null) {
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
+            if ( user.getEmailUpdates()) {
                 Map<String, Object> variables = new HashMap<>();
                 variables.put("userName", user.getName());
                 variables.put("title", title);
@@ -102,7 +107,7 @@ public class NotificationServiceImpl implements NotificationService {
         model.put("otp", otp);
         model.put("requestedAt", requestedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        String subject = "🔐 Password Reset OTP";
+        String subject = " Password Reset OTP";
         String template = "forget-password";
 
         emailService.sendEmail(email, subject, template, model);
@@ -119,15 +124,18 @@ public class NotificationServiceImpl implements NotificationService {
         Status oldStatus = taskEvent.getOldStatus();
 
         for (String userId : taskEvent.getAssignees()) {
-           APIResponse<UserDTO> userData  =  userFeignClient.getUserById(userId);
-           UserDTO user = userData.getData();
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
             if(eventType == EventType.TASK && user.getTaskUpdates() != null && !user.getTaskUpdates())
                     continue;
             else if(eventType == EventType.BUG && user.getBugUpdates() != null && !user.getBugUpdates())
                     continue;
             else if(eventType == EventType.SUBTASK && user.getSubTaskUpdates() != null && !user.getSubTaskUpdates())
                 continue;
-            System.out.println(user);
+
 
             UserMessageNotification umn = modelMapper.map(taskEvent, UserMessageNotification.class);
             umn.setUserId(userId);
@@ -138,15 +146,16 @@ public class NotificationServiceImpl implements NotificationService {
             sendNotificationUpdate(userId, dto);
         }
 
-        List<UserDTO> assignees = new ArrayList<>();
+        List<UserDetails> assignees = new ArrayList<>();
         String subject = eventType + " Status Update Notification: " + title;
 
         for (String userId : taskEvent.getAssignees()) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            assignees.add(user);
+            userRepository.findById(userId).ifPresent(assignees::add);
         }
 
-        for (UserDTO user : assignees) {
+        for (UserDetails user : assignees) {
+            if ( !user.getEmailUpdates())
+                continue;
             try {
                 HashMap<String, Object> variables = new HashMap<>();
                 variables.put("userName", user.getName());
@@ -174,8 +183,12 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "Task Deletion Notification: " + title;
 
         for (String userId : memberIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null && user.getEmail() != null) {
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
+            if (user.getEmailUpdates()) {
                 Map<String, Object> variables = Map.of(
                         "userName", user.getName(),
                         "title", title,
@@ -186,7 +199,7 @@ public class NotificationServiceImpl implements NotificationService {
                 emailService.sendEmail(user.getEmail(), subject, "task-deletion", variables);
                 log.info("Email sent to {} for task deletion (Task ID: {})", user.getEmail(), entityId);
             } else {
-                log.warn("User with ID {} not found or has no email.", userId);
+                log.warn("User with ID {} has off their email notifications.", userId);
             }
         }
     }
@@ -203,8 +216,12 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "New " + eventType + " Assignment: " + title;
 
         for (String userId : assigneeIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null && user.getEmail() != null) {
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
+            if (user.getEmail() != null) {
                 Map<String, Object> variables = Map.of(
                         "userName", user.getName(),
                         "title", title,
@@ -233,8 +250,12 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = eventType + " Unassignment Notification: " + title;
 
         for (String userId : memberIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null && user.getEmail() != null) {
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
+            if (user.getEmail() != null) {
                 Map<String, Object> variables = Map.of(
                         "userName", user.getName(),
                         "title", title,
@@ -263,8 +284,12 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "Priority Updated Notification: " + title;
 
         for (String userId : memberIds) {
-            UserDTO user = userFeignClient.getUserById(userId).getData();
-            if (user != null && user.getEmail() != null) {
+            UserDetails user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                log.info("user not found with user Id{}",userId);
+                continue;
+            }
+            if ( user.getEmailUpdates()) {
                 Map<String, Object> variables = Map.of(
                         "userName", user.getName(),
                         "title", title,
@@ -276,7 +301,7 @@ public class NotificationServiceImpl implements NotificationService {
                 emailService.sendEmail(user.getEmail(), subject, "task-priority-update", variables);
                 log.info("Email sent to {} for priority update (Task ID: {})", user.getEmail(), entityId);
             } else {
-                log.warn("User with ID {} not found or has no email.", userId);
+                log.warn("User with ID {} has disable email notifications.", userId);
             }
         }
     }
