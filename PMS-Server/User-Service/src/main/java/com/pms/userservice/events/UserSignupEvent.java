@@ -1,8 +1,10 @@
 package com.pms.userservice.events;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class UserSignupEvent {
     private String userId;
     private String email;

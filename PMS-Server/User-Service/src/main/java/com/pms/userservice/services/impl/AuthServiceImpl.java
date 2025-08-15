@@ -5,6 +5,7 @@ import com.pms.userservice.entities.PasswordReset;
 import com.pms.userservice.entities.User;
 import com.pms.userservice.entities.enums.Status;
 import com.pms.userservice.events.PasswordResetRequestedEvent;
+import com.pms.userservice.events.UserSignupEvent;
 import com.pms.userservice.exceptions.InvalidRequestException;
 import com.pms.userservice.exceptions.ResourceAlreadyExist;
 import com.pms.userservice.exceptions.ResourceNotFound;
@@ -42,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordResetRepository passwordResetRepository;
     private final UserEventProducer eventProducer;
 
+
     // Converts DTO to User entity
     private User convertToUserEntity(UserDTO userDTO) {
         return modelMapper.map(userDTO, User.class);
@@ -52,6 +54,18 @@ public class AuthServiceImpl implements AuthService {
         return modelMapper.map(user, UserDTO.class);
     }
 
+    // create UserSignUp Event when a user is created
+    private UserSignupEvent createUserSignupEvent(User user) {
+        return UserSignupEvent.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .commentMentions(user.getCommentMentions())
+                .emailUpdates(user.getEmailUpdates())
+                .bugUpdates(user.getBugUpdates())
+                .subTaskUpdates(user.getSubTaskUpdates())
+                .taskUpdates(user.getTaskUpdates())
+                .build();
+    }
 
     @Override
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) throws InvalidCredentialsException {
@@ -98,7 +112,10 @@ public class AuthServiceImpl implements AuthService {
         toBeCreated.setPassword(hashPass);
 
         // Save user
-        userRepository.save(toBeCreated);
+       User savedUser =  userRepository.save(toBeCreated);
+
+       // event create and sends
+       eventProducer.sendUserSignupEvent(createUserSignupEvent(savedUser));
 
         return ResponseDTO.builder()
                 .message("Signup successful!")
