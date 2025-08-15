@@ -66,10 +66,10 @@ function CreateTaskForm({setCreateOpen}) {
     fetchPolicy: "network-only",
   });
 
-  const [createEpic] = useMutation(CREATE_EPIC, { client: taskClient });
-  const [createStory] = useMutation(CREATE_STORY, { client: taskClient });
-  const [createTask] = useMutation(CREATE_TASK, { client: taskClient });
-  const [createBug] = useMutation(CREATE_BUG, { client: taskClient });
+  const [createEpic] = useMutation(CREATE_EPIC, { client: taskClient,fetchPolicy:"network-only" });
+  const [createStory] = useMutation(CREATE_STORY, { client: taskClient,fetchPolicy:"network-only" });
+  const [createTask] = useMutation(CREATE_TASK, { client: taskClient,fetchPolicy:"network-only" });
+  const [createBug] = useMutation(CREATE_BUG, { client: taskClient,fetchPolicy:"network-only" });
 
   useEffect(() => {
     if (projectData?.findAllProject) setProjects(projectData.findAllProject);
@@ -124,6 +124,7 @@ function CreateTaskForm({setCreateOpen}) {
             epic: basePayload,
             image,
           },
+          fetchPolicy:"network-only"
         });
       } else if (issueType === "Story") {
         response = await createStory({
@@ -134,6 +135,7 @@ function CreateTaskForm({setCreateOpen}) {
             },
             image,
           },
+          fetchPolicy:"network-only"
         });
       } else if (issueType === "Task") {
         response = await createTask({
@@ -145,6 +147,7 @@ function CreateTaskForm({setCreateOpen}) {
             },
             image,
           },
+          fetchPolicy:"network-only"
         });
       } else if (issueType === "Bug") {
 
@@ -159,6 +162,7 @@ function CreateTaskForm({setCreateOpen}) {
             },
             image,
           },
+          fetchPolicy:"network-only"
         });        
       }
 

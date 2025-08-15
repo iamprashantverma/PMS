@@ -3,6 +3,7 @@ import { ChevronDown, UserRoundPlus, Users, Search, Plus, Filter, X } from 'luci
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { GET_ALL_EPICS_BY_PROJECT_ID, GET_TASKS_BY_STATUS_AND_EPIC } from '@/graphql/Queries/task-service';
+import { getUserDetails } from '@/services/UserService';
 import { Link, useParams } from 'react-router-dom';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
 import { useAuth } from '@/context/AuthContext';
@@ -29,7 +30,7 @@ function Board() {
     fetchPolicy: "network-only",
     skip: !projectId,
   });
-  
+ 
   useEffect(() => {
     if (project?.getProject?.memberIds) {
       setMembers(project.getProject.memberIds);
@@ -116,10 +117,13 @@ function Board() {
 
   // Modified TaskCard component with click handler
   const TaskCard = ({ task }) => (
+    
+    
     <div 
       className="bg-white rounded-md shadow-sm border border-gray-200 p-3 cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => handleTaskClick(task)}
     >
+      
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-gray-500">{task.id}</span>
         <div className="flex items-center gap-1">
@@ -134,19 +138,18 @@ function Board() {
           )}
         </div>
       </div>
+
       <h4 className="font-medium text-gray-800 mb-2">{task.title}</h4>
       <p className="text-xs text-gray-500 line-clamp-2 mb-3">{task.description}</p>
       <div className="flex items-center justify-between">
         <div className="flex -space-x-2">
-          {task.assigneeId ? (
-            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">
-              {task.assigneeId.substring(0, 2).toUpperCase()}
-            </div>
-          ) : (
-            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
-              ?
-            </div>
-          )}
+          {task.assignees && task.assignees.length > 0 && (
+          <span className="px-2 py-1 text-xs font-semibold text-white bg-blue-500 rounded-full">
+            {task.assignees.length} {task.assignees.length === 1 ? 'Member' : 'Members'}
+          </span>
+        )}
+
+
         </div>
         {task.dueDate && (
           <span className="text-xs text-gray-500">
@@ -197,16 +200,6 @@ function Board() {
             <h1 className="text-2xl font-bold text-gray-700">
               Board {currentEpic ? `- ${currentEpic.title}` : ''}
             </h1>
-            
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => {/* Add task implementation */}}
-                className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
-              >
-                <Plus size={16} />
-                Add Task
-              </button>
-            </div>
           </div>
         </div>
         
@@ -260,7 +253,8 @@ function Board() {
           
           {/* Team Management */}
           <div className="ml-auto flex items-center gap-3">
-            <button className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+            <button className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors"
+             onClick={() => navigate(`/projects/settings/${projectId}/teams`)}>
               <Users size={16} className="text-gray-700" />
             </button>
             <button 
@@ -297,15 +291,16 @@ function Board() {
             <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ maxHeight: 'calc(100vh - 240px)' }}>
               {tasks.length > 0 ? (
                 tasks.map((task) => (
+                  
                   <TaskCard key={task.id} task={task} />
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center h-32 text-center">
                   <p className="text-gray-500 text-sm mb-2">No tasks in this column</p>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                  {/* <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
                     <Plus size={14} />
                     Add a task
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>

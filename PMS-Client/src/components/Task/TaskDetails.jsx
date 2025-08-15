@@ -90,7 +90,8 @@ function TaskDetails({ task = {}, onClose }) {
       variables: {
         taskId,
         status: newStatus
-      }
+      },
+      fetchPolicy:"network-only"
     });
     setStatusDropdownOpen(false);
   };
@@ -132,6 +133,7 @@ function TaskDetails({ task = {}, onClose }) {
     variables: { epicId: taskData?.epicId },
     client: taskClient,
     skip: !taskData?.epicId,
+    fetchPolicy:"network-only",
     onCompleted: (data) => {
       if (data?.getEpicById) {
         setEpicData(data.getEpicById);
@@ -143,6 +145,7 @@ function TaskDetails({ task = {}, onClose }) {
   const { loading: storyLoading, data: storyQueryData } = useQuery(GET_STORY_BY_ID, {
     variables: { storyId: taskData?.storyId },
     client: taskClient,
+    fetchPolicy:"network-only",
     skip: !taskData?.storyId,
     onCompleted: (data) => {
       if (data?.getStoryById) {

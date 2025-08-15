@@ -16,10 +16,14 @@ function ProjectDropDown() {
   const page = 0;
   const { data, loading, error } = useQuery(FIND_ALL_PROJECT_BY_USER, {
     client: projectClient,
-    variables: { userId, pageNo: page },
-    skip: !userId, 
+    variables: { 
+      userId, 
+      pageNo: page ?? 0 
+    },
+    skip: !userId || page === undefined, 
+    fetchPolicy: "network-only"
   });
-  
+
   if (dropDown !== 'project' || !open) return null;
   
   const containerClasses = `

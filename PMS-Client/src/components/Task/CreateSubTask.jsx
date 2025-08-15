@@ -17,6 +17,7 @@ function CreateSubTask({ taskId, onChange }) {
 
   const [createSubTask, { loading }] = useMutation(CREATE_SUBTASK, {
     client: taskClient,
+    fetchPolicy:"network-only",
     onCompleted: () => {
       toast.success('SubTask created successfully!');
       onChange(true); 

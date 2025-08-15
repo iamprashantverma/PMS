@@ -3,8 +3,10 @@ import { Outlet, Link, useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { useApolloClients } from '@/graphql/Clients/ApolloClientContext';
 import { FIND_PROJECT_BY_ID } from '@/graphql/Queries/project-service';
+import { useAuth } from '@/context/AuthContext';
 
 function ProjectSettings() {
+  const {user} = useAuth();
   const { projectId } = useParams();
   const { projectClient } = useApolloClients();
   const [project, setProject] = useState(null);
@@ -18,6 +20,7 @@ function ProjectSettings() {
     client: projectClient,
     variables: { projectId },
     skip: !projectId,
+    fetchPolicy:"network-only",
   });
 
   useEffect(() => {
@@ -42,6 +45,7 @@ function ProjectSettings() {
     );
   }
 
+
   return (
     <div className="flex flex-col sm:flex-row h-[90vh] bg-gray-50 overflow-hidden">
       {/* Sidebar */}
@@ -54,18 +58,18 @@ function ProjectSettings() {
         </h2>
 
         <nav className="flex flex-row sm:flex-col flex-wrap gap-2 sm:space-y-2 pt-4">
-          <Link
+          { project && user.userId === project.projectCreator && <Link
             to={`/projects/settings/${projectId}`}
             className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-blue-100"
           >
             Details
-          </Link>
-          <Link
+          </Link>}
+         { project && user.userId === project.projectCreator &&  <Link
             to={`notification`}
             className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-blue-100"
           >
             Notifications
-          </Link>
+          </Link>}
           <Link
             to={`teams`}
             className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-blue-100"

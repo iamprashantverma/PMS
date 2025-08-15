@@ -30,6 +30,7 @@ function AllWorks() {
       variables: { userId },
       client: taskClient,
       skip: !userId,
+      fetchPolicy:"network-only",
     }
   );
   

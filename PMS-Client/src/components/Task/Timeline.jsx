@@ -20,6 +20,7 @@ function Timeline() {
   const { loading, error, data } = useQuery(GET_ALL_EPICS_BY_PROJECT_ID, {
     variables: { projectId },
     client: taskClient,
+    fetchPolicy:"network-only",
   });
   
   const toggleEpicExpansion = (epicId) => {

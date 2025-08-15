@@ -14,7 +14,7 @@ function TeamsSettings() {
   const [newMemberId, setNewMemberId] = useState('');
   const [email, setEmail] = useState('');
   const [members, setMembers] = useState([]);
-  const [activeTab, setActiveTab] = useState('id'); // 'id' or 'email'
+  const [activeTab, setActiveTab] = useState('id'); 
   const { accessToken } = useAuth();
   const { projectClient } = useApolloClients();
   
