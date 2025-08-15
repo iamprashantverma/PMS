@@ -170,7 +170,7 @@ function ProfileSettings() {
                 </p>
                 <p className="text-sm text-gray-500 flex items-center justify-center sm:justify-start gap-1">
                   <User className="w-4 h-4" />
-                  <span>ID: {userDetails?.userId?.substring(0, 8)}...</span>
+                  <span>ID: {userDetails?.userId}</span>
                 </p>
               </div>
             </div>

@@ -11,20 +11,25 @@ import {
   HelpCircle,
   Settings,
   ChevronRight,
+  LogOut as LogOutIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ProjectDropDown from "../Project/ProjectDropDown";
 import CreateTaskForm from "./CreateTaskForm";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from 'react-toastify';
 
 function NavBar() {
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showLogOut, setShowLogOut] = useState(false);
 
   const { setDropDown, dropDown, setOpen, open } = useAppContext();
   const dropdownRef = useRef(null);
+  const userDropdownRef = useRef(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const { user } = useAuth();
+  const { user,logout } = useAuth();
 
   const handleDropDownToggle = (menu) => {
     if (dropDown === menu && open) {
@@ -42,17 +47,36 @@ function NavBar() {
     setShowMore(false);
   };
 
+  // Handle user icon click
+  const handleUserIconClick = () => {
+    setShowUserDropdown(!showUserDropdown);
+  };
+
+ const handleLogoutClick = () => {
+  setShowUserDropdown(false);
+  logout()
+};
+
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowMore(false);
       }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
     };
     
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Render logout page if showLogOut is true
+  if (showLogOut) {
+    return <LogOut />;
+  }
 
   return (
     <nav
@@ -170,11 +194,32 @@ function NavBar() {
         </Link>
         
         {user?.id && (
-          <div className="flex items-center space-x-1 sm:space-x-2 bg-gray-100 px-2 py-2 sm:px-3 rounded-full shadow-sm hover:bg-gray-200 transition-all">
-            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-            <span className="text-xs sm:text-sm font-medium text-gray-800 hidden xs:block">
-              {user.name}
-            </span>
+          <div className="relative" ref={userDropdownRef}>
+            <div 
+              className="flex items-center space-x-1 sm:space-x-2 bg-gray-100 px-2 py-2 sm:px-3 rounded-full shadow-sm hover:bg-gray-200 transition-all cursor-pointer"
+              onClick={handleUserIconClick}
+            >
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <span className="text-xs sm:text-sm font-medium text-gray-800 hidden xs:block">
+                {user.name}
+              </span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+            </div>
+            
+            {/* User Dropdown */}
+            {showUserDropdown && (
+              <div className="absolute right-0 top-12 bg-white shadow-lg rounded-md w-40 sm:w-48 z-50 border">
+                <div className="py-1">
+                  <div
+                    className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm cursor-pointer hover:bg-gray-100 text-red-600 hover:text-red-700"
+                    onClick={handleLogoutClick}
+                  >
+                    <LogOutIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <p>Logout</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-// src/graphql/ApolloProvider/MultiApolloContext.js
+
 import { createContext, useContext } from 'react';
 
 export const ApolloClientsContext = createContext(null);

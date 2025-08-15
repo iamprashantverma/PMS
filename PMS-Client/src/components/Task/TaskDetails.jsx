@@ -168,40 +168,54 @@ function TaskDetails({ task = {}, onClose }) {
   }, [taskData?.reporter, accessToken]);
 
   
-  useEffect(() => {
-    const fetchAssigneeDetails = async () => {
-      if (taskData.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
-        try {
-          console.log(taskData.assignees);
-          const assigneePromises = taskData.assignees.map(assigneeId => 
+useEffect(() => {
+  const fetchAssigneeDetails = async () => {
+    if (taskData.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
+      try {
+        const results = await Promise.allSettled(
+          taskData.assignees.map(assigneeId =>
             getUserDetails(assigneeId, accessToken)
-          );
+          )
+        );
 
-          const assigneeData = await Promise.all(assigneePromises);
-          // Extract only the `data` from each response
-          const extractedData = assigneeData.map(response => response.data);
+        // Keep only successful responses
+        const successfulData = results
+          .filter(result => result.status === "fulfilled")
+          .map(result => result.value.data);
 
-          setAssigneeDetails(extractedData);
+        setAssigneeDetails(successfulData);
 
-        } catch (error) {
-          toast.error(error);
-          console.error("Error fetching assignee details:", error);
+        // Optionally log failed IDs
+        const failedIds = results
+          .map((res, index) => res.status === "rejected" ? taskData.assignees[index] : null)
+          .filter(Boolean);
+        if (failedIds.length > 0) {
+          console.warn("Some users not found:", failedIds);
         }
-      } else if (taskData.assignees && !Array.isArray(taskData.assignees)) {
-        // Handle case where assignees is a single ID instead of an array
-        try {
-          const assigneeData = await getUserDetails(taskData.assignees, accessToken);
-          setAssigneeDetails([assigneeData]);
-        } catch (error) {
-          console.error("Error fetching assignee details:", error);
-        }
-      } else {
+
+      } catch (error) {
+        console.error("Unexpected error fetching assignee details:", error);
+      }
+    } 
+    
+    else if (taskData.assignees && !Array.isArray(taskData.assignees)) {
+      try {
+        const data = await getUserDetails(taskData.assignees, accessToken);
+        setAssigneeDetails([data.data]);
+      } catch (error) {
+        console.error("Error fetching single assignee:", error);
         setAssigneeDetails([]);
       }
-    };
+    } 
     
-    fetchAssigneeDetails();
-  }, [taskData.assignees, accessToken]);
+    else {
+      setAssigneeDetails([]);
+    }
+  };
+
+  fetchAssigneeDetails();
+}, [taskData.assignees, accessToken]);
+
 
   const [addComment] = useMutation(ADD_COMMENT, {
     client: taskClient,

@@ -129,6 +129,16 @@ export const sendOtp = async (formData) => {
     throw response?.data?.error;
   }
 };
+export const userLogOut = async () => {
+  try {
+    const { data } = await apiClient.post("/auth/logout");
+    
+    return data;
+  } catch ({ response }) {
+    console.log(response);
+    throw response?.data?.error;
+  }
+};
 
 export const verifyOtp = async (formData) => {
   try {

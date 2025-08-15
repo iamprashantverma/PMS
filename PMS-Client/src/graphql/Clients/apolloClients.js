@@ -45,8 +45,8 @@ export const createTaskClient = (accessToken) => {
       keepAlive: 30000,
       connectionAckTimeout: 10000,
       on: {
-        connected: () => toast.success("Task WebSocket connected!"),
-        closed: () => toast.error("Task WebSocket closed. Reconnecting..."),
+        connected: () => toast.success(" Live Task Feedback ON!"),
+        closed: () => toast.error("Live Task Feedback OFF!. Reconnecting..."),
         error: (err) => toast.error("Task WebSocket error:", err),
       }
     })
@@ -93,8 +93,8 @@ export const createNotificationClient = (accessToken) => {
       keepAlive: 30000,
       connectionAckTimeout: 10000,
       on: {
-        connected: () => toast.success("Notification WebSocket connected!"),
-        closed: () => toast.error("Notification WebSocket closed. Reconnecting..."),
+        connected: () => toast.success("Live Notification ON!"),
+        closed: () => toast.error("Live Notification OFF!. Reconnecting..."),
         error: (err) => toast.error("Notification WebSocket error:", err),
       }
     })
