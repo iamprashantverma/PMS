@@ -3,6 +3,7 @@ package com.pms.Notification_Service.service;
 import com.pms.Notification_Service.dto.UserMessageNotificationDTO;
 import com.pms.TaskService.event.TaskEvent;
 import com.pms.userservice.events.PasswordResetRequestedEvent;
+import com.pms.userservice.events.UserSignupEvent;
 import jakarta.mail.MessagingException;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -31,4 +32,5 @@ public interface NotificationService {
     List<UserMessageNotificationDTO> readAllNotification(String userId);
 
     void sendForgetPasswordOtp(PasswordResetRequestedEvent passwordResetRequestedEvent) throws MessagingException;
+
 }
