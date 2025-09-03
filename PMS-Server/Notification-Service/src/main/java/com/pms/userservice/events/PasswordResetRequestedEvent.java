@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetRequestedEvent {
-    private Long id;
+    private String id;
     private String userId;
     private String email;
     private String name;

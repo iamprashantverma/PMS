@@ -32,6 +32,10 @@ public class EmailService {
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlContent, true);
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

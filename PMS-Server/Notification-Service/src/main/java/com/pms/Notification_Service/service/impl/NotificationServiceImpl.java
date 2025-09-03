@@ -109,7 +109,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         String subject = " Password Reset OTP";
         String template = "forget-password";
-
+        log.info("email ,{} subject ,{} template ,{}  model ,{}",email,subject,template,model);
         emailService.sendEmail(email, subject, template, model);
     }
 
