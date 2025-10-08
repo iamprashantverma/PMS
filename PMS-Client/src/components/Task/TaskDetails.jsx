@@ -441,19 +441,19 @@ useEffect(() => {
           </div>
         </div>
         <div className="task-actions flex items-center gap-3">
-          <button className="icon-btn hover:bg-gray-100 p-1 rounded">
+          {/* <button className="icon-btn hover:bg-gray-100 p-1 rounded">
             <span role="img" aria-label="lock">🔒</span>
-          </button>
-          <button className="icon-btn hover:bg-gray-100 p-1 rounded flex items-center">
+          </button> */}
+          {/* <button className="icon-btn hover:bg-gray-100 p-1 rounded flex items-center">
             <span role="img" aria-label="watch" className="mr-1">👁️</span> 
             <span className="text-xs">1</span>
-          </button>
-          <button className="icon-btn hover:bg-gray-100 p-1 rounded">
+          </button> */}
+          {/* <button className="icon-btn hover:bg-gray-100 p-1 rounded">
             <span role="img" aria-label="like">👍</span>
-          </button>
-          <button className="icon-btn hover:bg-gray-100 p-1 rounded">
+          </button> */}
+          {/* <button className="icon-btn hover:bg-gray-100 p-1 rounded">
             <span role="img" aria-label="share">🔗</span>
-          </button>
+          </button> */}
           <button className="icon-btn hover:bg-gray-100 p-1 rounded">
             <Settings size={16} />
           </button>
@@ -528,7 +528,7 @@ useEffect(() => {
                 <div className="activity-filters flex items-center">
                   <span className="mr-2 text-sm text-gray-600">Show:</span>
                   <div className="tabs flex bg-gray-100 rounded">
-                    {['All', 'Comments', 'History', 'Work log'].map(tab => (
+                    {['All', 'Comments', 'History'].map(tab => (
                       <button 
                         key={tab}
                         className={`px-3 py-1 text-sm transition-all ${activeTab === tab ? 'bg-white rounded shadow text-blue-600' : 'text-gray-600'}`}
@@ -584,12 +584,12 @@ useEffect(() => {
                       </div>
                     </div>
                   </form>
-                  <div className="comment-tips p-2 text-xs text-gray-500 border-t flex justify-between bg-gray-50 rounded-b-lg">
+                  {/* <div className="comment-tips p-2 text-xs text-gray-500 border-t flex justify-between bg-gray-50 rounded-b-lg">
                     <span>Pro tip: press <kbd className="px-1 py-0.5 bg-gray-200 rounded">M</kbd> to comment</span>
                     <button>
                       <ChevronDown size={12} />
                     </button>
-                  </div>
+                  </div> */}
                 </div>
                 
                 <div ref={commentsContainerRef} className="comments-container max-h-96 overflow-y-auto pr-2">
