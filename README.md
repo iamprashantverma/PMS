@@ -1,4 +1,4 @@
-# 📊 Project Manager System
+# Project Manager System
 
 A **microservice-based Project Management System** designed to help teams efficiently manage projects, tasks, and collaboration in real-time. The system supports **modular project management, task tracking, Git integration, notifications**, and visualizations via **Kanban** and **Calendar** views.
 
@@ -21,7 +21,7 @@ Users can **organize projects into modules, epics, stories, and tasks**, assign 
 
 ---
 
-## 🛠 Features
+##  Features
 
 ### User & Project Management
 - Create projects and manage only **project-level details** (Project-Service).  
