@@ -4,7 +4,7 @@ A **microservice-based Project Management System** designed to help teams effici
 
 ---
 
-## 🚀 Overview
+##  Overview
 
 This platform leverages a **modern microservices architecture** with **Dockerized backend services** and asynchronous communication via **Apache Kafka**.  
 
@@ -50,7 +50,7 @@ Users can **organize projects into modules, epics, stories, and tasks**, assign 
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer                 | Technology |
 |-----------------------|------------|
@@ -67,7 +67,7 @@ Users can **organize projects into modules, epics, stories, and tasks**, assign 
 
 ---
 
-## 🏗 Microservices Overview
+## Microservices Overview
 
 | Service Name           | Responsibility |
 |------------------------|----------------|
@@ -82,7 +82,7 @@ Users can **organize projects into modules, epics, stories, and tasks**, assign 
 
 ---
 
-## 📦 Backend Deployment (Dockerized)
+##  Backend Deployment (Dockerized)
 
 All **backend services** are Dockerized and orchestrated via Docker Compose. The **frontend is not yet dockerized**, so it should be run locally with Node.js during development.  
 
